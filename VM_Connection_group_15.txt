@@ -1,0 +1,24 @@
+Username: root
+Password: root
+
+Example on how to access:
+ssh root@<ip_address>
+
+How to change password:
+sudo passwd root
+
+IP addresses:
+172.16.4.84
+172.16.4.85
+172.16.4.86
+
+
+
+
+to connect VM:
+ssh root@172.16.4.84
+
+--> password: root
+
+to connect mongoCLI:
+mongo --port 27020

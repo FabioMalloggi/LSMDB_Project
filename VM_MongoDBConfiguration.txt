@@ -1,0 +1,38 @@
+
+VM's CONFIGURATION:
+
+wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list 
+sudo apt update
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+
+
+
+#Terminal 1
+ssh root@172.16.4.84
+mkdir data 
+mongod --replSet lsmdb --dbpath ~/data --port  27020 --bind_ip localhost,172.16.4.84 --oplogSize 200 
+
+#Terminal 2
+ssh root@172.16.4.85
+mkdir data 
+mongod --replSet lsmdb --dbpath ~/data --port  27020 --bind_ip localhost,172.16.4.85 --oplogSize 200 
+
+#Terminal 3 
+ssh root@172.16.4.86 
+mkdir data 
+mongod --replSet lsmdb --dbpath ~/data --port  27020 --bind_ip localhost,172.16.4.86 --oplogSize 200 
+
+
+#Terminal 4 
+ssh root@172.16.4.99 
+mongo --port 27020 
+rsconf = { 
+_id: "lsmdb",
+members: [
+{_id: 0, host: "172.16.4.84:27020", priority:1}, {_id: 1, host: "172.16.4.85:27020", priority:1}, {_id: 2, host: "172.16.4.86:27020", priority:1}] }; 
+rs.initiate(rsconf);
+
+
+
