@@ -1,4 +1,4 @@
-package dii.utilities;
+package it.unipi.dii.utilities;
 
 import java.io.*;
 
