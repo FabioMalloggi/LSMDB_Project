@@ -25,33 +25,42 @@ public class OperationsCSV {
         }
     }
     public int copyFileByLine() throws IOException{
+        return copyFileByLine(-1,-1);
+    }
+
+    public int copyFileByLine(int firstLineIndex, int lastLineIndex) throws IOException{
         int writeCounter = 0;
+        boolean limitMaxLine = true;
+        if(lastLineIndex == -1)
+            limitMaxLine = false;
 
         String line = bufReader.readLine();
-        while (line != null) {
-
+        int readCounter = 1;
+        while (line != null && readCounter >= firstLineIndex && (readCounter <= lastLineIndex || limitMaxLine == false)) {
             bufWriter.write(line);
             bufWriter.newLine();
             writeCounter++;
             line = bufReader.readLine();
+            readCounter++;
         }
         return writeCounter;
     }
 
-    public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget) throws IOException{
+    public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget){
         int writeCounter = 0;
-
-        String line = bufReader.readLine();
-        while (line != null) {
-            if(containTarget(line, targets, fieldContainingTarget)) {
-                bufWriter.write(line);
-                bufWriter.newLine();
-                writeCounter++;
+        try{
+            String line = bufReader.readLine();
+            while (line != null) {
+                if(containTarget(line, targets, fieldContainingTarget)) {
+                    bufWriter.write(line);
+                    bufWriter.newLine();
+                    writeCounter++;
+                }
+                line = bufReader.readLine();
             }
-            line = bufReader.readLine();
+        }catch(IOException e) {
+            e.printStackTrace();
         }
-
-
         return writeCounter;
     }
 
@@ -68,33 +77,22 @@ public class OperationsCSV {
     }
 
 
-
-
-
-    public int samplinglinesCSV(File fileInput, File fileOutput, int copyLineEveryNLines){
-
-        fileOutput.delete();
-
+    public int samplinglinesCSV(int copyLineEveryNLines){
         int readCounter = 0, writeCounter = 0;
-        try(BufferedReader reader = new BufferedReader(new FileReader(fileInput));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(fileOutput, true)) ){
-
-            String line = reader.readLine();
+        try {
+            String line = bufReader.readLine();
             while (line != null) {
                 readCounter++;
-
-                if(readCounter % copyLineEveryNLines == 0){
-                    writer.write(line);
-                    writer.newLine();
+                if (readCounter % copyLineEveryNLines == 0) {
+                    bufWriter.write(line);
+                    bufWriter.newLine();
                     writeCounter++;
                 }
-                line = reader.readLine();
+                line = bufReader.readLine();
             }
-
-        } catch (IOException e) {
+        }catch(IOException e) {
             e.printStackTrace();
         }
-
         return writeCounter;
     }
 }
