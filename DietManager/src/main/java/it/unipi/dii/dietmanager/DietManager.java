@@ -1,6 +1,9 @@
 package it.unipi.dii.dietmanager;
 
+import java.io.IOException;
+
 public class DietManager {
-    // prova di commento
-    // prova di commento 2
+    public static void main(String[] args) {
+
+    }
 }
