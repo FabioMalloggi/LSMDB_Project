@@ -1,13 +1,15 @@
 package it.unipi.dii.utilities;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OperationsCSV {
     BufferedReader bufReader;
     BufferedWriter bufWriter;
 
-    public void initialize(File fileInput, File fileOutput){
+    public void initializeRW(File fileInput, File fileOutput){
+        fileOutput.delete();
         try{
             bufReader = new BufferedReader(new FileReader(fileInput));
             bufWriter = new BufferedWriter(new FileWriter(fileOutput, true));
@@ -16,10 +18,28 @@ public class OperationsCSV {
             System.exit(1);
         }
     }
-    public void close(){
+
+    public void initializeR(File fileInput){
+        try{
+            bufReader = new BufferedReader(new FileReader(fileInput));
+        }catch(IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public void closeRW(){
         try{
             bufReader.close();
             bufWriter.close();
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeR(){
+        try{
+            bufReader.close();
         }catch(IOException e) {
             e.printStackTrace();
         }
@@ -74,6 +94,38 @@ public class OperationsCSV {
             }
         }
         return targetFound;
+    }
+
+    public String getAttributeValue(int attributeIndex, String record)
+    {
+        String[] attributes = record.split(",");
+        return attributes[attributeIndex-1];
+    }
+
+    public List<String> extractDistinctAttributeList(int fieldContainingTarget){
+        List<String> distinctAttributeList = new ArrayList<>();
+        String attributeValue;
+
+        try
+        {
+            String line = bufReader.readLine();
+            while (line != null)
+            {
+                attributeValue = getAttributeValue(fieldContainingTarget, line);
+                if(!distinctAttributeList.contains(attributeValue))
+                {
+                    // the list doesn't contain item, hence I add it in the list
+                    distinctAttributeList.add(attributeValue);
+                }
+                line = bufReader.readLine();
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return distinctAttributeList;
     }
 
 

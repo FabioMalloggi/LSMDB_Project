@@ -14,40 +14,41 @@ public class DataManager {
                                                                         "1104","1175","1178","1241","1158","1165",
                                                                         "1087","1090","1101","1091","1095");
     private static final int nutrientIDFieldInPer100gFile = 2;
+    private static final int foodIDFieldInPer100gFile = 1;
 
     //private static OperationsCSV opCSV = new OperationsCSV();
 
+    private static void handling_Per100g_CSV(){
+        File fileOriginalFoodPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileOriginalFoodPer100g.csv");
+        File fileTargetNutrientPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetNutrientPer100g.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetNutrientTargetFoodPer100g.csv");
+        File fileOriginalFood = new File("C:/Users/Simone/OneDrive/Desktop/data/fileOriginalFood.csv");
+        File fileTargetFood = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetFood.csv");
+
+        OperationsCSV opCSV = new OperationsCSV();
+
+        opCSV.initializeRW(fileOriginalFoodPer100g,fileTargetNutrientPer100g);
+        opCSV.copyFileByLineContainingTargets(nutrientIDtargets, nutrientIDFieldInPer100gFile);
+        opCSV.closeRW();
+
+        opCSV.initializeRW(fileOriginalFood,fileTargetFood);
+        opCSV.samplinglinesCSV(10);
+        opCSV.closeRW();
+
+        opCSV.initializeR(fileTargetFood);
+        List<String> targetFoods = opCSV.extractDistinctAttributeList(foodIDFieldInPer100gFile);
+        opCSV.closeR();
+
+        opCSV.initializeRW(fileTargetNutrientPer100g,fileTargetNutrientTargetFoodPer100g);
+        opCSV.copyFileByLineContainingTargets(targetFoods, foodIDFieldInPer100gFile);
+        opCSV.closeRW();
+
+    }
     public static void main(String[] args) throws IOException {
             File fileInput = new File(fileNameInput);
             File fileOutput = new File(fileNameOutput);
 
+            handling_Per100g_CSV();
         }
 
-    public void handling_Per100g_CSV(){
-        File file1 = new File("/Per100g_Originale");
-        File file11 = new File("/Per100g_TargetNutrient");
-        File file12 = new File("/Per100g_TargetNutrient_targetFood");
-        File file2 = new File("/Food_Orginale");
-        File file21 = new File("/Food_target");
-
-
-
-        OperationsCSV opCSV1 = new OperationsCSV();
-        OperationsCSV opCSV2 = new OperationsCSV();
-        OperationsCSV opCSV3 = new OperationsCSV();
-
-        opCSV1.initialize(file1,file11);
-        opCSV1.copyFileByLineContainingTargets(nutrientIDtargets, nutrientIDFieldInPer100gFile);
-        opCSV1.close();
-
-        opCSV2.initialize(file2,file21);
-        opCSV2.samplinglinesCSV(10);
-        opCSV2.close();
-
-        opCSV3.initialize(file11,file12);
-        //List<String> targetFoods = TUAFUNZIONE(file21);
-        //opCSV3.copyFileByLineContainingTargets(targetFoods, 1);
-        opCSV3.close();
-
-    }
 }
