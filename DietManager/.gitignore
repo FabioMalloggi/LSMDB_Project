@@ -1,6 +1,8 @@
 ### Java template
 .data/
+.DietManager/data/
 .idea/
+.DietManager/idea/
 
 # Compiled class file
 *.class
