@@ -7,12 +7,13 @@ import java.util.List;
 public class OperationsCSV {
     BufferedReader bufReader;
     BufferedWriter bufWriter;
+    private final int per100gRows = 3614000;
 
     public void initializeRW(File fileInput, File fileOutput){
         fileOutput.delete();
         try{
             bufReader = new BufferedReader(new FileReader(fileInput));
-            bufWriter = new BufferedWriter(new FileWriter(fileOutput, true));
+            bufWriter = new BufferedWriter(new FileWriter(fileOutput));
         }catch(IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -62,21 +63,26 @@ public class OperationsCSV {
             writeCounter++;
             line = bufReader.readLine();
             readCounter++;
+            System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
         }
         return writeCounter;
     }
 
     public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget){
         int writeCounter = 0;
+        float readCounter = 0;
         try{
             String line = bufReader.readLine();
             while (line != null) {
+                System.out.println(line);
                 if(containTarget(line, targets, fieldContainingTarget)) {
                     bufWriter.write(line);
                     bufWriter.newLine();
                     writeCounter++;
                 }
                 line = bufReader.readLine();
+                readCounter++;
+                System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
             }
         }catch(IOException e) {
             e.printStackTrace();
@@ -104,6 +110,7 @@ public class OperationsCSV {
 
     public List<String> extractDistinctAttributeList(int fieldContainingTarget){
         List<String> distinctAttributeList = new ArrayList<>();
+        float readCounter = 0;
         String attributeValue;
 
         try
@@ -118,6 +125,8 @@ public class OperationsCSV {
                     distinctAttributeList.add(attributeValue);
                 }
                 line = bufReader.readLine();
+                readCounter++;
+                System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
             }
         }
         catch(IOException e)

@@ -27,13 +27,17 @@ public class DataManager {
 
         OperationsCSV opCSV = new OperationsCSV();
 
+        // copy only target nutrients
         opCSV.initializeRW(fileOriginalFoodPer100g,fileTargetNutrientPer100g);
         opCSV.copyFileByLineContainingTargets(nutrientIDtargets, nutrientIDFieldInPer100gFile);
         opCSV.closeRW();
 
+        // copy 1 row every k
         opCSV.initializeRW(fileOriginalFood,fileTargetFood);
-        opCSV.samplinglinesCSV(10);
+        opCSV.samplinglinesCSV(35);
         opCSV.closeRW();
+
+
 
         opCSV.initializeR(fileTargetFood);
         List<String> targetFoods = opCSV.extractDistinctAttributeList(foodIDFieldInPer100gFile);
@@ -42,6 +46,7 @@ public class DataManager {
         opCSV.initializeRW(fileTargetNutrientPer100g,fileTargetNutrientTargetFoodPer100g);
         opCSV.copyFileByLineContainingTargets(targetFoods, foodIDFieldInPer100gFile);
         opCSV.closeRW();
+
 
     }
     public static void main(String[] args) throws IOException {
