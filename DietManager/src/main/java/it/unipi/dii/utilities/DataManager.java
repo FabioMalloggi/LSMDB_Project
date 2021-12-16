@@ -19,11 +19,11 @@ public class DataManager {
     //private static OperationsCSV opCSV = new OperationsCSV();
 
     private static void handling_Per100g_CSV(){
-        File fileOriginalFoodPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileOriginalFoodPer100g.csv");
-        File fileTargetNutrientPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetNutrientPer100g.csv");
-        File fileTargetNutrientTargetFoodPer100g = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetNutrientTargetFoodPer100g.csv");
-        File fileOriginalFood = new File("C:/Users/Simone/OneDrive/Desktop/data/fileOriginalFood.csv");
-        File fileTargetFood = new File("C:/Users/Simone/OneDrive/Desktop/data/fileTargetFood.csv");
+        File fileOriginalFoodPer100g = new File("./data/original/Per100g.csv");
+        File fileTargetNutrientPer100g = new File("./data/derived/TargetNutrientPer100g.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
+        File fileOriginalFood = new File("./data/original/Food.csv");
+        File fileTargetFood = new File("./data/derived/TargetFood.csv");
 
         OperationsCSV opCSV = new OperationsCSV();
 
