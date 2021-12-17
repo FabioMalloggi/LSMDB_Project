@@ -117,14 +117,8 @@ public class OperationsCSV {
 
     public boolean containTarget(String line, List<String> targets, int fieldContainingTarget){
         String[] tokens = line.split(",");
-        boolean targetFound = false;
-        for(String target: targets){
-            if(tokens[fieldContainingTarget-1].contains(target)) {
-                targetFound = true;
-                break;
-            }
-        }
-        return targetFound;
+        tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+        return targets.contains(tokens[fieldContainingTarget-1]);
     }
 
     public String getAttributeValue(int attributeIndex, String record)

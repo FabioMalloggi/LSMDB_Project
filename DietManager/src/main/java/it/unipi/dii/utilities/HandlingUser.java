@@ -24,7 +24,10 @@ public class HandlingUser {
             String line = opCSV.bufReader.readLine();
             while (line != null) {
                 tokens = line.split(",");
-                String[] names = tokens[0].split(" ");
+                for(int j = 0; j < tokens.length; j++){
+                    tokens[j] = tokens[j].replace("\"", "");
+                }
+                String[] names = tokens[1].split(" ");
                 String username = "";
                 int i = 0;
                 while(i < names.length){
