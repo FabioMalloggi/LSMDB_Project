@@ -19,8 +19,6 @@ public class Converter
             {
                 tokens = line.split(",");
 
-
-
                 line = bufReader1.readLine();
 
                 bufReader1.close();

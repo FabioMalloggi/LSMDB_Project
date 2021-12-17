@@ -1,5 +1,7 @@
 package it.unipi.dii.utilities;
 
+import it.unipi.dii.entities.FoodHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,10 +36,8 @@ public class DataManager {
 
         // copy 1 row every k
         opCSV.initializeRW(fileOriginalFood,fileTargetFood);
-        opCSV.samplinglinesCSV(35);
+        opCSV.samplinglinesCSV(1000);
         opCSV.closeRW();
-
-
 
         opCSV.initializeR(fileTargetFood);
         List<String> targetFoods = opCSV.extractDistinctAttributeList(foodIDFieldInPer100gFile);
@@ -49,11 +49,23 @@ public class DataManager {
 
 
     }
+
+    public static void createJSON()
+    {
+        File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
+        File fileJSONFoods = new File("./data/derived/JSONFoods");
+        FoodHandler foodHandler = new FoodHandler();
+        
+        foodHandler.createJSONFoodsFile(fileTargetNutrientTargetFoodPer100g, fileTargetNutrients, fileJSONFoods);
+    }
+
     public static void main(String[] args) throws IOException {
             File fileInput = new File(fileNameInput);
             File fileOutput = new File(fileNameOutput);
 
             handling_Per100g_CSV();
+            //createJSON();
         }
 
 }
