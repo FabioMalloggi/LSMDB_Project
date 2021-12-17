@@ -68,6 +68,31 @@ public class OperationsCSV {
         return writeCounter;
     }
 
+
+    public int copyfileByLineWithDistinctValue(int fieldContainingTarget){ //(1)
+        //in this method we copy the first occur for each target attribute values.
+        int writeCounter = 0;
+        List<String> targets = new ArrayList<>();
+        targets.add(""); //for using the already existed functions
+        try{
+            String line = bufReader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                if(!containTarget(line, targets, fieldContainingTarget)) { //if it is not present in the array, is the first occur of that athletes
+                    bufWriter.write(line);
+                    bufWriter.newLine();
+                    writeCounter++;
+                    String[] tokens = line.split(",");
+                    targets.add(tokens[fieldContainingTarget-1]);
+                }
+                line = bufReader.readLine();
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        return writeCounter;
+    }
+
     public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget){
         int writeCounter = 0;
         float readCounter = 0;

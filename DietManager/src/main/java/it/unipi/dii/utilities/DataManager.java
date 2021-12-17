@@ -49,11 +49,41 @@ public class DataManager {
 
 
     }
+
+    private static void handling_athlets_CSV(){
+        /*File fileOriginalFoodPer100g = new File("./data/original/Per100g.csv");
+        File fileTargetNutrientPer100g = new File("./data/derived/TargetNutrientPer100g.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");*/
+        File fileOriginalAthlete = new File("./data/original/athlete.csv");
+        File fileOTargetAthlete = new File("./data/derived/athleteR.csv");
+
+        OperationsCSV opCSV = new OperationsCSV();
+
+        // copy 1 row every k
+        opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
+        opCSV.samplinglinesCSV(10);
+        opCSV.closeRW();
+
+
+
+
+        /*
+        opCSV.initializeR(fileOriginalAthlete);
+        List<String> targetAthletes = opCSV.extractDistinctAttributeList(1);
+        opCSV.closeR();*/
+        /*
+        opCSV.initializeRW(fileTargetNutrientPer100g,fileTargetNutrientTargetFoodPer100g);
+        opCSV.copyFileByLineContainingTargets(targetFoods, foodIDFieldInPer100gFile);
+        opCSV.closeRW();*/
+
+
+    }
     public static void main(String[] args) throws IOException {
             File fileInput = new File(fileNameInput);
             File fileOutput = new File(fileNameOutput);
 
-            handling_Per100g_CSV();
-        }
+            //handling_Per100g_CSV();
+            handling_athlets_CSV();
+    }
 
 }
