@@ -1,7 +1,5 @@
 package it.unipi.dii.utilities;
 
-import it.unipi.dii.entities.FoodHandler;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -56,7 +54,7 @@ public class DataManager {
         File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
         File fileJSONFoods = new File("./data/derived/JSONFoods");
         FoodHandler foodHandler = new FoodHandler();
-        
+
         foodHandler.createJSONFoodsFile(fileTargetNutrientTargetFoodPer100g, fileTargetNutrients, fileJSONFoods);
     }
 

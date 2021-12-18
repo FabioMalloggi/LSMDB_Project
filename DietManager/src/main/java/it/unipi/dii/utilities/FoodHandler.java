@@ -1,4 +1,5 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.utilities;
+import it.unipi.dii.entities.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
