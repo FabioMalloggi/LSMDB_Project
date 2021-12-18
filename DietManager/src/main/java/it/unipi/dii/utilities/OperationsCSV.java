@@ -68,6 +68,55 @@ public class OperationsCSV {
         return writeCounter;
     }
 
+    //to use only if the dataset with redundant attribute value are already sorted (close together)
+    public int copyfileByOrderedLineWithDistinctValue(int fieldContainingTarget){
+        //in this method we copy the first occur for each target attribute values.
+        int writeCounter = 0;
+        String targets = "";
+        try{
+            String line = bufReader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                String[] tokens = line.split(",");
+                tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+                if(!tokens[fieldContainingTarget-1].equals(targets)) { //if the 2 strings are not equal, write the line in the new file
+                    bufWriter.write(line);
+                    bufWriter.newLine();
+                    writeCounter++;
+                    targets = tokens[fieldContainingTarget-1];
+                }
+                line = bufReader.readLine();
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        return writeCounter;
+    }
+
+    //in this method we copy the first occur for each target attribute values which are redundant. (Suggestion: using only if the redundant attribute value are not sorted and put together)
+    public int copyfileByLineWithDistinctValue(int fieldContainingTarget){
+        int writeCounter = 0;
+        List<String> targets = new ArrayList<>();
+        targets.add(""); //for using the already existed functions
+        try{
+            String line = bufReader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                if(!containTarget(line, targets, fieldContainingTarget)) { //if it is not present in the array, is the first occur of that athletes
+                    bufWriter.write(line);
+                    bufWriter.newLine();
+                    writeCounter++;
+                    String[] tokens = line.split(",");
+                    targets.add(tokens[fieldContainingTarget-1]);
+                }
+                line = bufReader.readLine();
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        return writeCounter;
+    }
+
     public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget){
         int writeCounter = 0;
         float readCounter = 0;
@@ -92,14 +141,8 @@ public class OperationsCSV {
 
     public boolean containTarget(String line, List<String> targets, int fieldContainingTarget){
         String[] tokens = line.split(",");
-        boolean targetFound = false;
-        for(String target: targets){
-            if(tokens[fieldContainingTarget-1].contains(target)) {
-                targetFound = true;
-                break;
-            }
-        }
-        return targetFound;
+        tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+        return targets.contains(tokens[fieldContainingTarget-1]);
     }
 
     public String getAttributeValue(int attributeIndex, String record)
@@ -200,6 +243,30 @@ public class OperationsCSV {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    public void replaceCharactersInFile(File fileInput, File fileOutput, char old_character, char new_character)
+    {
+        fileOutput.delete();
+        try{
+            BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
+            BufferedWriter bufWriter = new BufferedWriter(new FileWriter(fileOutput));
+
+            String line = bufReader.readLine();
+
+            while(line != null){
+                bufWriter.write(line.replace(old_character, new_character));
+                bufWriter.newLine();
+                line = bufReader.readLine();
+            }
+
+            bufReader.close();
+            bufWriter.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+
     }
 
 }

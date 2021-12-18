@@ -34,7 +34,7 @@ public class DataManager {
 
         // copy 1 row every k
         opCSV.initializeRW(fileOriginalFood,fileTargetFood);
-        opCSV.samplinglinesCSV(1000);
+        opCSV.samplinglinesCSV(35);
         opCSV.closeRW();
 
         opCSV.initializeR(fileTargetFood);
@@ -48,11 +48,42 @@ public class DataManager {
 
     }
 
+    private static void handling_athlets_CSV(){
+        /*File fileOriginalFoodPer100g = new File("./data/original/Per100g.csv");
+        File fileTargetNutrientPer100g = new File("./data/derived/TargetNutrientPer100g.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");*/
+        File fileOriginalAthlete = new File("./data/original/athlete.csv");
+        File fileOTargetAthlete = new File("./data/derived/athleteR.csv");
+
+        OperationsCSV opCSV = new OperationsCSV();
+
+        /* old version
+        // copy 1 row every k
+        opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
+        opCSV.samplinglinesCSV(10);
+        opCSV.closeRW();*/
+
+        opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
+        opCSV.copyfileByOrderedLineWithDistinctValue(1);
+        opCSV.closeRW();
+    }
+
+    public static void createJSON()
+    {
+        File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
+        File fileJSONFoods = new File("./data/derived/JSONFoods");
+        FoodHandler foodHandler = new FoodHandler();
+
+        foodHandler.createJSONFoodsFile(fileTargetNutrientTargetFoodPer100g, fileTargetNutrients, fileJSONFoods);
+    }
+
     public static void main(String[] args) throws IOException {
             File fileInput = new File(fileNameInput);
             File fileOutput = new File(fileNameOutput);
 
-            handling_Per100g_CSV();
-        }
+            //handling_Per100g_CSV();
+            handling_athlets_CSV();
+    }
 
 }
