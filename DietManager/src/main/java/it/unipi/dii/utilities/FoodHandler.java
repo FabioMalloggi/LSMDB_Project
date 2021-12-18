@@ -1,5 +1,6 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.utilities;
 
+import it.unipi.dii.entities.Nutrient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -13,6 +14,8 @@ public class FoodHandler
     private final int NUTRIENT_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD = 1;
     private final int FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD = 0;
     private final int QUANTITY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD = 2;
+    private final int FOOD_ID_POSITION_IN_TARGET_FOOD = 0;
+    private final int FOOD_NAME_POSITION_IN_TARGET_FOOD = 1;
 
     public Nutrient getNutrient(File fileInput, String targetID)
     {
@@ -53,7 +56,37 @@ public class FoodHandler
         return null;
     }
 
-    public void createJSONFoodsFile(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients, File fileOutput)
+    public String getFoodNameFromFile(File fileInput, String id)
+    {
+        try{
+            BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
+
+            String line = bufReader.readLine();
+            String[] attributes;
+
+            while(line != null){
+                attributes = line.split(",");
+                if(id.equals(attributes[FOOD_ID_POSITION_IN_TARGET_FOOD])){
+                    bufReader.close();
+                    return attributes[FOOD_NAME_POSITION_IN_TARGET_FOOD];
+                }
+
+                line = bufReader.readLine();
+            }
+
+            bufReader.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        // error case
+        return null;
+    }
+
+    public void createJSONFoodsFile(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients,
+                                    File fileInputTargetFood, File fileOutput)
     {
         fileOutput.delete();
 
@@ -87,6 +120,8 @@ public class FoodHandler
             // I initialize the first jsonFood object
             jsonFood = new JSONObject();
             jsonFood.put("id", attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
+            jsonFood.put("name", getFoodNameFromFile(fileInputTargetFood,
+                    attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]));
             jsonNutrients = new JSONArray();
 
             while (line != null)
@@ -124,6 +159,8 @@ public class FoodHandler
                     // food ID is not already present, hence I create new food object
                     jsonFood = new JSONObject();
                     jsonFood.put("id", attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
+                    jsonFood.put("name", getFoodNameFromFile(fileInputTargetFood,
+                                attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]));
 
                     jsonNutrients = new JSONArray();
 

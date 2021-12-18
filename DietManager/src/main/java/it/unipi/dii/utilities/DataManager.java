@@ -1,7 +1,5 @@
 package it.unipi.dii.utilities;
 
-import it.unipi.dii.entities.FoodHandler;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
