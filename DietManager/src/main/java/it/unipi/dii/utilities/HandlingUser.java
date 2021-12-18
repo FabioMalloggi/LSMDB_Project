@@ -59,6 +59,7 @@ public class HandlingUser {
                 user.put("password", "");
                 user.put("name", tokens[1]);
                 user.put("sex", tokens[2]);
+                user.put("age", tokens[3]);
                 user.put("country", tokens[6]);
 
                 if(isNutritionist(counter)){ //nutritionist
