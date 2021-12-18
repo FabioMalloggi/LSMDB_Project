@@ -66,6 +66,11 @@ public class FoodHandler
 
             while(line != null){
                 attributes = line.split(",");
+
+                // I remove the character ' " ' from the attributes value
+                for(int i=0; i<attributes.length; i++)
+                    attributes[i] = attributes[i].replace("\"", "");
+
                 if(id.equals(attributes[FOOD_ID_POSITION_IN_TARGET_FOOD])){
                     bufReader.close();
                     return attributes[FOOD_NAME_POSITION_IN_TARGET_FOOD];
@@ -85,11 +90,9 @@ public class FoodHandler
         return null;
     }
 
-    public void createJSONFoodsFile(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients,
-                                    File fileInputTargetFood, File fileOutput)
+    public JSONObject createJSONFoodsFromFile1(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients,
+                                          File fileInputTargetFood)
     {
-        fileOutput.delete();
-
         String last_id;
         Nutrient row_nutrient;
 
@@ -99,30 +102,17 @@ public class FoodHandler
         JSONObject jsonNutrient;
         JSONObject jsonFood;
         JSONArray jsonNutrients;
-        JSONObject jsonFile = null;
+        JSONObject jsonObject = null;
 
         try
         {
             BufferedReader bufReader = new BufferedReader(new FileReader(fileInputTargetNutrientTargetFood));
-            BufferedWriter bufWriter = new BufferedWriter(new FileWriter(fileOutput));
 
-            //NOTE: I skip first line for the sake of semplicity
-            line = bufReader.readLine();
-            attributes = line.split(",");
-            last_id = attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD];
-
-            // I remove the character ' " ' from the attributes value
-            for(int i=0; i<attributes.length; i++)
-            {
-                attributes[i] = attributes[i].replace("\"", "");
-            }
-
-            // I initialize the first jsonFood object
             jsonFood = new JSONObject();
-            jsonFood.put("id", attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
-            jsonFood.put("name", getFoodNameFromFile(fileInputTargetFood,
-                    attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]));
             jsonNutrients = new JSONArray();
+
+            line = bufReader.readLine();
+            last_id = "";
 
             while (line != null)
             {
@@ -175,18 +165,66 @@ public class FoodHandler
                 line = bufReader.readLine();
             }
 
-            jsonFile = new JSONObject();
-            jsonFile.put("foods", jsonFoods);
-
-            System.out.println(jsonFile.toString());
-            bufWriter.write(jsonFile.toString());
+            jsonObject = new JSONObject();
+            jsonObject.put("foods", jsonFoods);
 
             bufReader.close();
-            bufWriter.close();
-
         }catch(Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
+        return jsonObject;
+    }
+
+    public JSONObject createJSONFoodsFromFile2(File fileInput)
+    {
+        try {
+            BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
+
+            String line = bufReader.readLine();
+            String[] attributes;
+
+            while(line != null){
+                    attributes = line.split(",");
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
+    public static void createJSON()
+    {
+        File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
+        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
+        File fileTargetFood1 = new File("./data/derived/TargetFood.csv");
+        File fileTargetFood2WithCommaSeparators = new File("./data/original/foodsDB2.csv");
+        File fileTargetFood2WithSemicolonSeparators = new File("./data/original/foodsDB2newVersion.csv");
+        File fileJSONFoods = new File("./data/derived/JSONFoods");
+        FoodHandler foodHandler = new FoodHandler();
+        OperationsCSV operationsCSV = new OperationsCSV();
+
+        //JSONObject fileJSON = foodHandler.createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+        //                                                        fileTargetNutrients, fileTargetFood1);
+        operationsCSV.changeFileSeparators(fileTargetFood2WithCommaSeparators, fileTargetFood2WithSemicolonSeparators,
+                                            ',', ';', '"');
+
+        /*fileJSONFoods.delete();
+
+        try {
+            BufferedWriter bufWriter = new BufferedWriter(new FileWriter(fileJSONFoods));
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+*/
+
+    }
+
+    public static void main(String[] args) throws IOException
+    {
+        createJSON();
     }
 }

@@ -156,4 +156,50 @@ public class OperationsCSV {
         }
         return writeCounter;
     }
+
+    public void changeFileSeparators(File original_file, File modified_file, char old_separator,
+                                     char new_separator, char string_delimiter)
+    {
+        modified_file.delete();
+        try{
+            BufferedReader bufReader = new BufferedReader(new FileReader(original_file));
+            BufferedWriter bufWriter = new BufferedWriter(new FileWriter(modified_file));
+
+            boolean inString = false;
+            char[] lineCharacters;
+            String line = bufReader.readLine();
+            while(line != null){
+                lineCharacters = line.toCharArray();
+
+                // I scan all the line, and I substitute "," with ";" only if I'm not in a string
+                for(int i=0; i<line.length(); i++){
+                    // I check if a new string is started
+                    if(!inString && lineCharacters[i] == string_delimiter){
+                        inString = true;
+                        continue;
+                    }
+
+                    // I check if a string is finished
+                    if(inString && lineCharacters[i] == string_delimiter){
+                        inString = false;
+                        continue;
+                    }
+
+                    if(!inString && lineCharacters[i] == old_separator)
+                        lineCharacters[i] = new_separator;
+                }
+                bufWriter.write(lineCharacters);
+                bufWriter.newLine();
+
+                line = bufReader.readLine();
+            }
+
+            bufReader.close();
+            bufWriter.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
 }
