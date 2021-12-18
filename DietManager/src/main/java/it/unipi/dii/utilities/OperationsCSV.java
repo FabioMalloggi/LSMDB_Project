@@ -93,7 +93,7 @@ public class OperationsCSV {
         return writeCounter;
     }
 
-    //in this method we copy the first occur for each target attribute values which are redundat. (Suggestion: using only if the redudant attribute value are not sorted and putted together)
+    //in this method we copy the first occur for each target attribute values which are redundant. (Suggestion: using only if the redundant attribute value are not sorted and put together)
     public int copyfileByLineWithDistinctValue(int fieldContainingTarget){
         int writeCounter = 0;
         List<String> targets = new ArrayList<>();

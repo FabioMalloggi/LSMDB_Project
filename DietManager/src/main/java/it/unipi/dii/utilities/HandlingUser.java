@@ -111,6 +111,5 @@ public class HandlingUser {
 
     public static void main(String[] args) throws  JSONException {
         generatorUser();
-        //stampa();
     }
 }

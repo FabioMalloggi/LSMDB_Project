@@ -57,7 +57,7 @@ public class DataManager {
 
         OperationsCSV opCSV = new OperationsCSV();
 
-        /*
+        /* old version
         // copy 1 row every k
         opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
         opCSV.samplinglinesCSV(10);
