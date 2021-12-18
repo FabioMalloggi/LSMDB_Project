@@ -1,0 +1,55 @@
+package it.unipi.dii.entities;
+
+import org.json.JSONObject;
+
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.*;
+
+public class StandardUser extends User {
+    /*private List<Food> eatenFoods;
+    private List<Integer> quantity;
+    private List<Timestamp> timestamp;*/
+
+    private List<EatenFood> eatenFoods;
+
+    public StandardUser(String Id, String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods) {
+        super(Id, UserName, FullName, Password, Sex, Age, Country);
+        this.eatenFoods = eatenFoods;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject user = new JSONObject();
+        try {
+            //I generate a new user
+
+            user.put("_id", this.getId());
+            user.put("username", this.getUserName());
+            user.put("password", this.getPassoword());
+            user.put("name", this.getFullName());
+            user.put("sex", this.getSex());
+            user.put("age", this.getAge());
+            user.put("country", this.getCountry());
+            user.put("userType", "standardUser");
+            JSONArray eatenFoods = new JSONArray();
+
+            /*JSONObject eatenFood = new JSONObject();
+            eatenFood.put("eatenFoodID", "");
+            eatenFood.put("foodID", "");
+            eatenFood.put("quantity", "");
+            eatenFood.put("timestamp", "");
+            eatenFoods.put(eatenFood);*/
+            user.put("eatenFoods", eatenFoods);
+
+
+        }
+        catch(JSONException ee){
+            ee.printStackTrace();
+        }
+        return user;
+    }
+}
