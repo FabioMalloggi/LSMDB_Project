@@ -57,24 +57,15 @@ public class DataManager {
 
         OperationsCSV opCSV = new OperationsCSV();
 
+        /*
         // copy 1 row every k
         opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
         opCSV.samplinglinesCSV(10);
-        opCSV.closeRW();
-
-
-
-
-        /*
-        opCSV.initializeR(fileOriginalAthlete);
-        List<String> targetAthletes = opCSV.extractDistinctAttributeList(1);
-        opCSV.closeR();*/
-        /*
-        opCSV.initializeRW(fileTargetNutrientPer100g,fileTargetNutrientTargetFoodPer100g);
-        opCSV.copyFileByLineContainingTargets(targetFoods, foodIDFieldInPer100gFile);
         opCSV.closeRW();*/
 
-
+        opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
+        opCSV.copyfileByOrderedLineWithDistinctValue(1);
+        opCSV.closeRW();
     }
 
     public static void createJSON()

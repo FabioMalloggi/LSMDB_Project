@@ -68,9 +68,33 @@ public class OperationsCSV {
         return writeCounter;
     }
 
-
-    public int copyfileByLineWithDistinctValue(int fieldContainingTarget){ //(1)
+    //to use only if the dataset with redundant attribute value are already sorted (close together)
+    public int copyfileByOrderedLineWithDistinctValue(int fieldContainingTarget){
         //in this method we copy the first occur for each target attribute values.
+        int writeCounter = 0;
+        String targets = "";
+        try{
+            String line = bufReader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                String[] tokens = line.split(",");
+                tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+                if(!tokens[fieldContainingTarget-1].equals(targets)) { //if the 2 strings are not equal, write the line in the new file
+                    bufWriter.write(line);
+                    bufWriter.newLine();
+                    writeCounter++;
+                    targets = tokens[fieldContainingTarget-1];
+                }
+                line = bufReader.readLine();
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        return writeCounter;
+    }
+
+    //in this method we copy the first occur for each target attribute values which are redundat. (Suggestion: using only if the redudant attribute value are not sorted and putted together)
+    public int copyfileByLineWithDistinctValue(int fieldContainingTarget){
         int writeCounter = 0;
         List<String> targets = new ArrayList<>();
         targets.add(""); //for using the already existed functions
