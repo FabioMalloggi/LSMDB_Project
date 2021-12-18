@@ -13,7 +13,7 @@ public class HandlingUser {
 
     public static void generatorUser() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/athleteR.csv");
-        File fileAthleteJOSN = new File("./data/derived/athleteRR.json");
+        File fileAthleteJOSN = new File("./data/derived/athleteRR");
 
         JSONObject collection = new JSONObject();
         OperationsCSV opCSV = new OperationsCSV();
@@ -68,14 +68,19 @@ public class HandlingUser {
                 line = opCSV.bufReader.readLine();
             }
             collection.put("users", users);
+
+
         }catch(IOException e) {
             e.printStackTrace();
         }
         try{
+            fileAthleteJOSN.delete();
             bufWriter = new BufferedWriter(new FileWriter(fileAthleteJOSN));
-            bufWriter.write("prova");
-            bufWriter.newLine();
-            //bufWriter.write(collection.toString());
+            //bufWriter.write("prova");
+            bufWriter.write(collection.toString());
+            //bufWriter.newLine();
+            bufWriter.close();
+
         }catch(IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -84,5 +89,6 @@ public class HandlingUser {
 
     public static void main(String[] args) throws  JSONException {
         generatorUser();
+        //stampa();
     }
 }
