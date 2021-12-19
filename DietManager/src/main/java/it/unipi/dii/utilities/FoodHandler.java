@@ -4,7 +4,10 @@ import it.unipi.dii.entities.Nutrient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class FoodHandler
 {
@@ -226,5 +229,13 @@ public class FoodHandler
     public static void main(String[] args) throws IOException
     {
         createJSON();
+
+/*        Food food1 = new Food("123");
+        Nutrient nutrient1 = new Nutrient("Energy", "MG", 19.2);
+        Nutrient nutrient2 = new Nutrient("Protein", "UG", 0.00231);
+        food1.addNutrient(nutrient1);
+        food1.addNutrient(nutrient2);
+        System.out.println(food1.toJSON().toString());
+ */
     }
 }
