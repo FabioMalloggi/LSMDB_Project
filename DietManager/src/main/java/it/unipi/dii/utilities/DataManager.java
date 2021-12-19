@@ -68,16 +68,6 @@ public class DataManager {
         opCSV.closeRW();
     }
 
-    public static void createJSON()
-    {
-        File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
-        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
-        File fileJSONFoods = new File("./data/derived/JSONFoods");
-        FoodHandler foodHandler = new FoodHandler();
-
-        foodHandler.createJSONFoodsFile(fileTargetNutrientTargetFoodPer100g, fileTargetNutrients, fileJSONFoods);
-    }
-
     public static void main(String[] args) throws IOException {
             File fileInput = new File(fileNameInput);
             File fileOutput = new File(fileNameOutput);

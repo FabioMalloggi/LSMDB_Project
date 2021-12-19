@@ -1,5 +1,7 @@
 package it.unipi.dii.entities;
 
+import org.json.JSONObject;
+
 public class Nutrient
 {
     private String name;
@@ -47,5 +49,20 @@ public class Nutrient
     public double getQuantity()
     {
         return quantity;
+    }
+
+    public JSONObject toJSON()
+    {
+        JSONObject jsonNutrient = null;
+        try {
+            jsonNutrient = new JSONObject();
+            jsonNutrient.put("name", name);
+            jsonNutrient.put("unit", unit);
+            jsonNutrient.put("quantity", quantity);
+        }catch(Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return jsonNutrient;
     }
 }
