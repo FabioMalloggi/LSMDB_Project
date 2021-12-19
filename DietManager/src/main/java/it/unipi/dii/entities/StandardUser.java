@@ -2,6 +2,7 @@ package it.unipi.dii.entities;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,8 +26,6 @@ public class StandardUser extends User {
     public JSONObject toJson() {
         JSONObject user = new JSONObject();
         try {
-            //I generate a new user
-
             user.put("_id", this.getId());
             user.put("username", this.getUserName());
             user.put("password", this.getPassoword());
@@ -51,5 +50,34 @@ public class StandardUser extends User {
             ee.printStackTrace();
         }
         return user;
+    }
+
+    public static StandardUser fromJSON(JSONObject userJ){
+        String _id, username, password, fullName, sex, country;
+        int age;
+        StandardUser newUser = null;
+        List<EatenFood> list = new ArrayList<>();
+
+        //first i retrive the attributes values from the JSONObject
+        try{
+            _id = userJ.getString("_id");
+            username = userJ.getString("username");
+            password = userJ.getString("password");
+            fullName = userJ.getString("name");
+            sex = userJ.getString("sex");
+            country = userJ.getString("country");
+            age = userJ.getInt("age");
+
+            JSONArray eatenfoods = userJ.getJSONArray("eatenFoods");
+            for (int i = 0; i < eatenfoods.length(); i++){
+                list.add((EatenFood) eatenfoods.get(i));
+            }
+            //then generate the new object StandardUser
+            newUser = new StandardUser(_id,username, fullName, sex, password, age, country, list);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return  newUser;
     }
 }
