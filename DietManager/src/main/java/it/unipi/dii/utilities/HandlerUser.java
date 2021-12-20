@@ -56,7 +56,7 @@ public class HandlerUser {
 
                 user.put("_id", tokens[0]);
                 user.put("username", username);
-                user.put("password", "");
+                user.put("password", username);
                 user.put("name", tokens[1]);
                 user.put("sex", tokens[2]);
                 user.put("age", tokens[3]);
@@ -64,7 +64,7 @@ public class HandlerUser {
 
                 if(isNutritionist(counter)){ //nutritionist
                     user.put("userType", "nutritionist");
-                    bufWriterNut.write(line);
+                    bufWriterNut.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]);
                     bufWriterNut.newLine();
                     writeNut++;
                 }
@@ -80,7 +80,8 @@ public class HandlerUser {
                     eatenFoods.put(eatenFood);*/
                     user.put("eatenFoods", eatenFoods);
 
-                    bufWriterUser.write(line);
+                    //bufWriterUser.write(line);
+                    bufWriterUser.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]);
                     bufWriterUser.newLine();
                     writeUser++;
                 }
