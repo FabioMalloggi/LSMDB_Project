@@ -3,6 +3,7 @@
 .DietManager/data/
 .idea/
 .DietManager/idea/
+/data/
 
 # Compiled class file
 *.class

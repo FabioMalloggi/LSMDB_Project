@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import it.unipi.dii.entities.*;
 
 public class Food
 {

@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class FoodHandler
+public class HandlerFood
 {
     private final int NUTRIENT_ID_POSITION_IN_TARGET_NUTRIENTS = 0;
     private final int NUTRIENT_NAME_POSITION_IN_TARGET_NUTRIENTS = 1;
@@ -205,7 +205,7 @@ public class FoodHandler
         File fileTargetFood2WithCommaSeparators = new File("./data/original/foodsDB2.csv");
         File fileTargetFood2WithSemicolonSeparators = new File("./data/original/foodsDB2newVersion.csv");
         File fileJSONFoods = new File("./data/derived/JSONFoods");
-        FoodHandler foodHandler = new FoodHandler();
+        HandlerFood foodHandler = new HandlerFood();
         OperationsCSV operationsCSV = new OperationsCSV();
 
         //JSONObject fileJSON = foodHandler.createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,

@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 
-public class HandlingUser {
+public class HandlerUser {
     private static int K = 100;
 
     private static boolean isNutritionist(int counter){
