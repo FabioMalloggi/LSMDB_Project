@@ -12,6 +12,10 @@ public class Nutritionist extends User {
         super(Id, UserName, FullName, Password, Sex, Age, Country);
     }
 
+    public Nutritionist(String id, String username){
+        super(id, username);
+    }
+
     @Override
     public JSONObject toJson() {
         JSONObject user = new JSONObject();

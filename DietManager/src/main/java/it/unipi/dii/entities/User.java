@@ -27,6 +27,11 @@ public abstract class  User {
         this.country = Country;
     }
 
+    public User(String id, String username){
+        this.id = id;
+        this.userName = userName;
+    }
+
     public String getId() {
         return id;
     }

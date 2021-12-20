@@ -1,30 +1,28 @@
 package it.unipi.dii.utilities;
 
-import it.unipi.dii.entities.Diet;
-import it.unipi.dii.entities.User;
+import it.unipi.dii.entities.*;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class HandlerDiet {
 
-    private int DIETS_NUMBER = 2000;
-    private int[] TARGET_NUTRIENT_INDEXES_DB2 = {7, 8, 9, 10, 11, 12, 13, 14, 15,
+    private final int DIETS_NUMBER;
+    private final int[] TARGET_NUTRIENT_INDEXES_DB2 = {7, 8, 9, 10, 11, 12, 13, 14, 15,
             16, 17, 21, 22, 25, 26, 27, 29}; //count from 0
-    private int nutrientNum = TARGET_NUTRIENT_INDEXES_DB2.length;
+    private final int nutrientNum = TARGET_NUTRIENT_INDEXES_DB2.length;
 
-    private String[] nutrients_names =
+    private final String[] nutrients_names =
             {/*0*/"Energy",/*1*/"Protein",/*2*/"Fat",/*3*/"Carb",/*4*/"Sugar",
             /*5*/"Fiber",/*6*/"VitA",/*7*/"VitB6",/*8*/"VitB12",/*9*/"VitC",/*10*/"VitE",
             /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
             /*16*/"Zinc"};
-    private String[] nutrients_units =
+    private final String[] nutrients_units =
             {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
             /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
             /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
@@ -36,13 +34,19 @@ public class HandlerDiet {
 
     private String[] max = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
     private double[] maxDouble = new double[TARGET_NUTRIENT_INDEXES_DB2.length];
-    private double[][] nutrientsMatrix = new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length];
+    private double[][] nutrientsMatrix; // new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length]
 
-    List<User> nutritionistList = new ArrayList<>();
+    List<Nutritionist> nutritionistList = new ArrayList<>();
     private int nutritionistNum = 0;
     private Random r = new Random();
     private List<Diet> dietList = new ArrayList<>();
 
+
+
+    public HandlerDiet(int dietsNumber){
+        DIETS_NUMBER = dietsNumber;
+        nutrientsMatrix = new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length];
+    }
 
     private String[] extractTargetNutrientfromMax(){
         String[] targetLine = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
@@ -86,16 +90,16 @@ public class HandlerDiet {
                 if(0 < nutritionistNum && nutritionistNum >= numMax)
                     break;
                 tokens = line.split(",");
-                //nutritionistList.add(new User(tokens[0],tokens[1]));
+                nutritionistList.add(new Nutritionist(tokens[0],tokens[1]));
                 nutritionistNum++;
+                line = readerNutritionist.readLine();
             }
         }catch(Exception e){
             e.printStackTrace();
         }
     }
 
-    public void dietCreator(int numDiets){
-        DIETS_NUMBER = numDiets;
+    public void dietCreator(){
 
         // generating Random Nutrients
         nutrientsGeneratorByMax();
@@ -103,7 +107,7 @@ public class HandlerDiet {
         // reading Nutritionists from nutritionist.csv
         nutritionistReader(file_nutritionists, DIETS_NUMBER/2); // each nutritionist in average has made 2 diets.
 
-        // generating Diet
+        // generating Diets
         List<Nutrient> nutrientList = new ArrayList<>();
         for(int i=0; i<DIETS_NUMBER; i++) {
 
@@ -118,21 +122,38 @@ public class HandlerDiet {
                 Nutrient newNutrient = new Nutrient(nutrients_names[j],nutrients_units[j],nutrientsMatrix[i][j]);
                 nutrientList.add(newNutrient);
             }
-
             // extracting one Random Nutritionist from List:
-            User dietAuthor = nutritionistList.get(r.nextInt(nutritionistNum));
+            Nutritionist dietAuthor = nutritionistList.get(r.nextInt(nutritionistNum));
 
             dietList.add(new Diet(id,"name", nutrientList,dietAuthor));
             nutrientList.clear();
         }
     }
 
+    public void printDietsToFile(){
+        file_diets.delete();
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file_diets))){
+            for(Diet diet: dietList){
+                writer.write(diet.toJSON().toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printNutritionists(){
+        for(Nutritionist nutritionist: nutritionistList){
+            System.out.println(nutritionist.toJson().toString());
+        }
+    }
 
 
     public static void main(String[] args) {
-
-        HandlerDiet hd = new HandlerDiet();
-        hd.dietCreator(2000);
+        HandlerDiet hd = new HandlerDiet(2000);
+        hd.dietCreator();
+        //hd.printNutritionists();
+        hd.printDietsToFile();
     }
 
 }
