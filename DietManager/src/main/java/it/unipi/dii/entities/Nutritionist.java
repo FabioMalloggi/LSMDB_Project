@@ -19,7 +19,7 @@ public class Nutritionist extends User {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJSON() {
         JSONObject user = new JSONObject();
         try {
             //I generate a new user

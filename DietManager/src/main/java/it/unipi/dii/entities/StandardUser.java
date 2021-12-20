@@ -23,7 +23,7 @@ public class StandardUser extends User {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJSON() {
         JSONObject user = new JSONObject();
         try {
             user.put("_id", this.getId());

@@ -144,7 +144,7 @@ public class HandlerDiet {
 
     public void printNutritionists(){
         for(Nutritionist nutritionist: nutritionists){
-            System.out.println(nutritionist.toJson().toString());
+            System.out.println(nutritionist.toJSON().toString());
         }
     }
 

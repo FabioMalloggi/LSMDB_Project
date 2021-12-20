@@ -88,5 +88,5 @@ public abstract class  User {
         this.passoword = passoword;
     }
 
-    public abstract JSONObject toJson ();
+    public abstract JSONObject toJSON ();
 }
