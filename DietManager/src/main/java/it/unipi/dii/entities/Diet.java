@@ -1,5 +1,6 @@
 package it.unipi.dii.entities;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -26,21 +27,28 @@ public class Diet {
 
     public JSONObject toJSON() {
         JSONObject jsonDiet = new JSONObject();
-        jsonDiet.put("_id",id);
-        jsonDiet.put("name",name);
+        try {
 
-        JSONArray jsonNutrients = new JSONArray();
-        JSONObject jsonNutrient;
-        for(Nutrient nutrient: nutrients){
-            jsonNutrient = nutrient.toJSON();
-            jsonNutrients.put(jsonNutrient);
+            jsonDiet.put("_id", id);
+            jsonDiet.put("name", name);
+
+            JSONArray jsonNutrients = new JSONArray();
+            JSONObject jsonNutrient;
+            for (Nutrient nutrient : nutrients) {
+                jsonNutrient = nutrient.toJSON();
+                jsonNutrients.put(jsonNutrient);
+            }
+            jsonDiet.put("nutrients", jsonNutrients);
+
+            JSONObject jsonNutritionistRed = new JSONObject(); // Reduced Nutritionist information: only _id and username
+            jsonNutritionistRed.put("_id", nutritionist.getId());
+            jsonNutritionistRed.put("username", nutritionist.getUserName());
+            jsonDiet.put("nutritionist", jsonNutritionistRed);
+        }catch(JSONException e){
+            e.printStackTrace();
         }
-        jsonDiet.put("nutrients", jsonNutrients);
 
-        JSONObject jsonNutritionistRed = new JSONObject(); // Reduced Nutritionist information: only _id and username
-        jsonNutritionistRed.put("_id", nutritionist.getId());
-        jsonNutritionistRed.put("username",nutritionist.getUserName());
-        jsonDiet.put("nutritionist",jsonNutritionistRed);
+
         return jsonDiet;
     }
 
