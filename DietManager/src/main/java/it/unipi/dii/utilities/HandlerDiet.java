@@ -1,9 +1,8 @@
 package it.unipi.dii.utilities;
 
 import it.unipi.dii.entities.Diet;
+import it.unipi.dii.entities.Nutrient;
 import it.unipi.dii.entities.User;
-import org.json.JSONArray;
-
 
 import java.io.BufferedReader;
 import java.io.File;

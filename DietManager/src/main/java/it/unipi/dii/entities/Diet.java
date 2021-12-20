@@ -1,9 +1,10 @@
 package it.unipi.dii.entities;
-import it.unipi.dii.utilities.Nutrient;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Diet {
     //}
 
     public static void printDietToFile(File fileOutput, Diet diet) {
-        JSONObject jsonDiet = new JSONObject();
+/*        JSONObject jsonDiet = new JSONObject();
 
         jsonDiet.put("_id",diet.id);
         jsonDiet.put("name",diet.name);
@@ -46,7 +47,7 @@ public class Diet {
         // DA FINIRE.
 
 
-
+*/
 
         JSONObject jsonFile = null;
         try (BufferedWriter bufWriter = new BufferedWriter(new FileWriter(fileOutput, true))) {
