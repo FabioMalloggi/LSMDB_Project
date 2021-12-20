@@ -15,7 +15,7 @@ public class HandlerDiet {
     private final int DIETS_NUMBER;
     private final int[] TARGET_NUTRIENT_INDEXES_DB2 = {7, 8, 9, 10, 11, 12, 13, 14, 15,
             16, 17, 21, 22, 25, 26, 27, 29}; //count from 0
-    private final int nutrientNum = TARGET_NUTRIENT_INDEXES_DB2.length;
+    private final int nutrientNumber = TARGET_NUTRIENT_INDEXES_DB2.length;
 
     private final String[] nutrients_names =
             {/*0*/"Energy",/*1*/"Protein",/*2*/"Fat",/*3*/"Carb",/*4*/"Sugar",
@@ -28,18 +28,18 @@ public class HandlerDiet {
             /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
             /*16*/"MG"};
 
-    private File file_max = new File("data/original/max.csv");
-    private File file_nutritionists = new File("data/derived/nutritionist.csv");
-    private File file_diets = new File("data/derived/diet.csv");
+    private File fileMax = new File("data/original/max.csv");
+    private File fileNutritionists = new File("data/derived/nutritionist.csv");
+    private File fileDiets = new File("data/derived/diet.csv");
 
     private String[] max = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
     private double[] maxDouble = new double[TARGET_NUTRIENT_INDEXES_DB2.length];
     private double[][] nutrientsMatrix; // new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length]
 
-    List<Nutritionist> nutritionistList = new ArrayList<>();
+    List<Nutritionist> nutritionists = new ArrayList<>();
     private int nutritionistNum = 0;
-    private Random r = new Random();
-    private List<Diet> dietList = new ArrayList<>();
+    private Random random = new Random();
+    private List<Diet> diets = new ArrayList<>();
 
 
 
@@ -51,7 +51,7 @@ public class HandlerDiet {
     private String[] extractTargetNutrientfromMax(){
         String[] targetLine = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
 
-        try(BufferedReader readerMax = new BufferedReader(new FileReader(file_max))){
+        try(BufferedReader readerMax = new BufferedReader(new FileReader(fileMax))){
 
             // EXTRACTING TARGET NUTRIENT FROM max.csv
             String line = readerMax.readLine();
@@ -73,9 +73,9 @@ public class HandlerDiet {
             maxDouble[i] = Double.parseDouble(max[i]);
 
         for(int i=0; i<DIETS_NUMBER; i++) {
-            for (int j = 0; j < nutrientNum; j++) {
+            for (int j = 0; j < nutrientNumber; j++) {
 
-                nutrientsMatrix[i][j] = r.nextDouble() * maxDouble[j] * 0.5 + maxDouble[j] * 0.25;
+                nutrientsMatrix[i][j] = random.nextDouble() * maxDouble[j] * 0.5 + maxDouble[j] * 0.25;
             }
         }
     }
@@ -90,7 +90,7 @@ public class HandlerDiet {
                 if(0 < nutritionistNum && nutritionistNum >= numMax)
                     break;
                 tokens = line.split(",");
-                nutritionistList.add(new Nutritionist(tokens[0],tokens[1]));
+                nutritionists.add(new Nutritionist(tokens[0],tokens[1]));
                 nutritionistNum++;
                 line = readerNutritionist.readLine();
             }
@@ -105,7 +105,7 @@ public class HandlerDiet {
         nutrientsGeneratorByMax();
 
         // reading Nutritionists from nutritionist.csv
-        nutritionistReader(file_nutritionists, DIETS_NUMBER/2); // each nutritionist in average has made 2 diets.
+        nutritionistReader(fileNutritionists, DIETS_NUMBER/2); // each nutritionist in average has made 2 diets.
 
         // generating Diets
         List<Nutrient> nutrientList = new ArrayList<>();
@@ -123,17 +123,17 @@ public class HandlerDiet {
                 nutrientList.add(newNutrient);
             }
             // extracting one Random Nutritionist from List:
-            Nutritionist dietAuthor = nutritionistList.get(r.nextInt(nutritionistNum));
+            Nutritionist dietAuthor = nutritionists.get(random.nextInt(nutritionistNum));
 
-            dietList.add(new Diet(id,"name", nutrientList,dietAuthor));
+            diets.add(new Diet(id,"name", nutrientList,dietAuthor));
             nutrientList.clear();
         }
     }
 
     public void printDietsToFile(){
-        file_diets.delete();
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file_diets))){
-            for(Diet diet: dietList){
+        fileDiets.delete();
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDiets))){
+            for(Diet diet: diets){
                 writer.write(diet.toJSON().toString());
                 writer.newLine();
             }
@@ -143,17 +143,17 @@ public class HandlerDiet {
     }
 
     public void printNutritionists(){
-        for(Nutritionist nutritionist: nutritionistList){
+        for(Nutritionist nutritionist: nutritionists){
             System.out.println(nutritionist.toJson().toString());
         }
     }
 
 
     public static void main(String[] args) {
-        HandlerDiet hd = new HandlerDiet(2000);
-        hd.dietCreator();
+        HandlerDiet handlerDiet = new HandlerDiet(2000);
+        handlerDiet.dietCreator();
         //hd.printNutritionists();
-        hd.printDietsToFile();
+        handlerDiet.printDietsToFile();
     }
 
 }
