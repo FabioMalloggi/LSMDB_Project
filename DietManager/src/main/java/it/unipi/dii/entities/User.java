@@ -29,7 +29,7 @@ public abstract class  User {
 
     public User(String id, String username){
         this.id = id;
-        this.userName = userName;
+        this.userName = username;
     }
 
     public String getId() {
