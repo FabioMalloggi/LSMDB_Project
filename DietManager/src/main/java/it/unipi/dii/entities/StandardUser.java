@@ -17,8 +17,8 @@ public class StandardUser extends User {
 
     private List<EatenFood> eatenFoods;
 
-    public StandardUser(String Id, String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods) {
-        super(Id, UserName, FullName, Password, Sex, Age, Country);
+    public StandardUser(String Id/*, String UserName*/, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods) {
+        super(Id/*, UserName*/, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;
     }
 
@@ -27,7 +27,7 @@ public class StandardUser extends User {
         JSONObject user = new JSONObject();
         try {
             user.put("_id", this.getId());
-            user.put("username", this.getUserName());
+            //user.put("username", this.getUserName());
             user.put("password", this.getPassoword());
             user.put("name", this.getFullName());
             user.put("sex", this.getSex());
@@ -60,8 +60,8 @@ public class StandardUser extends User {
 
         //first i retrive the attributes values from the JSONObject
         try{
-            _id = userJ.getString("_id");
-            username = userJ.getString("username");
+            _id = userJ.getString("_id"); //it will have the username value, not more numerical value
+            //username = userJ.getString("username");
             password = userJ.getString("password");
             fullName = userJ.getString("name");
             sex = userJ.getString("sex");
@@ -73,7 +73,7 @@ public class StandardUser extends User {
                 list.add((EatenFood) eatenfoods.get(i));
             }
             //then generate the new object StandardUser
-            newUser = new StandardUser(_id,username, fullName, sex, password, age, country, list);
+            newUser = new StandardUser(_id/*,username*/, fullName, sex, password, age, country, list);
         }
         catch (JSONException e){
             e.printStackTrace();

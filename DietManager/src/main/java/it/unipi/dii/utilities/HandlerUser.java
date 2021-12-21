@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class HandlerUser {
     private static int K = 100;
@@ -19,7 +20,7 @@ public class HandlerUser {
     public static void generatorUser() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/athleteR.csv");
         File fileAthleteJSON = new File("./data/derived/usersJ");
-        File fileUser = new File("./data/derived/users.csv");
+        File fileUser = new File("./data/derived/users1.csv");
         File fileNutritionist = new File("./data/derived/nutritionist.csv");
         JSONObject collection = new JSONObject();
         OperationsCSV opCSV = new OperationsCSV();
@@ -54,8 +55,9 @@ public class HandlerUser {
                 //I generate a new user
                 JSONObject user = new JSONObject();
 
-                user.put("_id", tokens[0]);
-                user.put("username", username);
+                //user.put("_id", tokens[0]); //old decision
+                //user.put("username", username);
+                user.put("_id", username); //new decision
                 user.put("password", username);
                 user.put("name", tokens[1]);
                 user.put("sex", tokens[2]);
@@ -110,8 +112,46 @@ public class HandlerUser {
             System.exit(1);
         }
     }
+    
+    public static void checkIfUsernameIsUnique(File fileInput, File fileOutput){
+        OperationsCSV opCSV = new OperationsCSV();
+        opCSV.initializeRW(fileInput, fileOutput);
+        String line;
+        String[] tokens;
+        int counter = 0;
+        int counterNotDuplicated = 0;
+        ArrayList<String> userNamesChecked = new ArrayList<>();
+        userNamesChecked.add("");
+        try{
+            line = opCSV.bufReader.readLine();
+            while(line != null){
+                tokens = line.split(",");
+                if(userNamesChecked.contains(tokens[1])){ //if the analyzed username is already selected
+                    counter++;
+                    //System.out.println("Duplicate user: "+ tokens[1]+", id: "+tokens[0]);
+                }
+                else {
+                    userNamesChecked.add(tokens[1]);
+                    //writing the distinct usernames in a newFile
+                    opCSV.bufWriter.write(line);
+                    opCSV.bufWriter.newLine();
+
+                    counterNotDuplicated++;
+                }
+                line  = opCSV.bufReader.readLine();
+            }
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("Counter duplicated: "+ counter+"Counter not duplicated: "+counterNotDuplicated);
+        
+    }
 
     public static void main(String[] args) throws  JSONException {
-        generatorUser();
+        //generatorUser();
+        File fileUser = new File("./data/derived/users1.csv");
+        File newFileUser = new File("./data/derived/users.csv");
+        checkIfUsernameIsUnique(fileUser, newFileUser);
     }
 }

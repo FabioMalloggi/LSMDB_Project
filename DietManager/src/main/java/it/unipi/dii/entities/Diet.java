@@ -41,8 +41,8 @@ public class Diet {
             jsonDiet.put("nutrients", jsonNutrients);
 
             JSONObject jsonNutritionistRed = new JSONObject(); // Reduced Nutritionist information: only _id and username
-            jsonNutritionistRed.put("_id", nutritionist.getId());
-            jsonNutritionistRed.put("username", nutritionist.getUserName());
+            jsonNutritionistRed.put("_id", nutritionist.getId()); //is the new id with the username value
+            //jsonNutritionistRed.put("username", nutritionist.getUserName());
             jsonDiet.put("nutritionist", jsonNutritionistRed);
         }catch(JSONException e){
             e.printStackTrace();

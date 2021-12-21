@@ -17,9 +17,9 @@ public abstract class  User {
 
 
     //Abstract ?
-    public User(String Id, String UserName, String FullName, String Password,String Sex, int Age, String Country ){
+    public User(String Id /*, String UserName*/, String FullName, String Password,String Sex, int Age, String Country ){
         this.id = Id;
-        this.userName = UserName;
+        //this.userName = UserName;
         this.fullName = FullName;
         this.passoword = Password;
         this.sex = Sex;
@@ -40,13 +40,13 @@ public abstract class  User {
         this.id = id;
     }
 
-    public String getUserName() {
+    /*public String getUserName() {
         return userName;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
+    }*/
 
     public String getFullName() {
         return fullName;
