@@ -66,7 +66,7 @@ public class HandlerUser {
 
                 if(isNutritionist(counter)){ //nutritionist
                     user.put("userType", "nutritionist");
-                    bufWriterNut.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]);
+                    bufWriterNut.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]); //the password is equal to the username
                     bufWriterNut.newLine();
                     writeNut++;
                 }
@@ -83,7 +83,7 @@ public class HandlerUser {
                     user.put("eatenFoods", eatenFoods);
 
                     //bufWriterUser.write(line);
-                    bufWriterUser.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]);
+                    bufWriterUser.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]); //the password is equal to the username
                     bufWriterUser.newLine();
                     writeUser++;
                 }

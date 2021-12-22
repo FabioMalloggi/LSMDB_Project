@@ -90,7 +90,7 @@ public class HandlerDiet {
                 if(0 < nutritionistNum && nutritionistNum >= numMax)
                     break;
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[0],tokens[1]));
+                nutritionists.add(new Nutritionist(/*tokens[0],*/tokens[1])); //change performed by tommaso 22-12-2021
                 nutritionistNum++;
                 line = readerNutritionist.readLine();
             }
