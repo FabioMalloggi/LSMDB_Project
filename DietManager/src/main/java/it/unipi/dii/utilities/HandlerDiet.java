@@ -1,9 +1,6 @@
 package it.unipi.dii.utilities;
 
 import it.unipi.dii.entities.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 
 import java.io.*;
 import java.util.ArrayList;
@@ -31,13 +28,16 @@ public class HandlerDiet {
     private File fileMax = new File("data/original/max.csv");
     private File fileNutritionists = new File("data/derived/nutritionist.csv");
     private File fileDiets = new File("data/derived/diet.csv");
+    private File fileDietsNames = new File("data/original/dietsNames.txt");
 
     private String[] max = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
     private double[] maxDouble = new double[TARGET_NUTRIENT_INDEXES_DB2.length];
     private double[][] nutrientsMatrix; // new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length]
 
+    private List<String> dietsNames = new ArrayList<>();
+    private int dietsNamesNumber = 0;
     List<Nutritionist> nutritionists = new ArrayList<>();
-    private int nutritionistNum = 0;
+    private int nutritionistNumber = 0;
     private Random random = new Random();
     private List<Diet> diets = new ArrayList<>();
 
@@ -80,18 +80,31 @@ public class HandlerDiet {
         }
     }
 
-    private void nutritionistReader( File inputFile, int numMax ){
-        nutritionistNum = 0;
+    private void dietsNamesReader( File inputFile){
+        dietsNamesNumber = 0;
+        try(BufferedReader readerDietsNames = new BufferedReader(new FileReader(inputFile))){
+            String line = readerDietsNames.readLine();
+            while(line != null){
+                dietsNames.add(line);
+                dietsNamesNumber++;
+                line = readerDietsNames.readLine();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void nutritionistReader(File inputFile){
+        nutritionistNumber = 0;
         try(BufferedReader readerNutritionist = new BufferedReader(new FileReader(inputFile))){
             String line = readerNutritionist.readLine();
             String[] tokens;
 
             while(line != null){
-                if(0 < nutritionistNum && nutritionistNum >= numMax)
-                    break;
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[0],tokens[1]));
-                nutritionistNum++;
+                nutritionists.add(new Nutritionist(tokens[0].replace("\"",""),
+                                                tokens[1].replace("\"","")));
+                nutritionistNumber++;
                 line = readerNutritionist.readLine();
             }
         }catch(Exception e){
@@ -105,7 +118,9 @@ public class HandlerDiet {
         nutrientsGeneratorByMax();
 
         // reading Nutritionists from nutritionist.csv
-        nutritionistReader(fileNutritionists, DIETS_NUMBER/2); // each nutritionist in average has made 2 diets.
+        nutritionistReader(fileNutritionists);
+        // reading Diets' names from dietsNames.txt
+        dietsNamesReader(fileDietsNames);
 
         // generating Diets
         List<Nutrient> nutrientList = new ArrayList<>();
@@ -115,7 +130,9 @@ public class HandlerDiet {
             String id = String.format("%08d",i);
 
             // creating name
-            String name = "";
+            String name = dietsNames.get(i%dietsNamesNumber); //we repeatedly use all diets names until all diets have a name
+                                                                // following the order as they appear in the file:
+                                                                // most of the diets names are used the same number of times
 
             // obtaining Nutrients List for a single Diet from Matrix
             for (int j = 0; j < TARGET_NUTRIENT_INDEXES_DB2.length; j++) {
@@ -123,9 +140,13 @@ public class HandlerDiet {
                 nutrientList.add(newNutrient);
             }
             // extracting one Random Nutritionist from List:
-            Nutritionist dietAuthor = nutritionists.get(random.nextInt(nutritionistNum));
+            Nutritionist dietAuthor = nutritionists.get(random.nextInt(
+                    nutritionistNumber < DIETS_NUMBER/2 ? nutrientNumber : DIETS_NUMBER/2 ));
+                                                        // DIETS_NUMBER/2 => each nutritionist in average has made 2 diets.
+                                                        // nutritionistNumber => in case there are lower than DIETS_NUMBER/2 nutritionist.
 
-            diets.add(new Diet(id,"name", nutrientList,dietAuthor));
+
+            diets.add(new Diet(id,name, nutrientList,dietAuthor));
             nutrientList.clear();
         }
     }

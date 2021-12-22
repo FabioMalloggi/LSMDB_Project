@@ -9,7 +9,6 @@ import java.util.List;
 public class Diet {
     private String id;
     private String name;
-    //private List<String> tags = new ArrayList<>();
     private List<Nutrient> nutrients = new ArrayList<>(); // Per100g
     private Nutritionist nutritionist;
 
@@ -21,13 +20,9 @@ public class Diet {
         this.nutritionist = nutritionist;
     }
 
-    //private void computeTags() {
-    //}
-
     public JSONObject toJSON() {
         JSONObject jsonDiet = new JSONObject();
         try {
-
             jsonDiet.put("_id", id);
             jsonDiet.put("name", name);
 
@@ -39,14 +34,10 @@ public class Diet {
             }
             jsonDiet.put("nutrients", jsonNutrients);
 
-            JSONObject jsonNutritionistRed = new JSONObject(); // Reduced Nutritionist information: only _id and username
-            jsonNutritionistRed.put("_id", nutritionist.getId()); //is the new id with the username value
-            //jsonNutritionistRed.put("username", nutritionist.getUserName());
-            jsonDiet.put("nutritionist", jsonNutritionistRed);
+            jsonDiet.put("nutritionist", nutritionist.getFullName());
         }catch(JSONException e){
             e.printStackTrace();
         }
-
         return jsonDiet;
     }
 
