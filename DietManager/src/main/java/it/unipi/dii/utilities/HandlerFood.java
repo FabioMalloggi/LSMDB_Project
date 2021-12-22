@@ -252,17 +252,26 @@ public class HandlerFood
         File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
         File fileTargetFood1 = new File("./data/derived/TargetFood.csv");
         File fileTargetFood2 = new File("./data/original/foodsDB2Filtered.csv");
+        File fileTargetFood1WithCommaSeparators = new File("./data/derived/foodsDB1WithCommaSeparators.csv");
+        File fileTargetFood1WithSemicolonSeparators = new File("./data/derived/foodsDB1WithSemicolonSeparators.csv");
         File fileTargetFood2WithCommaSeparators = new File("./data/derived/foodsDB2WithCommaSeparators.csv");
         File fileTargetFood2WithSemicolonSeparators = new File("./data/derived/foodsDB2WithSemicolonSeparators.csv");
         File fileJSONFoods = new File("./data/derived/JSONFoods");
+        File fileAttributeFoodNames = new File("./data/derived/foodNames.csv");
+        File fileAttributesRepetitions = new File("./data/derived/attributesRepetitions.csv");
         HandlerFood foodHandler = new HandlerFood();
-/*        OperationsCSV operationsCSV = new OperationsCSV();
-        operationsCSV.replaceCharactersInFile(fileTargetFood2, fileTargetFood2WithCommaSeparators, ';', ' ');
-        operationsCSV.changeFileSeparators(fileTargetFood2WithCommaSeparators, fileTargetFood2WithSemicolonSeparators,
+        OperationsCSV operationsCSV = new OperationsCSV();
+        operationsCSV.replaceCharactersInFile(fileTargetFood1, fileTargetFood1WithCommaSeparators, ';', ' ');
+        operationsCSV.changeFileSeparators(fileTargetFood1WithCommaSeparators, fileTargetFood1WithSemicolonSeparators,
                 ',', ';', '"');
-*/
 
-        JSONArray jsonFoods = foodHandler.createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+        operationsCSV.insertIntoFileAttributesFrom2Files(fileTargetFood1WithSemicolonSeparators, fileTargetFood2WithSemicolonSeparators,
+                1, 2,fileAttributeFoodNames);
+        operationsCSV.writeToFileAttributeRepetitions(fileAttributeFoodNames, fileAttributesRepetitions);
+
+
+
+/*        JSONArray jsonFoods = foodHandler.createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
                                                                 fileTargetNutrients, fileTargetFood1);
         JSONObject jsonFile = foodHandler.insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, jsonFoods);
 
@@ -279,18 +288,12 @@ public class HandlerFood
             e.printStackTrace();
             System.exit(1);
         }
+
+ */
     }
 
     public static void main(String[] args) throws IOException
     {
         createJSON();
-
-/*        Food food1 = new Food("123");
-        Nutrient nutrient1 = new Nutrient("Energy", "MG", 19.2);
-        Nutrient nutrient2 = new Nutrient("Protein", "UG", 0.00231);
-        food1.addNutrient(nutrient1);
-        food1.addNutrient(nutrient2);
-        System.out.println(food1.toJSON().toString());
- */
     }
 }

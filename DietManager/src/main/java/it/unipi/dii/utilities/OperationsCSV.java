@@ -151,6 +151,129 @@ public class OperationsCSV {
         return attributes[attributeIndex-1];
     }
 
+    public void insertIntoFileAttributesFrom2Files(File fileInput1, File fileInput2, int fileInput1AttributeIndex,
+                                                   int fileInput2AttributeIndex, File fileOutput){
+        fileOutput.delete();
+        try{
+            BufferedReader bufferedReader1 = new BufferedReader(new FileReader(fileInput1));
+            BufferedReader bufferedReader2 = new BufferedReader(new FileReader(fileInput2));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileOutput));
+
+            String line = bufferedReader1.readLine();
+            String[] attributes;
+
+            while(line != null){
+                attributes = line.split(";");
+
+                bufferedWriter.write(attributes[fileInput1AttributeIndex]);
+                bufferedWriter.newLine();
+
+                line = bufferedReader1.readLine();
+            }
+            bufferedReader1.close();
+
+            line = bufferedReader2.readLine();
+            while(line != null){
+                attributes = line.split(";");
+
+                bufferedWriter.write(attributes[fileInput2AttributeIndex]);
+                bufferedWriter.newLine();
+
+                line = bufferedReader2.readLine();
+            }
+            bufferedReader2.close();
+            bufferedWriter.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public int getFileRowsNumber(File fileInput){
+        int rowsCounter = 0;
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileInput));
+
+            String line = bufferedReader.readLine();
+
+            while(line != null){
+                rowsCounter++;
+                line = bufferedReader.readLine();
+            }
+
+            bufferedReader.close();
+
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return rowsCounter;
+    }
+
+    public String[] getAttributeValuesArrayFromFile(File fileInput){
+        String[] attributeValues = new String[getFileRowsNumber(fileInput)];
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileInput));
+
+            int attributeValuesIndex = 0;
+            String line = bufferedReader.readLine();
+
+            while(line != null){
+               attributeValues[attributeValuesIndex++] = line;
+               line = bufferedReader.readLine();
+            }
+
+            bufferedReader.close();
+
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return attributeValues;
+    }
+
+    public int writeToFileAttributeRepetitions(File fileInput, File fileOutput){
+        int attributeRepetitionsCounter = 0;
+        int specificAttributeRepetitionCounter;
+        String[] attributeValues = getAttributeValuesArrayFromFile(fileInput);
+
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileInput));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileOutput));
+
+            String line = bufferedReader.readLine();
+
+            while(line != null){
+                specificAttributeRepetitionCounter = 0;
+                for(String attributeValue: attributeValues){
+                    if(attributeValue.equals(line)){
+                        // the first time the attribute is matched with itself
+                        if(specificAttributeRepetitionCounter >= 1){
+                            bufferedWriter.write(line);
+                            bufferedWriter.newLine();
+                        }
+                        specificAttributeRepetitionCounter++;
+                        attributeRepetitionsCounter++;
+                    }
+                }
+                // I decrease counter value by 1 because there will be a match between an attribute value and itself
+                attributeRepetitionsCounter--;
+
+                line = bufferedReader.readLine();
+            }
+
+            bufferedReader.close();
+            bufferedWriter.close();
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return attributeRepetitionsCounter;
+    }
+
     public List<String> extractDistinctAttributeList(int fieldContainingTarget){
         List<String> distinctAttributeList = new ArrayList<>();
         float readCounter = 0;
