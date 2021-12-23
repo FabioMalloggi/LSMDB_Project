@@ -16,6 +16,7 @@ public class HandlerFood
     private final int QUANTITY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD = 2;
     private final int FOOD_ID_POSITION_IN_TARGET_FOOD = 0;
     private final int FOOD_NAME_POSITION_IN_TARGET_FOOD = 1;
+    //private final int FOOD_CATEGORY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD;
     private final int FOOD_NAME_POSITION_IN_FOOD_DB2 = 2;
     private final int FOOD_ID_POSITION_IN_FOOD_DB2 = 0;
     private final int[] TARGET_NUTRIENT_INDEXES_DB2 = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 22, 25, 26, 27, 29};
@@ -29,6 +30,25 @@ public class HandlerFood
                     /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
+
+    File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
+    File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
+    File fileTargetFood1 = new File("./data/derived/TargetFood.csv");
+    File fileTargetFood2 = new File("./data/original/foodsDB2Filtered.csv");
+    File fileTargetFood1WithCommaSeparators = new File("./data/derived/foodsDB1WithCommaSeparators.csv");
+    File fileTargetFood1WithSemicolonSeparators = new File("./data/derived/foodsDB1WithSemicolonSeparators.csv");
+    File fileTargetFood2WithCommaSeparators = new File("./data/derived/foodsDB2WithCommaSeparators.csv");
+    File fileTargetFood2WithSemicolonSeparators = new File("./data/derived/foodsDB2WithSemicolonSeparators.csv");
+    File fileJSONFoods = new File("./data/derived/JSONFoods");
+    File fileAttributeFoodNames = new File("./data/derived/foodNames.csv");
+    File fileAttributesRepetitions = new File("./data/derived/attributesRepetitions.csv");
+    OperationsCSV operationsCSV;
+
+    public HandlerFood(){
+        operationsCSV = new OperationsCSV();
+    }
+
+
 
     public Nutrient getNutrient(File fileInput, String targetID)
     {
@@ -103,11 +123,12 @@ public class HandlerFood
         return null;
     }
 
-    public JSONArray createJSONFoodsFromFile1(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients,
+    public JSONArray createJSONFoodsFromFile1(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients, File fileInputAttributesToDrop,
                                           File fileInputTargetFood)
     {
         String last_id;
         Nutrient row_nutrient;
+        Boolean toDrop = false;
 
         JSONArray jsonFoods = new JSONArray();
         String line;
@@ -115,6 +136,9 @@ public class HandlerFood
         JSONObject jsonNutrient;
         JSONObject jsonFood;
         JSONArray jsonNutrients;
+
+        // I get repeated food names array
+        String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
         try
         {
@@ -129,6 +153,20 @@ public class HandlerFood
             while (line != null)
             {
                 attributes = line.split(",");
+
+                // I check if I have to drop the line
+                for(int i=0; i<repeatedFoodNames.length; i++){
+                    if(repeatedFoodNames[i].equals(attributes[FOOD_ID_POSITION_IN_TARGET_FOOD])){
+                        toDrop = true;
+                        break;
+                    }
+                }
+
+                if(toDrop){
+                    toDrop = false;
+                    line = bufReader.readLine();
+                    continue;
+                }
 
                 // I remove the character ' " ' from the attributes value
                 for(int i=0; i<attributes.length; i++)
@@ -160,9 +198,9 @@ public class HandlerFood
 
                     // food ID is not already present, hence I create new food object
                     jsonFood = new JSONObject();
-                    jsonFood.put("id", attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
-                    jsonFood.put("name", getFoodNameFromFile(fileInputTargetFood,
+                    jsonFood.put("_id", getFoodNameFromFile(fileInputTargetFood,
                                 attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]));
+                    //jsonFood.put("category", attributes[FOOD_CATEGORY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
 
                     jsonNutrients = new JSONArray();
 
@@ -185,9 +223,11 @@ public class HandlerFood
         return jsonFoods;
     }
 
-    public JSONObject insertJSONFoodsFromFile2(File fileInput, JSONArray jsonFoods)
+    public JSONObject insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
     {
         JSONObject jsonFile = new JSONObject();
+        String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
+
         try {
             BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
             JSONArray jsonNutrients;
@@ -196,6 +236,7 @@ public class HandlerFood
             String[] attributes;
 
             String line = bufReader.readLine();
+            boolean toDrop = false;
 
             // I skip the header line
             line = bufReader.readLine();
@@ -209,6 +250,21 @@ public class HandlerFood
                     line = bufReader.readLine();
                     continue;
                 }
+
+                // I check if I have to drop the line
+                for(int i=0; i<repeatedFoodNames.length; i++){
+                    if(repeatedFoodNames[i].equals(attributes[FOOD_ID_POSITION_IN_FOOD_DB2])){
+                        toDrop = true;
+                        break;
+                    }
+                }
+
+                if(toDrop){
+                    toDrop = false;
+                    line = bufReader.readLine();
+                    continue;
+                }
+
 
                 // I remove the character ' " ' from the attributes value
                 for(int i=0; i<attributes.length; i++)
@@ -246,34 +302,23 @@ public class HandlerFood
         return jsonFile;
     }
 
-    public static void createJSON()
-    {
-        File fileTargetNutrients = new File("./data/original/nutrients_target.csv");
-        File fileTargetNutrientTargetFoodPer100g = new File("./data/derived/TargetNutrientTargetFoodPer100g.csv");
-        File fileTargetFood1 = new File("./data/derived/TargetFood.csv");
-        File fileTargetFood2 = new File("./data/original/foodsDB2Filtered.csv");
-        File fileTargetFood1WithCommaSeparators = new File("./data/derived/foodsDB1WithCommaSeparators.csv");
-        File fileTargetFood1WithSemicolonSeparators = new File("./data/derived/foodsDB1WithSemicolonSeparators.csv");
-        File fileTargetFood2WithCommaSeparators = new File("./data/derived/foodsDB2WithCommaSeparators.csv");
-        File fileTargetFood2WithSemicolonSeparators = new File("./data/derived/foodsDB2WithSemicolonSeparators.csv");
-        File fileJSONFoods = new File("./data/derived/JSONFoods");
-        File fileAttributeFoodNames = new File("./data/derived/foodNames.csv");
-        File fileAttributesRepetitions = new File("./data/derived/attributesRepetitions.csv");
-        HandlerFood foodHandler = new HandlerFood();
-        OperationsCSV operationsCSV = new OperationsCSV();
+    public void createInputFile(){
+        // I delete ';' in original file
         operationsCSV.replaceCharactersInFile(fileTargetFood1, fileTargetFood1WithCommaSeparators, ';', ' ');
+
         operationsCSV.changeFileSeparators(fileTargetFood1WithCommaSeparators, fileTargetFood1WithSemicolonSeparators,
                 ',', ';', '"');
 
         operationsCSV.insertIntoFileAttributesFrom2Files(fileTargetFood1WithSemicolonSeparators, fileTargetFood2WithSemicolonSeparators,
-                1, 2,fileAttributeFoodNames);
-        operationsCSV.writeToFileAttributeRepetitions(fileAttributeFoodNames, fileAttributesRepetitions);
+                                                0, 1, 0, 2, fileAttributeFoodNames);
+        System.out.println(operationsCSV.writeToFileAttributeRepetitions(fileAttributeFoodNames, fileAttributesRepetitions));
+    }
 
-
-
-/*        JSONArray jsonFoods = foodHandler.createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
-                                                                fileTargetNutrients, fileTargetFood1);
-        JSONObject jsonFile = foodHandler.insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, jsonFoods);
+    public void createJSON()
+    {
+        JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+                                                                fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1);
+        JSONObject jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
         System.out.println(jsonFile.toString());
         fileJSONFoods.delete();
@@ -288,12 +333,12 @@ public class HandlerFood
             e.printStackTrace();
             System.exit(1);
         }
-
- */
     }
 
     public static void main(String[] args) throws IOException
     {
-        createJSON();
+        HandlerFood handlerFood = new HandlerFood();
+        //handlerFood.createInputFile();
+        handlerFood.createJSON();
     }
 }

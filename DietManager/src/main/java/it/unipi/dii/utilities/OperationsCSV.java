@@ -64,7 +64,6 @@ public class OperationsCSV {
             writeCounter++;
             line = bufReader.readLine();
             readCounter++;
-            System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
         }
         closeRW();
         return writeCounter;
@@ -133,7 +132,6 @@ public class OperationsCSV {
                 }
                 line = bufReader.readLine();
                 readCounter++;
-                System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
             }
         }catch(IOException e) {
             e.printStackTrace();
@@ -153,8 +151,8 @@ public class OperationsCSV {
         return attributes[attributeIndex-1];
     }
 
-    public void insertIntoFileAttributesFrom2Files(File fileInput1, File fileInput2, int fileInput1AttributeIndex,
-                                                   int fileInput2AttributeIndex, File fileOutput){
+    public void insertIntoFileAttributesFrom2Files(File fileInput1, File fileInput2, int fileInput1IDIndex, int fileInput1NameIndex,
+                                                   int fileInput2IDIndex, int fileInput2NameIndex, File fileOutput){
         fileOutput.delete();
         try{
             BufferedReader bufferedReader1 = new BufferedReader(new FileReader(fileInput1));
@@ -167,7 +165,7 @@ public class OperationsCSV {
             while(line != null){
                 attributes = line.split(";");
 
-                bufferedWriter.write(attributes[fileInput1AttributeIndex]);
+                bufferedWriter.write(attributes[fileInput1IDIndex] + ";" + attributes[fileInput1NameIndex]);
                 bufferedWriter.newLine();
 
                 line = bufferedReader1.readLine();
@@ -178,7 +176,7 @@ public class OperationsCSV {
             while(line != null){
                 attributes = line.split(";");
 
-                bufferedWriter.write(attributes[fileInput2AttributeIndex]);
+                bufferedWriter.write(attributes[fileInput2IDIndex] + ";" + attributes[fileInput2NameIndex]);
                 bufferedWriter.newLine();
 
                 line = bufferedReader2.readLine();
@@ -246,14 +244,18 @@ public class OperationsCSV {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileOutput));
 
             String line = bufferedReader.readLine();
+            String[] lineAttributeValues;
+            String[] arrayAttributeValues;
 
             while(line != null){
                 specificAttributeRepetitionCounter = 0;
+                lineAttributeValues = line.split(";");
                 for(String attributeValue: attributeValues){
-                    if(attributeValue.equals(line)){
+                    arrayAttributeValues = attributeValue.split(";");
+                    if(lineAttributeValues[1].equals(arrayAttributeValues[1])){
                         // the first time the attribute is matched with itself
                         if(specificAttributeRepetitionCounter >= 1){
-                            bufferedWriter.write(line);
+                            bufferedWriter.write(lineAttributeValues[0]);
                             bufferedWriter.newLine();
                         }
                         specificAttributeRepetitionCounter++;
@@ -294,7 +296,6 @@ public class OperationsCSV {
                 }
                 line = bufReader.readLine();
                 readCounter++;
-                System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
             }
         }
         catch(IOException e)
