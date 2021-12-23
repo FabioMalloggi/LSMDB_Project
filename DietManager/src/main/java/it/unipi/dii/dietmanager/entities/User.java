@@ -3,7 +3,6 @@ package it.unipi.dii.dietmanager.entities;
 import org.json.JSONObject;
 
 public abstract class  User {
-    //private String id;
     private String username;
     private String fullName;
     private String password;
@@ -11,12 +10,7 @@ public abstract class  User {
     private int age;
     private String country;
 
-    //private List<Food> eatenFoods; //quantity? timestamp ?
-
-
-    //Abstract ?
     public User(String UserName, String FullName, String Password,String Sex, int Age, String Country ){
-        //this.id = Id;
         this.username = UserName;
         this.fullName = FullName;
         this.password = Password;
@@ -25,19 +19,9 @@ public abstract class  User {
         this.country = Country;
     }
 
-    public User(/*String id,*/ String username){
-        //this.id = id;
+    public User( String username){
         this.username = username;
     }
-
-    /* new change 22-12-2021
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }*/
 
     public String getUsername() {
         return username;

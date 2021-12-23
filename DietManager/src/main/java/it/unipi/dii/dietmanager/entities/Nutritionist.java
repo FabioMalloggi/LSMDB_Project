@@ -8,7 +8,7 @@ import java.util.List;
 public class Nutritionist extends User {
     private List<Diet> diets;
     public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country, List<Diet> Diets) {
-        super(Id/*, UserName*/, FullName, Password, Sex, Age, Country);
+        super(Id, FullName, Password, Sex, Age, Country);
         this.diets = Diets;
     }
 
@@ -52,7 +52,7 @@ public class Nutritionist extends User {
             age = userJ.getInt("age");
 
             //then generate the new object Nutritionist
-            newNut = new Nutritionist(/*_id,*/username, fullName, sex, password, age, country, null);
+            newNut = new Nutritionist(username, fullName, sex, password, age, country, null);
         }
         catch (JSONException e){
             e.printStackTrace();

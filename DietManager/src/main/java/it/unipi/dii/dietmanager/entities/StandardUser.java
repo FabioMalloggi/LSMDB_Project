@@ -33,7 +33,6 @@ public class StandardUser extends User {
         JSONObject user = new JSONObject();
         try {
             user.put("_id", this.getUsername()); // new change
-            //user.put("username", this.getUserName());
             user.put("password", this.getPassword());
             user.put("name", this.getFullName());
             user.put("sex", this.getSex());
@@ -66,8 +65,7 @@ public class StandardUser extends User {
 
         //first i retrive the attributes values from the JSONObject
         try{
-            username = userJ.getString("_id"); //it will have the username value, not more numerical value
-            //username = userJ.getString("username");
+            username = userJ.getString("_id");
             password = userJ.getString("password");
             fullName = userJ.getString("name");
             sex = userJ.getString("sex");
@@ -79,7 +77,7 @@ public class StandardUser extends User {
                 list.add((EatenFood) eatenfoods.get(i));
             }
             //then generate the new object StandardUser
-            newUser = new StandardUser(/*_id,*/username, fullName, sex, password, age, country, list);
+            newUser = new StandardUser(username, fullName, sex, password, age, country, list);
         }
         catch (JSONException e){
             e.printStackTrace();

@@ -4,6 +4,9 @@ import java.io.IOException;
 
 public class DietManager {
     public static void main(String[] args) {
+        boolean notFinish = true;
+        while(notFinish){
 
+        }
     }
 }
