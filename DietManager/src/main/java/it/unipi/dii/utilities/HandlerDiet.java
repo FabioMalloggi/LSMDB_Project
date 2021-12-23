@@ -1,6 +1,7 @@
 package it.unipi.dii.utilities;
 
-import it.unipi.dii.entities.*;
+import it.unipi.dii.dietmanager.entities.*;
+import org.json.JSONArray;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -153,10 +154,11 @@ public class HandlerDiet {
     public void printDietsToFile(){
         fileDietsjson.delete();
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDietsjson))){
+            JSONArray jsondietsArray = new JSONArray();
             for(Diet diet: diets){
-                writer.write(diet.toJSON().toString());
-                writer.newLine();
+                jsondietsArray.put(diet.toJSON());
             }
+            writer.write(jsondietsArray.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,11 +1,10 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.dietmanager.entities;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import it.unipi.dii.entities.*;
 
 public class Food
 {

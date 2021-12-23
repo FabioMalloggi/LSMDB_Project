@@ -1,6 +1,5 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.dietmanager.entities;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

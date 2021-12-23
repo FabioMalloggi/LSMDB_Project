@@ -1,4 +1,4 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.dietmanager.entities;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +34,7 @@ public class Diet {
             }
             jsonDiet.put("nutrients", jsonNutrients);
 
-            jsonDiet.put("nutritionist", nutritionist.getFullName());
+            jsonDiet.put("nutritionist", nutritionist.getUsername());
         }catch(JSONException e){
             e.printStackTrace();
         }

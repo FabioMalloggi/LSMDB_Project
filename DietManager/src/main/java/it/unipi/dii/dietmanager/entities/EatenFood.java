@@ -1,4 +1,4 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.dietmanager.entities;
 
 import java.sql.Timestamp;
 

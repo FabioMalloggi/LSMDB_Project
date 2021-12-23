@@ -1,4 +1,4 @@
-package it.unipi.dii.entities;
+package it.unipi.dii.dietmanager.entities;
 
 import org.json.JSONObject;
 
