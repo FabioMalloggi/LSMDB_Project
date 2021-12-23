@@ -45,11 +45,12 @@ public class OperationsCSV {
             e.printStackTrace();
         }
     }
-    public int copyFileByLine() throws IOException{
-        return copyFileByLine(-1,-1);
+    public int copyFileByLine(File fileInput, File fileOutput) throws IOException{
+        return copyFileByLine(fileInput, fileOutput,-1,-1);
     }
 
-    public int copyFileByLine(int firstLineIndex, int lastLineIndex) throws IOException{
+    public int copyFileByLine(File fileInput, File fileOutput, int firstLineIndex, int lastLineIndex) throws IOException{
+        initializeRW(fileInput, fileOutput);
         int writeCounter = 0;
         boolean limitMaxLine = true;
         if(lastLineIndex == -1)
@@ -65,6 +66,7 @@ public class OperationsCSV {
             readCounter++;
             System.out.println("Progress: " + (readCounter/per100gRows)*100 + "%");
         }
+        closeRW();
         return writeCounter;
     }
 

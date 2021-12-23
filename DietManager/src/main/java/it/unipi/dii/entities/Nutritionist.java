@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Nutritionist extends User {
     private List<Diet> diets;
-    public Nutritionist(String Id/*, String UserName*/, String FullName, String Sex, String Password, int Age, String Country, List<Diet> Diets) {
+    public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country, List<Diet> Diets) {
         super(Id/*, UserName*/, FullName, Password, Sex, Age, Country);
         this.diets = Diets;
     }
 
-    public Nutritionist (/*String id,*/ String username){
-        super(/*id, */username);
+    public Nutritionist (String username){
+        super(username);
     }
 
     @Override
@@ -23,7 +23,6 @@ public class Nutritionist extends User {
             //I generate a new user
 
             user.put("_id", this.getUsername());
-            //user.put("username", this.getUserName());
             user.put("password", this.getPassword());
             user.put("name", this.getFullName());
             user.put("sex", this.getSex());
