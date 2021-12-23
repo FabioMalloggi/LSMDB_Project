@@ -102,7 +102,7 @@ public class HandlerDiet {
 
             while(line != null){
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[0].replace("\"",""),
+                nutritionists.add(new Nutritionist(/*tokens[0].replace("\"",""),*/
                                                 tokens[1].replace("\"","")));
                 nutritionistNumber++;
                 line = readerNutritionist.readLine();
