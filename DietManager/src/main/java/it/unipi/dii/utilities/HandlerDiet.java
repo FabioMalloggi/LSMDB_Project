@@ -27,7 +27,7 @@ public class HandlerDiet {
 
     private File fileMax = new File("data/original/max.csv");
     private File fileNutritionists = new File("data/derived/nutritionist.csv");
-    private File fileDiets = new File("data/derived/diet.csv");
+    private File fileDietsjson = new File("data/json/diet.json");
     private File fileDietsNames = new File("data/original/dietsNames.txt");
 
     private String[] max = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
@@ -102,8 +102,7 @@ public class HandlerDiet {
 
             while(line != null){
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[0].replace("\"",""),
-                                                tokens[1].replace("\"","")));
+                nutritionists.add(new Nutritionist(tokens[1].replace("\"","")));
                 nutritionistNumber++;
                 line = readerNutritionist.readLine();
             }
@@ -152,8 +151,8 @@ public class HandlerDiet {
     }
 
     public void printDietsToFile(){
-        fileDiets.delete();
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDiets))){
+        fileDietsjson.delete();
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDietsjson))){
             for(Diet diet: diets){
                 writer.write(diet.toJSON().toString());
                 writer.newLine();
