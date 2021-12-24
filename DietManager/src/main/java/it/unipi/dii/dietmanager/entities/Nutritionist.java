@@ -7,6 +7,13 @@ import java.util.List;
 
 public class Nutritionist extends User {
     private List<Diet> diets;
+
+    //this first constructor should be used during the registration when the SU does not have the list of EatenFood yet
+    public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country) {
+        super(Id, FullName, Password, Sex, Age, Country);
+        this.diets = null;
+    }
+
     public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country, List<Diet> Diets) {
         super(Id, FullName, Password, Sex, Age, Country);
         this.diets = Diets;
