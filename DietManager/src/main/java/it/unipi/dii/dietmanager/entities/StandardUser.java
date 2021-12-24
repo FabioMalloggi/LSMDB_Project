@@ -14,6 +14,14 @@ public class StandardUser extends User {
     private Diet currentDiet;
     private Date currentDietStartDate;
 
+    //this first constructor should be used during the registration when the SU does not have the list of EatenFood yet
+    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
+        super(UserName, FullName, Password, Sex, Age, Country);
+        this.eatenFoods = null;
+        this.currentDietStartDate = null;
+        this.currentDiet = null;
+    }
+
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;
