@@ -4,6 +4,11 @@ import java.util.Scanner;
 
 public class CLI {
     public Scanner scan;
+
+    public CLI() {
+        this.scan = new Scanner(System.in);
+    }
+
     //public LogicManager controller; //<-- se lo definisco qui sarà u oggetto diverso rispetto a quello che definirò nel controller
     public String startWelcomeMenu(){
         String input;
