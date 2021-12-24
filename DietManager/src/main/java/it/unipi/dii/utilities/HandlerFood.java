@@ -1,6 +1,6 @@
 package it.unipi.dii.utilities;
 
-import it.unipi.dii.entities.Nutrient;
+import it.unipi.dii.dietmanager.entities.Nutrient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
