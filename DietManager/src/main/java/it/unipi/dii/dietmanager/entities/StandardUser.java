@@ -1,12 +1,12 @@
 package it.unipi.dii.dietmanager.entities;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 public class StandardUser extends User {
 
@@ -26,6 +26,10 @@ public class StandardUser extends User {
         this.eatenFoods = eatenFoods;
         this.currentDiet = currentDiet;
         this.currentDietStartDate = currentDietStartDate;
+    }
+
+    public StandardUser(String username){
+        super(username);
     }
 
     @Override

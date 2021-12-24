@@ -20,6 +20,28 @@ public class Diet {
         this.nutritionist = nutritionist;
     }
 
+    public Diet(String id, String name, Nutritionist nutritionist) {
+        this.id = id;
+        this.name = name;
+        this.nutritionist = nutritionist;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Nutrient> getNutrients() {
+        return nutrients;
+    }
+
+    public Nutritionist getNutritionist() {
+        return nutritionist;
+    }
+
     public JSONObject toJSON() {
         JSONObject jsonDiet = new JSONObject();
         try {
