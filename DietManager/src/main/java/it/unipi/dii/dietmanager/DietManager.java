@@ -11,6 +11,7 @@ public class DietManager {
         boolean step1 = false; //used in the Registration and Sign in Step
         boolean chekUserNotExist =false; //used to check if the username digitized is already existed, if it is, the user must insert a new user
         boolean step2 = false; //used in the rest of applicaiton
+        boolean isLogged = false; //it has the same task of step1 var
         String username;
         String tmp = "";
         String[] signIn;
@@ -20,14 +21,28 @@ public class DietManager {
             //first setp: Sign in or Register
             while (step1 != true) {
                 tmp = cli.startWelcomeMenu();
-                if (!tmp.equals("R") && !tmp.equals("S")) //fare qualcosa
+                if (!tmp.equals("R") && !tmp.equals("S") &&!tmp.equals("end")) //fare qualcosa
                     System.out.println("fare qualcosa con eccezione");
+
+                else if(tmp.equals("end")) { //only during this window the user can end/close the application
+                    notFinish = false;
+                    break;
+                }
+
                 else step1 = true;
             }
 
-            step1 = false;
+            /**
+             * it is not necessary this if because in the 2 while for login/regi it cannot enter because tmp = end and in the while(isLogged) it doen enter that's because isLogged is still false
+             if(!notFinish)
+             break;
+             */
+
+
+            //step1 = false; old
+
             //second step A: sign in
-            while (step1 != true && tmp.equals("S")) {
+            while (isLogged == false && tmp.equals("S")) {
 
                 signIn = cli.startSignInSubmission();
                 //check if signIn[0] and signIn[1] is present or not in DB --> call the signIn(username, password) method of LogicalManagement
@@ -35,6 +50,7 @@ public class DietManager {
 
                 //if is all right, step = true; else remains false
 
+                isLogged = true;
 
 
                 //to test
@@ -43,10 +59,12 @@ public class DietManager {
             }
 
 
+            //step1 = false; old
+
             //second step B: register, the currentUser is still null. With this check(currentUser == null) we do not need to use further variable in th previous while condition
-            step1 = false;
-            while(step1 != true && tmp.equals("R")){
+            while(isLogged== false && tmp.equals("R")){
                 String[] newRegister = new String[7];
+                chekUserNotExist = false;
                 while(chekUserNotExist != true) {
                     newRegister[0] = cli.startUsernameSubmission();
                     //check if signIn[0] is present or not in DB --> call the lookUpUserByUsername method of LogicalManagement
@@ -67,29 +85,149 @@ public class DietManager {
                 if(newRegister[6].equals("SU")){
                     //the attribute user of LogicalManagement  = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
                     System.out.println("StandardUSer correttamente generato!");
+                    isLogged = true;
                 }
 
                 else if(newRegister[6].equals("N")){
                     //the attribute user of LogicalManagement  = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
-                    System.out.println("StandardUSer correttamente generato!");
+                    System.out.println("Nutritionist correttamente generato!");
+                    isLogged = true;
                 }
 
                 //else{ ...is the same
                 else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) { //fare qualcosa
                     System.out.print("fare qualcosa con eccezione");
+
                 }
 
                 //to test
                 System.out.println("username: "+newRegister[0]+", password: "+newRegister[1]+", fullName: "+newRegister[2]+", Age: "+newRegister[3]+", Sex: "+newRegister[4]+", Country: "+newRegister[5]+", UserType: "+newRegister[6]);
-                step1 = true;
+                //step1 = true; old
             }
 
-            step2 = false;
-            while (step2 !=true){
+
+            //after the registration or sign-in
+
+            //step2 = false;old
+            while (isLogged == true){ //step2 != true
+                String helpType;
+                String choose;
+                String[] tokens;
                 //help menu
+
+                //*** The real code when is all done ***
+                //helpType = cli.helpMenu(lM.currentUser.getUserName());
+
+
+
+                // to test
+                helpType = cli.helpMenu("tommasoNocchi");
+                if(helpType.equals("help food")){
+                    choose = cli.helpFood("Administrator");
+                    tokens = choose.split(" ");
+
+                    if(tokens[0].equals("find") && tokens[1].equals("-f")){
+                        System.out.println("-> search food by name");
+                    }
+
+                    else if(tokens[0].equals("find") && tokens[1].equals("-ef")){
+                        if(tokens[2].equals("-personal")) {
+                            System.out.println("-> lookup your eaten foods list");
+                        }
+                        else {
+                            System.out.println("-> lookup most eaten food by category");
+                        }
+                    }
+
+                    else if(tokens[0].equals("add") && tokens[1].equals("-ef")){
+                        System.out.println("-> add food to your eaten foods list");
+                    }
+
+                    else if(tokens[0].equals("rm") && tokens[1].equals("-ef")){
+                        System.out.println("-> remove eaten food from your eaten foods list");
+                    }
+
+                    /** *****MANCA gli if per le operazioni degli amministratori*****/
+
+                    else{
+                        System.out.println("Eccezione");
+                    }
+                }
+
+                else if(helpType.equals("help diet")){
+                    choose = cli.helpDiet("Nutritionist");
+                    tokens = choose.split(" ");
+
+                    if(tokens[0].equals("check")){
+                        System.out.println("checking...");
+                    }
+
+                    else if(tokens[0].equals("follow")){
+                        System.out.println("start to follow, ID:" + tokens[1]);
+                    }
+
+                    else if(tokens[0].equals("stop")){
+                        System.out.println("stopped a diet, ID:" + tokens[1]);
+                    }
+
+                    else if(tokens[0].equals("find") && tokens[1].equals("-d")){
+                        if(tokens[2].equals("-id")){
+                            System.out.println("-> search diet by ID");
+                        }
+                        else if(tokens[2].equals("-name")){
+                            System.out.println("-> search diets by names");
+                        }
+                        else if(tokens[2].equals("-nut")){
+                            System.out.println("-> search diets by Nutritionist username");
+                        }
+                        else if(tokens[2].equals("-mf")){
+                            System.out.println("-> search most currently followed diet");
+                        }
+                        else if(tokens[2].equals("-mp")){
+                            System.out.println("-> search most popular diet");
+                        }
+                        else if(tokens[2].equals("-mc")){
+                            System.out.println("-> search most completed diet");
+                        }
+                        else if(tokens[2].equals("-r")){
+                            System.out.println("-> lookup recommended diet");
+                        }
+                        else if(tokens[2].equals("-mfnut")){
+                            System.out.println("-> search most followed diet by Nutritionist username");
+                        }
+                        else if(tokens[2].equals("-c")){
+                            System.out.println("-> lookup your current diet");
+                        }
+
+                    }
+
+                    else if(tokens[0].equals("find") && tokens[1].equals("-npn")){
+                        System.out.println("-> lookup most suggested nutrient for each nutritionist");
+                    }
+
+                    /** *****MANCA gli if per le operazioni dei nutrizionisti*****/
+
+                    else{
+                        System.out.println("Eccezione");
+                    }
+                }
+
+                else if(helpType.equals("help user")){
+                    cli.helpUser("Administrator");
+                }
+
+                else if(helpType.equals("exit")){
+                    isLogged = false;
+                    step1 = false;
+                }
+
+                //error
+                else{
+                    System.out.println("Eccezione o avvismo di sbagliato comando");
+                }
             }
 
-            break;
+            //break; used at the beginning of the implementation. but now it is unuseful because we can shut down the application during the welcome menu
         }
     }
 }

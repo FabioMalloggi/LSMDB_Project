@@ -1,6 +1,9 @@
 package it.unipi.dii.dietmanager.entities;
 
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CLI {
     public Scanner scan;
@@ -16,7 +19,7 @@ public class CLI {
                 "==> Type \"S\" for Sign-in\n" +
                 "==> Type \"R\" for Register");
         System.out.print("> ");
-        input = scan.next();
+        input = scan.nextLine();
         /* alreay done in controller
         if(!input.equals("R") && !input.equals("S")) //fare qualcosa
             System.out.print("fare qualcosa con eccezione");
@@ -30,11 +33,11 @@ public class CLI {
         System.out.println("=======> Sign In:\n" +
                 "==> insert username:");
         System.out.print("> ");
-        input[0] = scan.next();
+        input[0] = scan.nextLine();
         System.out.println("");
         System.out.println("==> insert password:");
         System.out.print("> ");
-        input[1] = scan.next();
+        input[1] = scan.nextLine();
 
         /*il check lo faccio qui in CLI o ritorno intanto le due stringhe al Controller e poi
         //controller.signIn(username, password);*/
@@ -105,5 +108,95 @@ public class CLI {
         return input;
     }
 
+    public String helpMenu(String username){
+        String helpType;
+        //String ret = "";
+        //List<String> helpType;
+        System.out.println("=======> Welcome "+username+"\n" +
+                "=======> help\n" +
+                "help food\t\t-> retrieve help commands on foods\n" +
+                "help diet\t\t-> retrieve help commands on diets\n" +
+                "help user\t\t-> retrieve help commands on users ");
+        System.out.print("> ");
+        /*
+        scan = scan.useDelimiter(" ");
+        helpType = scan.tokens().collect(Collectors.toList());
+        for(String s : helpType){
+            ret = ret+s;
+        }
+        scan = scan.reset();*/
+        helpType = scan.nextLine();
+        return helpType;
+    }
 
+    public String helpFood (String typeOfuser /*better if passed an object User*/ ){
+        String choose;
+        System.out.println("====> help food\n" +
+                "find -f \"foodName\"\t\t-> search food by name\n" +
+                "find -ef \"category\"\t\t-> lookup most eaten food by category\n" +
+                "find -ef -personal\t\t-> lookup your eaten foods list\n" +
+                "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
+                "rm -ef \t\"eatenFoodID\"\t\t-> remove eaten food from your eaten foods list\n");
+
+        if(typeOfuser.equals("Administrator")){
+            System.out.println("===> commands for administrators \n" +
+                    "add -f \"newFoodName\"\t-> add food to catalog " +
+                    "rmF -f \"foodName\"\t-> remove food from catalog");
+        }
+
+        System.out.print("> ");
+        choose = scan.nextLine();
+        return choose;
+
+    }
+
+    /*
+    public String[] menuInsertNutrient(){
+
+    }*/
+
+    public String helpDiet(String typeOfuser /*better if passed an object User*/ ) {
+        String choose;
+        System.out.println("====> help diet\n" +
+                "find -d -id \"dietID\"\t-> search diet by ID\n" +
+                "find -d -name \"dietName\"\t-> search diets by names\n" +
+                "find -d -nut\"username\" \t-> search diets by Nutritionist username\n" +
+                "find -d -mf\t\t\t\t-> search most currently followed diet\n" +
+                "find -d -mp\t\t\t\t-> search most popular diet\n" +
+                "find -d -mc\t\t\t\t-> search most completed diet\n" +
+                "find -d -r\t\t\t\t-> lookup recommended diet\n" +
+                "find -d -mfnut \"username\" \t-> search most followed diet by Nutritionist username\n" +
+                "follow \"dietID\"\t-> follow a diet\n" +
+                "stop \"dietID\"\t-> stop a diet\n" +
+                "check\t\t\t\t\t-> check your current diet against your eaten foods\n" +
+                "find -d -c\t\t\t\t-> lookup your current diet\n" +
+                "find -npn\t\t\t\t-> lookup most suggested nutrient for each nutritionist");
+
+        if(typeOfuser.equals("Nutritionist")){
+            System.out.println("==> commands for nutritionist\n" +
+                    "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
+                    "rm -d \"dietID\"\t\t\t-> remove your diet");
+        }
+
+        System.out.print("> ");
+        choose = scan.nextLine();
+        return choose;
+    }
+
+    public String helpUser(String typeOfuser /*better if passed an object User*/ ) {
+        String choose;
+        System.out.println("==> help user\n" +
+                "find -u -u \"username\"\t\t\t-> search user by username\n" +
+                "find -u -c \"country\"\t\t\t-> search user by country\n" +
+                "find -u -mpn\t\t\t\t-> lookup most popular nutritionist");
+
+        if(typeOfuser.equals("Administrator")){
+            System.out.println("===> commands for administrators \n" +
+                    "rm -u \"username\"\t\t\t-> remove user by username");
+        }
+
+        System.out.print("> ");
+        choose = scan.nextLine();
+        return choose;
+    }
 }
