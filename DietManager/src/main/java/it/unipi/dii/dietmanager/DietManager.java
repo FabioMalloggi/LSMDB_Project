@@ -122,38 +122,70 @@ public class DietManager {
 
                 // to test
                 helpType = cli.helpMenu("tommasoNocchi");
+
+                //helpFood
                 if(helpType.equals("help food")){
                     choose = cli.helpFood("Administrator");
                     tokens = choose.split(" ");
 
-                    if(tokens[0].equals("find") && tokens[1].equals("-f")){
-                        System.out.println("-> search food by name");
-                    }
-
-                    else if(tokens[0].equals("find") && tokens[1].equals("-ef")){
-                        if(tokens[2].equals("-personal")) {
-                            System.out.println("-> lookup your eaten foods list");
+                    if(tokens.length >= 3){ //each possibile operation in this menu has 3 parameters
+                        if(tokens[0].equals("find") && tokens[1].equals("-f")){
+                            System.out.println("-> search food by name");
                         }
-                        else {
-                            System.out.println("-> lookup most eaten food by category");
+
+                        else if(tokens[0].equals("find") && tokens[1].equals("-ef")){
+                            if(tokens[2].equals("-personal")) {
+                                System.out.println("-> lookup your eaten foods list");
+                            }
+                            else {
+                                System.out.println("-> lookup most eaten food by category");
+                            }
                         }
-                    }
 
-                    else if(tokens[0].equals("add") && tokens[1].equals("-ef")){
-                        System.out.println("-> add food to your eaten foods list");
-                    }
+                        else if(tokens[0].equals("add") && tokens[1].equals("-ef")){
+                            System.out.println("-> add food to your eaten foods list");
+                        }
 
-                    else if(tokens[0].equals("rm") && tokens[1].equals("-ef")){
-                        System.out.println("-> remove eaten food from your eaten foods list");
-                    }
+                        else if(tokens[0].equals("rm") && tokens[1].equals("-ef")){
+                            System.out.println("-> remove eaten food from your eaten foods list");
+                        }
 
-                    /** *****MANCA gli if per le operazioni degli amministratori*****/
+                        /** *****MANCA gli if per le operazioni degli amministratori*****/
+                        //if(lm.currentUser instanceof Administrator){
+
+                        //}
+
+                        //queste due else if andranno all' if commentato qui sopra.
+                        else if(tokens[0].equals("add") && tokens[1].equals("-f")){
+                            String[] chooseNutrients;
+                            System.out.println("-> add food to catalog");
+                            chooseNutrients = cli.menuInsertNutrient(); //work
+
+                            //to test menuNut //work
+                            String result = "";
+                            for(String s: chooseNutrients){
+                                result += "nutrient "+s;
+                            }
+                            System.out.println("result menuNutrient: "+result);
+
+                            //create a List of Nutrients with the chooseNutrients[] values
+                            //create a food object;
+                            //call addFood(food Food)
+                        }
+
+                        else if(tokens[0].equals("rm") && tokens[1].equals("-f")){
+                            System.out.println("-> remove food from catalog");
+                            //call addFood(name)
+                        }
+
+                    }
 
                     else{
-                        System.out.println("Eccezione");
+                        System.out.println("Eccezione: insufficient parameters");
                     }
                 }
 
+                //helpDiet
                 else if(helpType.equals("help diet")){
                     choose = cli.helpDiet("Nutritionist");
                     tokens = choose.split(" ");
@@ -212,8 +244,31 @@ public class DietManager {
                     }
                 }
 
+                //helpUser
                 else if(helpType.equals("help user")){
-                    cli.helpUser("Administrator");
+                    choose = cli.helpUser("Administrator");
+                    tokens = choose.split(" ");
+
+                    if(tokens.length >= 3){
+                        if(tokens[0].equals("find") && tokens[1].equals("-u")){
+                            if(tokens[2].equals("-u") && tokens.length == 4){
+                                System.out.println("-> search user by username");
+                            }
+                            else if(tokens[2].equals("-c") && tokens.length == 4){
+                                System.out.println("-> search user by country");
+                            }
+                            else if(tokens[2].equals("-mpn")){
+                                System.out.println("-> lookup most popular nutritionist");
+                            }
+                        }
+
+                        /** *****MANCA gli if per le operazioni degli amministratori*****/
+                    }
+
+
+                    else {
+                        System.out.println("Eccezione: insufficient parameters");
+                    }
                 }
 
                 else if(helpType.equals("exit")){

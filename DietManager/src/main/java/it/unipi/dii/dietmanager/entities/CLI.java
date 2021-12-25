@@ -199,4 +199,81 @@ public class CLI {
         choose = scan.nextLine();
         return choose;
     }
+
+    public String[] menuInsertNutrient(){
+        String[] nutrientValues = new String[17];
+        //0
+        System.out.println("==> 0) insert Energy (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[0] = scan.nextLine();
+        //1
+        System.out.println("==> 1) insert Protein (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[1] = scan.nextLine();
+        //2
+        System.out.println("==> 2) insert Fat (g in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[2] = scan.nextLine();
+        //3
+        System.out.println("==> 3) insert Carbohydrate (g in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[3] = scan.nextLine();
+
+        //4
+        System.out.println("==> 4) insert Sugar (g in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[4] = scan.nextLine();
+        //5
+        System.out.println("==> 5) insert Fiber (g in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[5] = scan.nextLine();
+        //6
+        System.out.println("==> 6) insert Vitamin A (mcg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[6] = scan.nextLine();
+        //7
+        System.out.println("==> 7) insert Vitamin B6 (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[7] = scan.nextLine();
+
+        //8
+        System.out.println("==> 8) insert Vitamin B12 (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[8] = scan.nextLine();
+        //9
+        System.out.println("==> 9) insert Vitamin C (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[9] = scan.nextLine();
+        //10
+        System.out.println("==> 10) insert Vitamin E (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[10] = scan.nextLine();
+        //11
+        System.out.println("==> 11) insert Thiamine (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[11] = scan.nextLine();
+
+        //12
+        System.out.println("==> 12) insert Calcium (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[12] = scan.nextLine();
+        //13
+        System.out.println("==> 13) insert Magnesium (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[13] = scan.nextLine();
+        //14
+        System.out.println("==> 14) insert Manganese (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[14] = scan.nextLine();
+        //15
+        System.out.println("==> 15) insert Phosphor (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[15] = scan.nextLine();
+        //16
+        System.out.println("==> 16) insert Zinc (mg in 100g of food):");
+        System.out.print("> ");
+        nutrientValues[16] = scan.nextLine();
+
+        return nutrientValues;
+    }
 }
