@@ -223,6 +223,26 @@ public class Neo4j implements AutoCloseable
         return mostFollowedDietID;
     }
 
+    public String lookUpMostFollowedDietByNutritionist(Nutritionist nutritionist){
+        String mostFollowedDietID = null;
+        try ( Session session = driver.session() )
+        {
+            mostFollowedDietID = session.readTransaction((TransactionWork<String>) tx -> {
+                Result result = tx.run( "MATCH (nutritionist: Nutritionist)-[:PROVIDES]->(diet: Diet) " +
+                                        "WHERE nutritionist.username = $username " +
+                                        "RETURN diet.id AS ID ORDER BY diet.followersCount DESC LIMIT 1",
+                                        parameters("username", nutritionist.getUsername()));
+                if(result.hasNext())
+                    return result.next().get("ID").asString();
+                return null;
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return mostFollowedDietID;
+    }
+
     public String lookUpMostSuccededDiet(){
         String mostSuccededDietID = null;
         try ( Session session = driver.session() )
@@ -243,7 +263,8 @@ public class Neo4j implements AutoCloseable
         try ( Session session = driver.session() )
         {
             mostPopularDietID = session.readTransaction((TransactionWork<String>) tx -> {
-                Result result = tx.run( "MATCH (diet: Diet) RETURN diet.id AS ID ORDER BY diet.succededCount+diet.followersCount DESC LIMIT 1");
+                Result result = tx.run( "MATCH (diet: Diet) RETURN diet.id AS ID " +
+                        "ORDER BY diet.succededCount+diet.followersCount DESC LIMIT 1");
                 return result.next().get("ID").asString();
             });
         }catch(Exception e){
@@ -253,11 +274,68 @@ public class Neo4j implements AutoCloseable
         return mostPopularDietID;
     }
 
+    public String lookUpMostPopularNutritionist(){
+        String mostPopularNutritionistUsername = null;
+        try ( Session session = driver.session() )
+        {
+            mostPopularNutritionistUsername = session.readTransaction((TransactionWork<String>) tx -> {
+                Result result = tx.run( "MATCH (nutritionist: Nutritionist)-[:PROVIDES]->(diet: Diet) " +
+                                            "RETURN nutritionist.username AS username " +
+                                            "ORDER BY diet.succededCount+diet.followersCount DESC LIMIT 1");
+                if(result.hasNext())
+                    return result.next().get("username").asString();
+                return null;
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return mostPopularNutritionistUsername;
+    }
+
+    public String lookUpMostRecommendedDiet(StandardUser user){
+        String mostRecommendedDietID = null;
+        try ( Session session = driver.session() )
+        {
+            mostRecommendedDietID = session.readTransaction((TransactionWork<String>) tx -> {
+                Result result = tx.run(
+                "MATCH (user1: User)-[f1:FOLLOWS]->(diet1: Diet)<-[f2:FOLLOWS]-(user2: User)-[f3:FOLLOWS]->(diet2: Diet) " +
+                    "WHERE f1.status = f2.status AND f1.status <> \"current\" AND user1.username = $username " +
+                    "AND f3.status = \"succeded\" WITH diet2, count(*) AS validArrowCount " +
+                    "RETURN diet2.id AS ID ORDER BY validArrowCount DESC LIMIT 1",
+                    parameters("username", user.getUsername()));
+                if(result.hasNext())
+                    return result.next().get("ID").asString();
+                // if the target user doesn't have completed diets or if no one of the users who completed/failed the same diet
+                // of the target user don't have completed diets, then I return the most succeded diet (in general)
+                return lookUpMostSuccededDiet();
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return mostRecommendedDietID;
+    }
+
+    public void dropAll(){
+        try ( Session session = driver.session() )
+        {
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run( "MATCH (n) DETACH DELETE n");
+                return null;
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
 
     public static void main( String... args ) throws Exception
     {
         try ( Neo4j neo4j = new Neo4j( "neo4j://localhost:7687", "neo4j", "root" ) )
         {
+            neo4j.dropAll();
             StandardUser user1 = new StandardUser("user1");
             StandardUser user2 = new StandardUser("user2");
             StandardUser user3 = new StandardUser("user3");
@@ -268,11 +346,18 @@ public class Neo4j implements AutoCloseable
             StandardUser user8 = new StandardUser("user8");
             StandardUser user9 = new StandardUser("user9");
             StandardUser user10 = new StandardUser("user10");
+            StandardUser user11 = new StandardUser("user11");
+            StandardUser user12 = new StandardUser("user12");
+            StandardUser user13 = new StandardUser("user13");
+            StandardUser user14 = new StandardUser("user14");
+            StandardUser user15 = new StandardUser("user15");
+            StandardUser user16 = new StandardUser("user16");
+            StandardUser user17 = new StandardUser("user17");
             Nutritionist nutritionist1 = new Nutritionist("nut1");
             Nutritionist nutritionist2 = new Nutritionist("nut2");
-            Diet diet1 = new Diet("diet1", "vegan1", nutritionist1);
-            Diet diet2 = new Diet("diet2", "vegan2", nutritionist1);
-            Diet diet3 = new Diet("diet3", "vegetarian", nutritionist2);
+            Diet diet1 = new Diet("diet1", "diet1", nutritionist1);
+            Diet diet2 = new Diet("diet2", "diet2", nutritionist1);
+            Diet diet3 = new Diet("diet3", "diet3", nutritionist2);
             System.out.println(neo4j.addUser(user1));
             System.out.println(neo4j.addUser(user2));
             System.out.println(neo4j.addUser(user3));
@@ -283,6 +368,13 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.addUser(user8));
             System.out.println(neo4j.addUser(user9));
             System.out.println(neo4j.addUser(user10));
+            System.out.println(neo4j.addUser(user11));
+            System.out.println(neo4j.addUser(user12));
+            System.out.println(neo4j.addUser(user13));
+            System.out.println(neo4j.addUser(user14));
+            System.out.println(neo4j.addUser(user15));
+            System.out.println(neo4j.addUser(user16));
+            System.out.println(neo4j.addUser(user17));
             System.out.println(neo4j.addUser(nutritionist1));
             System.out.println(neo4j.addUser(nutritionist2));
             System.out.println(neo4j.addDiet(diet1));
@@ -298,11 +390,31 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.followDiet(user8, diet3));
             System.out.println(neo4j.followDiet(user9, diet3));
             System.out.println(neo4j.followDiet(user10, diet3));
+            System.out.println(neo4j.followDiet(user5, diet1));
+            System.out.println(neo4j.followDiet(user6, diet1));
+            System.out.println(neo4j.followDiet(user8, diet1));
+            System.out.println(neo4j.followDiet(user2, diet3));
+            System.out.println(neo4j.followDiet(user9, diet1));
+            System.out.println(neo4j.followDiet(user11, diet3));
+            System.out.println(neo4j.followDiet(user12, diet3));
+            System.out.println(neo4j.followDiet(user13, diet3));
+            System.out.println(neo4j.followDiet(user14, diet3));
+            System.out.println(neo4j.followDiet(user15, diet3));
+            System.out.println(neo4j.followDiet(user16, diet3));
+            System.out.println(neo4j.followDiet(user17, diet3));
             System.out.println(neo4j.stopDiet(diet1, user1, true));
             System.out.println(neo4j.stopDiet(diet1, user2, true));
             System.out.println(neo4j.stopDiet(diet2, user5, true));
             System.out.println(neo4j.stopDiet(diet2, user6, true));
             System.out.println(neo4j.stopDiet(diet2, user7, true));
+            System.out.println(neo4j.stopDiet(diet1, user5, true));
+            System.out.println(neo4j.stopDiet(diet1, user6, true));
+            System.out.println(neo4j.stopDiet(diet1, user8, true));
+            System.out.println(neo4j.stopDiet(diet3, user8, true));
+            System.out.println(neo4j.stopDiet(diet3, user2, false));
+            System.out.println(neo4j.stopDiet(diet1, user9, false));
+            System.out.println(neo4j.stopDiet(diet1, user3, false));
+
 /*            System.out.println(neo4j.removeDiet(diet1));
             System.out.println(neo4j.removeUser(user1));
             System.out.println(neo4j.removeUser(user4));
@@ -311,6 +423,11 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.lookUpMostFollowedDiet());
             System.out.println(neo4j.lookUpMostSuccededDiet());
             System.out.println(neo4j.lookUpMostPopularDiet());
+            System.out.println(neo4j.lookUpMostRecommendedDiet(user1));
+            System.out.println(neo4j.lookUpMostRecommendedDiet(user3));
+            System.out.println(neo4j.lookUpMostRecommendedDiet(user11));
+            System.out.println(neo4j.lookUpMostFollowedDietByNutritionist(nutritionist1));
+            System.out.println(neo4j.lookUpMostPopularNutritionist());
         }
     }
 }
