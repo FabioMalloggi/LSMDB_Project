@@ -1,7 +1,6 @@
 package it.unipi.dii.dietmanager.entities;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -275,5 +274,31 @@ public class CLI {
         nutrientValues[16] = scan.nextLine();
 
         return nutrientValues;
+    }
+
+    public void printDiet(Diet dietTarget){
+        System.out.println("Diet, ID: "+dietTarget.getId()+", Name: "+dietTarget.getName()+", Nutritionist: "+dietTarget.getNutritionist().getUsername());
+        for (Nutrient n : dietTarget.getNutrients()) {
+            System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
+        }
+    }
+
+    public void printDiets(List<Diet> dietsTarget){
+        for(Diet d: dietsTarget){
+            /*System.out.println("Diet, ID: "+d.getId()+", Name: "+d.getName()+", Nutritionist: "+d.getNutritionist().getUsername());
+            for (Nutrient n : d.getNutrients()){
+                System.out.println("Nutrient: "+n.getName()+", quantity: "+n.getQuantity());
+            }*/
+            printDiet(d);
+        }
+    }
+
+    public void printNutrientPerNutritinist(HashMap<Nutritionist, Nutrient> npn){
+        Iterator hmIterator = npn.entrySet().iterator();
+        while(hmIterator.hasNext()){
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            Nutrient n = ((Nutrient) mapElement.getValue());
+            System.out.println(mapElement.getKey()+": "+n.getName() );
+        }
     }
 }

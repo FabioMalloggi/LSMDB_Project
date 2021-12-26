@@ -1,12 +1,15 @@
 package it.unipi.dii.dietmanager;
 
-import it.unipi.dii.dietmanager.entities.CLI;
+import it.unipi.dii.dietmanager.entities.*;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class DietManager {
 
     public static void main(String[] args) {
         CLI cli = new CLI();
-        //LocalManagement lM = new LocalManagement();
+        LogicManager lM = new LogicManager();
         boolean notFinish = true; //used in the most outer while
         boolean step1 = false; //used in the Registration and Sign in Step
         boolean chekUserNotExist =false; //used to check if the username digitized is already existed, if it is, the user must insert a new user
@@ -15,6 +18,15 @@ public class DietManager {
         String username;
         String tmp = "";
         String[] signIn;
+        List<Diet> dietsTarget;
+        List<Food> foodsTarget;
+        List<User> usersTarget;
+        List<EatenFood> eatenFoodsList;
+        User userTarget;
+        Food foodTarget;
+        Diet dietTarget;
+        boolean checkOperation;
+        HashMap<Nutritionist, Nutrient> npn;
 
         while(notFinish) {
 
@@ -131,23 +143,70 @@ public class DietManager {
                     if(tokens.length >= 3){ //each possibile operation in this menu has 3 parameters
                         if(tokens[0].equals("find") && tokens[1].equals("-f")){
                             System.out.println("-> search food by name");
+                            foodsTarget = lM.lookUpFoodByName(tokens[2]);
+
+                            System.out.println("List of Food with the subString: "+tokens[2]);
+                            /*String result ="";
+                            for(Food f: foodsTarget){
+                                result += f.getId()+" ";
+                            }
+                            System.out.println(result);*/
                         }
 
                         else if(tokens[0].equals("find") && tokens[1].equals("-ef")){
                             if(tokens[2].equals("-personal")) {
                                 System.out.println("-> lookup your eaten foods list");
+
+                                eatenFoodsList = lM.lookUpStandardUserEatenFoods();
+
+                                System.out.println("List of EatenFood : "+tokens[2]);
+                                /*String result ="";
+                                for(EatenFood ef: eatenFoodsList){
+                                    result += "/"+ef.getId()+" "+ef.getFoodID()+" "+ef.getQuantity()+ " "+ef.getTimestamp()+"/";
+                                }
+                                System.out.println(result);*/
                             }
                             else {
                                 System.out.println("-> lookup most eaten food by category");
+
+                                foodsTarget = lM.lookUpMostEatenFoodByCategory(tokens[2]);
+
+                                System.out.println("List of most eaten food by category: "+tokens[2]);
+                                /*String result ="";
+                                for(EatenFood ef: eatenFoodsList){
+                                    result += "/"+ef.getId()+" "+ef.getFoodID()+" "+ef.getQuantity()+ " "+ef.getTimestamp()+"/";
+                                }
+                                System.out.println(result);*/
                             }
                         }
 
                         else if(tokens[0].equals("add") && tokens[1].equals("-ef")){
                             System.out.println("-> add food to your eaten foods list");
+
+                            checkOperation = false;
+                            checkOperation = lM.addFoodToEatenFood(tokens[2]);
+
+                            if(checkOperation){
+                                System.out.println(tokens[2]+" correctly added in your EatenFoodList");
+                            }
+                            else {
+                                System.err.println(tokens[2]+" not added in your EatenFoodList");
+                            }
+
                         }
 
                         else if(tokens[0].equals("rm") && tokens[1].equals("-ef")){
                             System.out.println("-> remove eaten food from your eaten foods list");
+
+                            checkOperation = false;
+                            checkOperation = lM.removeEatenFood(tokens[2]);
+
+                            if(checkOperation){
+                                System.out.println(tokens[2]+" correctly removed from your EatenFoodList");
+                            }
+                            else {
+                                System.err.println(tokens[2]+" not removed from your EatenFoodList");
+                            }
                         }
 
                         /** *****MANCA gli if per le operazioni degli amministratori*****/
@@ -168,20 +227,32 @@ public class DietManager {
                             }
                             System.out.println("result menuNutrient: "+result);
 
+                            //***CREARE FUNZIONE CHE RESTITUISCE FOOD DATO token[2] e STRING[] di nutirenti.*****
                             //create a List of Nutrients with the chooseNutrients[] values
                             //create a food object;
                             //call addFood(food Food)
+
+
                         }
 
                         else if(tokens[0].equals("rm") && tokens[1].equals("-f")){
                             System.out.println("-> remove food from catalog");
-                            //call addFood(name)
+
+                            checkOperation = false;
+                            checkOperation = lM.removeFood(tokens[2]);
+
+                            if(checkOperation){
+                                System.out.println(tokens[2]+" correctly removed from catalog");
+                            }
+                            else {
+                                System.err.println(tokens[2]+" not removed from catalog");
+                            }
                         }
 
                     }
 
                     else{
-                        System.out.println("Eccezione: insufficient parameters");
+                        System.err.println("Eccezione: insufficient parameters");
                     }
                 }
 
@@ -190,51 +261,157 @@ public class DietManager {
                     choose = cli.helpDiet("Nutritionist");
                     tokens = choose.split(" ");
 
+                    //check diet progress
                     if(tokens[0].equals("check")){
                         System.out.println("checking...");
                     }
 
-                    else if(tokens[0].equals("follow")){
+                    // follow a diet
+                    else if(tokens[0].equals("follow") && tokens.length == 2){
                         System.out.println("start to follow, ID:" + tokens[1]);
+
+                        checkOperation = false;
+                        checkOperation = lM.followDiet(tokens[1]);
+
+                        if(checkOperation){
+                            System.out.println("Correctly followed diet with ID: "+tokens[1]);
+                        }
+                        else {
+                            System.err.println("NOT correctly followed diet with ID: "+tokens[1]);
+                        }
                     }
 
+                    //stop a diet
                     else if(tokens[0].equals("stop")){
                         System.out.println("stopped a diet, ID:" + tokens[1]);
+
+                        checkOperation = false;
+                        checkOperation = lM.stopDiet(tokens[1]); //***lM.stopDiet must call the check before complete the unfollowing***
+
+                        if(checkOperation){
+                            System.out.println("Correctly stopped diet with ID: "+tokens[1]);
+                        }
+                        else {
+                            System.err.println("NOT correctly stopped diet with ID: "+tokens[1]);
+                        }
                     }
 
-                    else if(tokens[0].equals("find") && tokens[1].equals("-d")){
-                        if(tokens[2].equals("-id")){
+                    // commands find -d -*
+                    else if(tokens[0].equals("find") && tokens[1].equals("-d") && tokens.length >= 3){
+
+                        if(tokens[2].equals("-id") && tokens.length == 4){
                             System.out.println("-> search diet by ID");
+
+                            dietTarget = lM.lookUpDietByID(tokens[3]);
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Any diet with that ID");
+                            }
                         }
-                        else if(tokens[2].equals("-name")){
+                        else if(tokens[2].equals("-name") && tokens.length == 4){
                             System.out.println("-> search diets by names");
+
+                            dietsTarget = lM.lookUpDietByName(tokens[3]);
+                            if(dietsTarget != null){
+                                cli.printDiets(dietsTarget);
+                            }
+                            else{
+                                System.err.println("Any diets with that name(subName)");
+                            }
                         }
-                        else if(tokens[2].equals("-nut")){
+                        else if(tokens[2].equals("-nut") && tokens.length == 4){
                             System.out.println("-> search diets by Nutritionist username");
+
+                            dietsTarget = lM.lookUpDietByNutritionist(tokens[3]);
+                            if(dietsTarget != null){
+                                cli.printDiets(dietsTarget);
+                            }
+                            else{
+                                System.err.println("Any diets with that nutritionist");
+                            }
                         }
                         else if(tokens[2].equals("-mf")){
                             System.out.println("-> search most currently followed diet");
+
+                            dietTarget = lM.lookUpMostFollowedDiet();
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the most followed diet");
+                            }
                         }
                         else if(tokens[2].equals("-mp")){
                             System.out.println("-> search most popular diet");
+
+                            dietTarget = lM.lookUpMostPopularDiet();
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the most popular diet");
+                            }
                         }
                         else if(tokens[2].equals("-mc")){
                             System.out.println("-> search most completed diet");
+
+                            dietTarget = lM.lookUpMostCompletedDiet();
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the most completed diet");
+                            }
                         }
                         else if(tokens[2].equals("-r")){
                             System.out.println("-> lookup recommended diet");
+
+                            dietTarget = lM.lookUpRecommendedDiet();
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the recommended diet");
+                            }
                         }
-                        else if(tokens[2].equals("-mfnut")){
+                        else if(tokens[2].equals("-mfnut") && tokens.length ==4){
                             System.out.println("-> search most followed diet by Nutritionist username");
+
+                            dietTarget = lM.lookUpMostFollowedDietByNutritionist(tokens[3]);
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the most followed diet");
+                            }
                         }
                         else if(tokens[2].equals("-c")){
                             System.out.println("-> lookup your current diet");
+
+                            //if utente è uno standardUser
+                            dietTarget = lM.lookUpStandardUserCurrentDiet();
+                            if(dietTarget != null) {
+                                cli.printDiet(dietTarget);
+                            }
+                            else{
+                                System.err.println("Error in search the most followed diet");
+                            }
                         }
 
                     }
 
                     else if(tokens[0].equals("find") && tokens[1].equals("-npn")){
                         System.out.println("-> lookup most suggested nutrient for each nutritionist");
+
+                        npn = lM.lookUpMostSuggestedNutrientForEachNutritionist();
+                        if(npn != null){
+                            cli.printNutrientPerNutritinist(npn);
+                        }
+                        else{
+                            System.err.println("Error in search the suggested nutrient for each nutritionist");
+                        }
                     }
 
                     /** *****MANCA gli if per le operazioni dei nutrizionisti*****/

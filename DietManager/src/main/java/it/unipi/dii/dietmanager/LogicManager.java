@@ -132,10 +132,10 @@ public class LogicManager {
         return  dietTarget;
     }
 
-    public Diet lookUpMostFollowedDietByNutritionist() {
+    public Diet lookUpMostFollowedDietByNutritionist(String username) {
         Diet dietTarget = null;
 
-        //dietTarget = Neo4J.lookUpMostFollowedDietByNutritionist(); //the parameter???????
+        //dietTarget = Neo4J.lookUpMostFollowedDietByNutritionist(username); //the parameter???????
 
         return  dietTarget;
     }
@@ -295,7 +295,7 @@ public class LogicManager {
         return  task;
     }
 
-    public boolean removeFood(Food food){
+    public boolean removeFood(String food){
         boolean task = false;
 
         //task = MongoDB.removeFood(food);

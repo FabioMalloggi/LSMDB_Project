@@ -40,4 +40,19 @@ public class Food
         return jsonFood;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<Nutrient> getNutrients() {
+        return nutrients;
+    }
+
+    public void setNutrients(List<Nutrient> nutrients) {
+        this.nutrients = nutrients;
+    }
 }
