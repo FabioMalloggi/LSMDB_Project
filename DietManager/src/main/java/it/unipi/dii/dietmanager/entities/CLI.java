@@ -298,7 +298,24 @@ public class CLI {
         while(hmIterator.hasNext()){
             Map.Entry mapElement = (Map.Entry)hmIterator.next();
             Nutrient n = ((Nutrient) mapElement.getValue());
-            System.out.println(mapElement.getKey()+": "+n.getName() );
+            System.out.println(mapElement.getKey()+": "+n.getName() ); //getKey returns a generic Object. I can't call the methods of Nutritionist
+        }
+    }
+
+    public void printFood(Food foodTarget){
+        System.out.println("Food, ID: "+foodTarget.getId());
+        for (Nutrient n : foodTarget.getNutrients()) {
+            System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
+        }
+    }
+
+    public void printFoods(List<Food> foodsTarget){
+        for(Food f: foodsTarget){
+            /*System.out.println("Food, ID: "+foodTarget.getId());
+            for (Nutrient n : foodTarget.getNutrients()) {
+                System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
+            }*/
+            printFood(f);
         }
     }
 }

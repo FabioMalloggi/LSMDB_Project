@@ -146,11 +146,13 @@ public class DietManager {
                             foodsTarget = lM.lookUpFoodByName(tokens[2]);
 
                             System.out.println("List of Food with the subString: "+tokens[2]);
-                            /*String result ="";
-                            for(Food f: foodsTarget){
-                                result += f.getId()+" ";
+
+                            if(foodsTarget != null) {
+                                cli.printFoods(foodsTarget);
                             }
-                            System.out.println(result);*/
+                            else{
+                                System.err.println("Any food with that name");
+                            }
                         }
 
                         else if(tokens[0].equals("find") && tokens[1].equals("-ef")){
@@ -169,14 +171,16 @@ public class DietManager {
                             else {
                                 System.out.println("-> lookup most eaten food by category");
 
-                                foodsTarget = lM.lookUpMostEatenFoodByCategory(tokens[2]);
+                                foodsTarget = lM.lookUpMostEatenFoodByCategory(tokens[2]); //*** data una categoria non ne deve restituire uno ??***
 
                                 System.out.println("List of most eaten food by category: "+tokens[2]);
-                                /*String result ="";
-                                for(EatenFood ef: eatenFoodsList){
-                                    result += "/"+ef.getId()+" "+ef.getFoodID()+" "+ef.getQuantity()+ " "+ef.getTimestamp()+"/";
+
+                                if(foodsTarget != null) {
+                                    cli.printFoods(foodsTarget);
                                 }
-                                System.out.println(result);*/
+                                else{
+                                    System.err.println("Error in retrieving most eaten food by category ");
+                                }
                             }
                         }
 
@@ -252,7 +256,7 @@ public class DietManager {
                     }
 
                     else{
-                        System.err.println("Eccezione: insufficient parameters");
+                        System.err.println("Error: insufficient parameters");
                     }
                 }
 
