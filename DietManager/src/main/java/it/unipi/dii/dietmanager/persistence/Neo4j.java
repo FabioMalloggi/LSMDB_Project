@@ -191,7 +191,8 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
-    public boolean stopDiet(Diet diet, StandardUser user, boolean isSucceeded){
+    public boolean stopDiet(StandardUser user, boolean isSucceeded){
+        Diet diet = user.getCurrentDiet();
         System.out.print(user.getUsername() + ", " + diet.getId() + ", " + isSucceeded + ": ");
         try ( Session session = driver.session() )
         {
@@ -378,7 +379,7 @@ public class Neo4j implements AutoCloseable
             mostRecommendedDietID = session.readTransaction((TransactionWork<String>) tx -> {
                 Result result = tx.run(
                 "MATCH (user1: User)-[f1:FOLLOWS]->(diet1: Diet)<-[f2:FOLLOWS]-(user2: User)-[f3:FOLLOWS]->(diet2: Diet) " +
-                    "WHERE f1.status = f2.status AND f1.status <> \"current\" AND user1.username = $username " +
+                    "WHERE f1.status = f2.status AND user1.username = $username " +
                     "AND f3.status = \"succeeded\" WITH diet2, count(*) AS validArrowCount " +
                     "RETURN diet2.id AS ID ORDER BY validArrowCount DESC LIMIT 1",
                     parameters("username", user.getUsername()));
@@ -489,7 +490,7 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.followDiet(user18, diet3));
             System.out.println(neo4j.followDiet(user9, diet2));
             System.out.println("****Testing stopDiet****");
-            System.out.println(neo4j.stopDiet(diet1, user1, true));
+            /*System.out.println(neo4j.stopDiet(diet1, user1, true));
             System.out.println(neo4j.stopDiet(diet1, user2, true));
             System.out.println(neo4j.stopDiet(diet2, user5, true));
             System.out.println(neo4j.stopDiet(diet2, user6, true));
@@ -503,7 +504,7 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.stopDiet(diet1, user3, false));
             System.out.println(neo4j.followDiet(user2, diet3));
             System.out.println(neo4j.stopDiet(diet3, user2, true));
-
+*/
 /*            System.out.println(neo4j.removeDiet(diet1));
             System.out.println(neo4j.removeUser(user1));
             System.out.println(neo4j.removeUser(user4));
