@@ -2,23 +2,20 @@ package it.unipi.dii.dietmanager;
 
 import it.unipi.dii.dietmanager.entities.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class DietManager {
-    private final String[] nutrients_names =
+    private static final String[] nutrients_names =
             {/*0*/"Energy",/*1*/"Protein",/*2*/"Fat",/*3*/"Carb",/*4*/"Sugar",
                     /*5*/"Fiber",/*6*/"VitA",/*7*/"VitB6",/*8*/"VitB12",/*9*/"VitC",/*10*/"VitE",
                     /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
                     /*16*/"Zinc"};
-    private final String[] nutrients_units =
+    private static final String[] nutrients_units =
             {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
                     /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
-    public Food generateFood(String name, String[] nutrientsValues){
+    public static Food generateFood(String name, String[] nutrientsValues){
         /*String[] nameNutrients = {"energy", "protein", "fat", "carbohydrate", "sugar", "fiber", "vitaminA", "vitaminB6", "vitaminB12", "vitaminC", "vitaminE", "thiamin", "calcium", "magnesium", "manganese", "phosphoro", "zinc"};
         String[] unitForEachNutrients = {"_kcal", "_g", "_g", "_g", "_g", "_g", "_mcg", "_mg", "_mcg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg"};*/
         double [] doubleValues = new double[17];
@@ -38,7 +35,7 @@ public class DietManager {
         return foodCreated;
     }
 
-    public Diet generateDiet(String name, String[] nutrientsValues, Nutritionist creator){
+    public static Diet generateDiet(String name, String[] nutrientsValues, Nutritionist creator){
         double [] doubleValues = new double[17];
         List<Nutrient> newList = new ArrayList<>();
         Nutrient tmp;
@@ -266,8 +263,11 @@ public class DietManager {
                 //commands for Administrator (Food)
                 else if(tokens[0].equals("add") && tokens[1].equals("-f") && tokens.length == 3 /*&& instance of Administrator*/){
                     String[] chooseNutrients;
+                    Food newFood;
+                    checkOperation = false;
                     System.out.println("-> add food to catalog");
                     chooseNutrients = cli.menuInsertNutrient(); //work
+
 
                     //to test menuNut //work
                     String result = "";
@@ -279,8 +279,16 @@ public class DietManager {
                     //***CREARE FUNZIONE CHE RESTITUISCE FOOD DATO token[2] e STRING[] di nutirenti.*****
                     //create a List of Nutrients with the chooseNutrients[] values
                     //create a food object;
-                    //call addFood(food Food)
+                    newFood = generateFood(tokens[2], chooseNutrients);
 
+                    checkOperation = lM.addFood(newFood);
+
+                    if(checkOperation){
+                        System.out.println(tokens[2]+" correctly inserted into catalog");
+                    }
+                    else {
+                        System.err.println(tokens[2]+" not inserted into catalog");
+                    }
 
                 }
 
@@ -302,7 +310,45 @@ public class DietManager {
                 //helpDiet
                 //check diet progress
                 else if(tokens[0].equals("check")){
+                    int i;
+                    double[] total = new double[17];
+                    boolean[] isBelow = new boolean[17];
+                    Arrays.fill(isBelow, false); //set all the values of the bool array to 'false'. We suppose at the beginning all the values of the nutrients of the currentUSer EatenFood are higher than the corresponding nutrients values of the diet followed
+                    Arrays.fill(total, 0); //set all the values of the double array to 0
+                    /*if(lM.currentUser instanceof StandardUser){
+
+                    }*/
                     System.out.println("checking...");
+                    //first i retrive the eatenFood list of the current user
+                    eatenFoodsList = lM.lookUpStandardUserEatenFoods();
+
+                    /**
+                     * the EatenFood has only the ID of the food, with no values of each nutrients.
+                     * We are required to make an accesso to MongoDB for each nutrientFood of the list to get/obtain the values of each (its )nutrient to compute the totals
+                     * Then we have to comapre the totals[] with the values of the CurrentDiet.
+                    */
+                    for (EatenFood ef : eatenFoodsList){
+                        foodTarget = lM.lookUpFoodByID(ef.getFoodID());
+                        i = 0;
+                        for(Nutrient n : foodTarget.getNutrients()){
+                            total[i] += n.getQuantity();
+                            i++;
+                        }
+                    }
+
+                    //then i retrive the diet of the current User
+                    dietTarget = lM.lookUpStandardUserCurrentDiet();
+
+                    i = 0;
+                    for(Nutrient n: dietTarget.getNutrients()){
+                        if(total[i] < n.getQuantity()) {
+                            isBelow[i] = true;
+                        }
+                        System.out.println(nutrients_names[i]+": EatenFood totals : "+total[i]+" / Diet: "+n.getQuantity());
+                    }
+
+                    // ***compute the value of true and determine the decision {succeeded, failed} ***
+
                 }
 
                 // follow a diet
@@ -456,6 +502,7 @@ public class DietManager {
                 //commands for Nutritionist (Diet)
                 else if(tokens[0].equals("add") && tokens[1].equals("-d") && tokens.length == 3 /*&& instance of Nutritionist*/){
                     String[] chooseNutrients;
+                    Diet newDiet;
                     System.out.println("-> add diet: "+tokens[2]);
                     chooseNutrients = cli.menuInsertNutrient(); //work
 
@@ -470,6 +517,17 @@ public class DietManager {
                     //create a List of Nutrients with the chooseNutrients[] values
                     //create a diet object;
                     //call addDiet(Diet diet)
+
+                    newDiet = generateDiet(tokens[2], chooseNutrients, ((Nutritionist) lM.currentUser));
+
+                    checkOperation = lM.addDiet(newDiet);
+
+                    if(checkOperation){
+                        System.out.println(tokens[2]+" diet correctly inserted.");
+                    }
+                    else {
+                        System.err.println(tokens[2]+" diet not inserted.");
+                    }
                 }
 
                 else if(tokens[0].equals("rm") && tokens[1].equals("-d") && tokens.length == 3 /*&& instance of Nutritionist*/){
