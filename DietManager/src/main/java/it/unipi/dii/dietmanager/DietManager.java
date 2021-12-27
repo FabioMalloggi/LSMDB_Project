@@ -46,15 +46,6 @@ public class DietManager {
                 else step1 = true;
             }
 
-            /**
-             * it is not necessary this if because in the 2 while for login/regi it cannot enter because tmp = end and in the while(isLogged) it doen enter that's because isLogged is still false
-             if(!notFinish)
-             break;
-             */
-
-
-            //step1 = false; old
-
             //second step A: sign in
             while (isLogged == false && tmp.equals("S")) {
 
@@ -72,8 +63,6 @@ public class DietManager {
                 step1 = true;
             }
 
-
-            //step1 = false; old
 
             //second step B: register, the currentUser is still null. With this check(currentUser == null) we do not need to use further variable in th previous while condition
             while(isLogged== false && tmp.equals("R")){
@@ -122,8 +111,7 @@ public class DietManager {
 
             //after the registration or sign-in
 
-            //step2 = false;old
-            while (isLogged == true){ //step2 != true
+            while (isLogged == true){
                 String helpType;
                 String choose;
                 String input;
@@ -264,7 +252,6 @@ public class DietManager {
 
 
                 //helpDiet
-
                 //check diet progress
                 else if(tokens[0].equals("check")){
                     System.out.println("checking...");
@@ -406,7 +393,6 @@ public class DietManager {
 
                 }
 
-
                 else if(tokens[0].equals("find") && tokens[1].equals("-npn")){
                     System.out.println("-> lookup most suggested nutrient for each nutritionist");
 
@@ -454,7 +440,6 @@ public class DietManager {
 
 
                 //helpUser
-
                 else if(tokens[0].equals("find") && tokens[1].equals("-u")){
                     if(tokens[2].equals("-u") && tokens.length == 4){
                         System.out.println("-> search user by username");
@@ -473,6 +458,7 @@ public class DietManager {
                     }
                 }
 
+                //commands for administrator(User)
                 else if (tokens[0].equals("rm") && tokens[1].equals("-u") && tokens.length == 3 /*&& instance of Administrator*/ ){
 
                     System.out.println("-> remove user, with username: "+tokens[2]);
@@ -488,27 +474,6 @@ public class DietManager {
                     }
                 }
 
-                /** *****MANCA gli if per le operazioni degli amministratori*****/
-
-                /* DA LEVARE
-                else if(helpType.equals("help user")){
-                    choose = cli.helpUser("Administrator");
-                    tokens = choose.split(" ");
-
-                    if(tokens.length >= 3){
-
-                    }
-
-
-                    else {
-                        System.out.println("Eccezione: insufficient parameters");
-                    }
-                }
-                else if(helpType.equals("exit")){
-                    isLogged = false;
-                    step1 = false;
-                }
-                */
 
                 else if(input.equals("exit")){
                     isLogged = false;
@@ -520,9 +485,7 @@ public class DietManager {
                     System.out.println("Eccezione o avvismo di sbagliato comando");
                 }
 
-            } //del while isLogged
-
-            //break; used at the beginning of the implementation. but now it is unuseful because we can shut down the application during the welcome menu
+            }// while (isLogged)
         }
     }
 }
