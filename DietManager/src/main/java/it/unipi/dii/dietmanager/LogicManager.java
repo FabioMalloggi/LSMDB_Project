@@ -13,7 +13,6 @@ public class LogicManager {
         boolean test = false;
         System.out.println("LogiManagment: Sign In");
         //test = MongoDB.signIn(String username, String password);
-
         //to test
         return test;
     }
@@ -157,7 +156,7 @@ public class LogicManager {
             //neo4J = Neo4J.registerUser(user);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
-                //to do something..
+                //to do something.. //REMOVE DA MONGO
                 return false;
             }
             else return true;
@@ -172,13 +171,14 @@ public class LogicManager {
 
     public boolean followDiet(String id){
         boolean mongoDB = false, neo4J = false;
-
+        Diet diet;
+        diet = lookUpDietByID(id);
         //mongoDB = MongoDB.followDiet(id); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
         if(mongoDB){
             //neo4J = Neo4J.followDiet(id); // *** come può Neo4J (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
-                //to do something..
+                //to do something.. REMOVE su MONGO
                 return false;
             }
             else return true;
@@ -192,6 +192,8 @@ public class LogicManager {
 
     public boolean stopDiet(String id){
         boolean mongoDB = false, neo4J = false;
+
+        //*** PRIMA NEO E POI MONGO
 
         //mongoDB = MongoDB.stopDiet(id); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
         if(mongoDB){
@@ -247,12 +249,12 @@ public class LogicManager {
         }
     }
 
-    public boolean removeDiet(Diet diet){
+    public boolean removeDiet(String ID){ //OLD VERSION: Diet diet <-- con questa devo vedere se l'oggetto nutrizionista ha nella lista di diete, un istanza dieta con quell ID e poi ricavere quall'istanza e passarla qui
         boolean mongoDB = false, neo4J = false;
 
-        //mongoDB = MongoDB.stopDiet(diet); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+        //mongoDB = MongoDB.removeDiet(ID); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
         if(mongoDB){
-            //neo4J = Neo4J.stopDiet(diet); // *** come può Neo4J (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+            //neo4J = Neo4J.remove(ID); // *** come può Neo4J (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
                 //to do something..
@@ -267,7 +269,7 @@ public class LogicManager {
         }
     }
 
-    public boolean removeUser(User user){
+    public boolean removeUser(String username){
         boolean mongoDB = false, neo4J = false;
 
         //mongoDB = MongoDB.stopDiet(user); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser

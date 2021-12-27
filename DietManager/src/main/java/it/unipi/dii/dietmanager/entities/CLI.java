@@ -16,7 +16,8 @@ public class CLI {
         String input;
         System.out.println("=======> Welcome to DietManager Application\n" +
                 "==> Type \"S\" for Sign-in\n" +
-                "==> Type \"R\" for Register");
+                "==> Type \"R\" for Register\n" +
+                "==> Type \"end\" for StandardUser");
         System.out.print("> ");
         input = scan.nextLine();
         /* alreay done in controller
@@ -48,7 +49,7 @@ public class CLI {
         System.out.println("=======> Registration:\n" +
                 "==> insert username:");
         System.out.print("> ");
-        username = scan.next();
+        username = scan.nextLine();
         return username; //the controller will perform the check if the username digitized  already exists
     }
 
@@ -56,17 +57,15 @@ public class CLI {
         String password;
         System.out.println("==> insert password:");
         System.out.print("> ");
-        password = scan.next();
+        password = scan.nextLine();
         return password;
     }
 
     public String startFullNameSubmission(){
-        String fullName, first, last;
+        String fullName;
         System.out.println("==> insert fullName:");
         //System.out.print("> ");
-        first = scan.next();
-        last = scan.next();
-        fullName = first+" "+last;
+        fullName = scan.nextLine();
         return fullName;
     }
 
@@ -74,7 +73,7 @@ public class CLI {
         String age;
         System.out.println("==> insert age:");
         //System.out.print("> ");
-        age = scan.next();
+        age = scan.nextLine();
         return age;
     }
 
@@ -82,7 +81,7 @@ public class CLI {
         String sex;
         System.out.println("==> insert sex:");
         //System.out.print("> ");
-        sex = scan.next();
+        sex = scan.nextLine();
         return sex;
     }
 
@@ -90,7 +89,7 @@ public class CLI {
         String country;
         System.out.println("==> insert country:");
         //System.out.print("> ");
-        country = scan.next();
+        country = scan.nextLine();
         return country;
     }
 
@@ -98,16 +97,16 @@ public class CLI {
         String input;
         System.out.println("==> insert userType:\"\n" +
                 "==> Type \"SU\" for StandardUser\n" +
-                "==> Type \"N\" for Nutritionist");
+                "==> Type \"N\" for Nutritionist\n");
         System.out.print("> ");
-        input = scan.next();
+        input = scan.nextLine();
         /*if(!input.equals("SU") && !input.equals("N")) //fare qualcosa
             System.out.print("fare qualcosa con eccezione");
         else return input;*/
         return input;
     }
 
-    public String helpMenu(String username){
+    public void helpMenu(String username){
         String helpType;
         //String ret = "";
         //List<String> helpType;
@@ -115,20 +114,18 @@ public class CLI {
                 "=======> help\n" +
                 "help food\t\t-> retrieve help commands on foods\n" +
                 "help diet\t\t-> retrieve help commands on diets\n" +
-                "help user\t\t-> retrieve help commands on users ");
-        System.out.print("> ");
+                "help user\t\t-> retrieve help commands on users\n"+
+                "exit \t\t-> log-out from application\n");
+        /*System.out.print("> ");
+        helpType = scan.nextLine();*/
         /*
-        scan = scan.useDelimiter(" ");
-        helpType = scan.tokens().collect(Collectors.toList());
-        for(String s : helpType){
-            ret = ret+s;
-        }
-        scan = scan.reset();*/
-        helpType = scan.nextLine();
-        return helpType;
+        helpFood("Administrator");
+        helpDiet("Nutritionist");
+        helpUser("Administrator");
+        return helpType;*/
     }
 
-    public String helpFood (String typeOfuser /*better if passed an object User*/ ){
+    public void helpFood (String typeOfuser /*better if passed an object User*/ ){
         String choose;
         System.out.println("====> help food\n" +
                 "find -f \"foodName\"\t\t-> search food by name\n" +
@@ -137,24 +134,20 @@ public class CLI {
                 "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
                 "rm -ef \t\"eatenFoodID\"\t\t-> remove eaten food from your eaten foods list\n");
 
-        if(typeOfuser.equals("Administrator")){
+        if(typeOfuser.equals("Administrator")){ //instanceof su user
             System.out.println("===> commands for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog " +
                     "rmF -f \"foodName\"\t-> remove food from catalog");
         }
 
+        /*
         System.out.print("> ");
         choose = scan.nextLine();
-        return choose;
+        return choose;*/
 
     }
 
-    /*
-    public String[] menuInsertNutrient(){
-
-    }*/
-
-    public String helpDiet(String typeOfuser /*better if passed an object User*/ ) {
+    public void helpDiet(String typeOfuser /*better if passed an object User*/ ) {
         String choose;
         System.out.println("====> help diet\n" +
                 "find -d -id \"dietID\"\t-> search diet by ID\n" +
@@ -177,12 +170,13 @@ public class CLI {
                     "rm -d \"dietID\"\t\t\t-> remove your diet");
         }
 
+        /*
         System.out.print("> ");
         choose = scan.nextLine();
-        return choose;
+        return choose;*/
     }
 
-    public String helpUser(String typeOfuser /*better if passed an object User*/ ) {
+    public void helpUser(String typeOfuser /*better if passed an object User*/ ) {
         String choose;
         System.out.println("==> help user\n" +
                 "find -u -u \"username\"\t\t\t-> search user by username\n" +
@@ -194,9 +188,10 @@ public class CLI {
                     "rm -u \"username\"\t\t\t-> remove user by username");
         }
 
+        /*
         System.out.print("> ");
         choose = scan.nextLine();
-        return choose;
+        return choose;*/
     }
 
     public String[] menuInsertNutrient(){
@@ -298,7 +293,7 @@ public class CLI {
         while(hmIterator.hasNext()){
             Map.Entry mapElement = (Map.Entry)hmIterator.next();
             Nutrient n = ((Nutrient) mapElement.getValue());
-            System.out.println(mapElement.getKey()+": "+n.getName() ); //getKey returns a generic Object. I can't call the methods of Nutritionist
+            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() ); //getKey returns a generic Object. I can't call the methods of Nutritionist
         }
     }
 
@@ -316,6 +311,34 @@ public class CLI {
                 System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
             }*/
             printFood(f);
+        }
+    }
+
+    public void printUser(User user){
+        System.out.println("Username: "+user.getUsername()+", Full Name: "+user.getUsername()+", Sex: "+user.getSex()+", Age:"+user.getAge()+", Country: "+user.getCountry());
+        if(user instanceof StandardUser){
+
+            //StandardUser su = (StandardUser) user;
+            System.out.println("Current diet: "+((StandardUser) user).getCurrentDiet().getId()+" Date of start of the diet"+((StandardUser) user).getCurrentDietStartDate().toString());
+
+            /*System.out.println("List of Eaten foods: ");
+            for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
+                System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodID()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
+            }*/
+        }
+
+        else if(user instanceof Nutritionist){
+            System.out.println("List of diets generated:");
+            for(Diet d: ((Nutritionist)user).getDiets()){
+                printDiet(d);
+            }
+        }
+    }
+
+    public void printEatenFood(User user){
+        System.out.println("List of Eaten foods: ");
+        for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
+            System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodID()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
         }
     }
 }

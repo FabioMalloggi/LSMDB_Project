@@ -66,5 +66,13 @@ public class Nutritionist extends User {
         }
         return  newNut;
     }
+
+    public List<Diet> getDiets() {
+        return diets;
+    }
+
+    public void setDiets(List<Diet> diets) {
+        this.diets = diets;
+    }
 }
 

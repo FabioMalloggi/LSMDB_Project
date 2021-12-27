@@ -96,4 +96,28 @@ public class StandardUser extends User {
         }
         return  newUser;
     }
+
+    public List<EatenFood> getEatenFoods() {
+        return eatenFoods;
+    }
+
+    public void setEatenFoods(List<EatenFood> eatenFoods) {
+        this.eatenFoods = eatenFoods;
+    }
+
+    public Diet getCurrentDiet() {
+        return currentDiet;
+    }
+
+    public void setCurrentDiet(Diet currentDiet) {
+        this.currentDiet = currentDiet;
+    }
+
+    public Date getCurrentDietStartDate() {
+        return currentDietStartDate;
+    }
+
+    public void setCurrentDietStartDate(Date currentDietStartDate) {
+        this.currentDietStartDate = currentDietStartDate;
+    }
 }
