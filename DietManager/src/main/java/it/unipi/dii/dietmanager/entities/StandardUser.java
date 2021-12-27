@@ -100,7 +100,6 @@ public class StandardUser extends User {
     public List<EatenFood> getEatenFoods() {
         return eatenFoods;
     }
-
     public void setEatenFoods(List<EatenFood> eatenFoods) {
         this.eatenFoods = eatenFoods;
     }
@@ -108,7 +107,6 @@ public class StandardUser extends User {
     public Diet getCurrentDiet() {
         return currentDiet;
     }
-
     public void setCurrentDiet(Diet currentDiet) {
         this.currentDiet = currentDiet;
     }
