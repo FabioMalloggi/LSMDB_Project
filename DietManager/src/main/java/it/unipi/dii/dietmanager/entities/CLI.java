@@ -319,7 +319,7 @@ public class CLI {
         if(user instanceof StandardUser){
 
             //StandardUser su = (StandardUser) user;
-            System.out.println("Current diet: "+((StandardUser) user).getCurrentDiet().getId()+" Date of start of the diet"+((StandardUser) user).getCurrentDietStartDate().toString());
+            System.out.println("Current diet: "+((StandardUser) user).getCurrentDiet().getId());
 
             /*System.out.println("List of Eaten foods: ");
             for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
