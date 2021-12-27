@@ -10,6 +10,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 
@@ -86,10 +87,20 @@ public class MongoDB implements AutoCloseable{
     {
         User user;
 
-        String userType = (String) userDocument.get("userType");
+        String password, username, name, country;
+        int age;
+        JSONArray jsonFoods;
+        JSONObject jsonDocument = new JSONObject(userDocument.toString());
+        //String userType = (String) userDocument.get("userType");
+        String userType = jsonDocument.getString("userType");
         if(userType == "StandardUser"){
-            JSONObject jsonUser = new JSONObject(userDocument.toString());
-            StandardUser standardUser = jsonUser.;
+            //JSONObject jsonUser = new JSONObject(userDocument.toString());
+            password = jsonDocument.getString("password");
+            //StandardUser standardUser = jsonUser.;
+            jsonFoods = jsonDocument.getJSONArray("eatenFoods");
+            for(int i=0; i<jsonFoods.length(); i++){
+
+            }
         }else if(userType == "nutritionist"){
             Nutritionist nutritionist = gson.fromJson(userDocument.toJson(), Nutritionist.class);
             user = nutritionist;
