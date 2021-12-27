@@ -26,6 +26,12 @@ public class Diet {
         this.nutritionist = nutritionist;
     }
 
+    public Diet(String name, List<Nutrient> nutrients, Nutritionist nutritionist) {
+        this.name = name;
+        this.nutrients = nutrients;
+        this.nutritionist = nutritionist;
+    }
+
     public String getId() {
         return id;
     }

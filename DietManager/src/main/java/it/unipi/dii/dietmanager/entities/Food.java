@@ -16,6 +16,11 @@ public class Food
         nutrients = new ArrayList<>();
     }
 
+    public Food(String id, List<Nutrient> nutrients) {
+        this.id = id;
+        this.nutrients = nutrients;
+    }
+
     public void addNutrient(Nutrient nutrient){
         nutrients.add(nutrient);
     }

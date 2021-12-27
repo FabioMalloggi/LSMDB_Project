@@ -2,11 +2,59 @@ package it.unipi.dii.dietmanager;
 
 import it.unipi.dii.dietmanager.entities.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class DietManager {
+    private final String[] nutrients_names =
+            {/*0*/"Energy",/*1*/"Protein",/*2*/"Fat",/*3*/"Carb",/*4*/"Sugar",
+                    /*5*/"Fiber",/*6*/"VitA",/*7*/"VitB6",/*8*/"VitB12",/*9*/"VitC",/*10*/"VitE",
+                    /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
+                    /*16*/"Zinc"};
+    private final String[] nutrients_units =
+            {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
+                    /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
+                    /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
+                    /*16*/"MG"};
+    public Food generateFood(String name, String[] nutrientsValues){
+        /*String[] nameNutrients = {"energy", "protein", "fat", "carbohydrate", "sugar", "fiber", "vitaminA", "vitaminB6", "vitaminB12", "vitaminC", "vitaminE", "thiamin", "calcium", "magnesium", "manganese", "phosphoro", "zinc"};
+        String[] unitForEachNutrients = {"_kcal", "_g", "_g", "_g", "_g", "_g", "_mcg", "_mg", "_mcg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg", "_mg"};*/
+        double [] doubleValues = new double[17];
+        List<Nutrient> newList = new ArrayList<>();
+        Nutrient tmp;
+        Food foodCreated;
+        for(int i = 0; i < nutrientsValues.length; i++){
+            doubleValues[i] = Double.parseDouble(nutrientsValues[i]);
+        }
+
+        //generating the list of nutrients
+        for (int i = 0; i < doubleValues.length; i++){
+            tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
+            newList.add(tmp);
+        }
+        foodCreated = new Food(name, newList);
+        return foodCreated;
+    }
+
+    public Diet generateDiet(String name, String[] nutrientsValues, Nutritionist creator){
+        double [] doubleValues = new double[17];
+        List<Nutrient> newList = new ArrayList<>();
+        Nutrient tmp;
+        Diet dietCreated;
+        for(int i = 0; i < nutrientsValues.length; i++){
+            doubleValues[i] = Double.parseDouble(nutrientsValues[i]);
+        }
+
+        //generating the list of nutrients
+        for (int i = 0; i < doubleValues.length; i++){
+            tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
+            newList.add(tmp);
+        }
+        dietCreated = new Diet(name, newList, creator);
+        return dietCreated;
+    }
 
     public static void main(String[] args) {
         CLI cli = new CLI();
