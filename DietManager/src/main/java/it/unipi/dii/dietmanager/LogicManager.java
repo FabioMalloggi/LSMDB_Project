@@ -49,6 +49,13 @@ public class LogicManager {
         return  foodsTarget;
     }
 
+    public Food lookUpFoodByID(String id){
+        Food foodTarget = null;
+
+        //foodTarget = MongoDB.lookUpFoodByID(); // *** Asking Fabio to develpo this method in MongoDB***
+        return foodTarget;
+    }
+
     public List<Food> lookUpMostEatenFoodByCategory (String category){
         List<Food> foodsTarget = null;
 
