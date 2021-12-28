@@ -3,11 +3,33 @@ package it.unipi.dii.dietmanager;
 import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.persistence.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class LogicManager {
-    User currentUser;
+    public User currentUser;
+    private final String[] nutrients_names =
+            {/*0*/"Energy",/*1*/"Protein",/*2*/"Fat",/*3*/"Carb",/*4*/"Sugar",
+                    /*5*/"Fiber",/*6*/"VitA",/*7*/"VitB6",/*8*/"VitB12",/*9*/"VitC",/*10*/"VitE",
+                    /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
+                    /*16*/"Zinc"};
+
+    private final String[] nutrients_units =
+            {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
+                    /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
+                    /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
+                    /*16*/"MG"};
+    private final int MAX_FAIL_NUTRIENT = 2;
+    private final int MONGO_DB_PORT = 2222;
+    private Neo4j Neo4J;
+    private MongoDB MongoDB;
+
+    public LogicManager() {
+        this.currentUser = null;
+        Neo4J = new Neo4j( "neo4j://localhost:7687", "neo4j", "root" ) ;
+        MongoDB = new MongoDB(MONGO_DB_PORT);
+    }
 
     public boolean signIn(String username, String password){
         boolean test = false;
@@ -105,44 +127,51 @@ public class LogicManager {
 
     }
 
-    //Read-Operations for Neo4J
+    /** Read-Operations for Neo4J */
     public Diet lookUpMostFollowedDiet() {
-        Diet dietTarget = null;
+        Diet dietTarget = null; String id;
 
-        //dietTarget = Neo4J.lookUpMostFollowedDiet();
+        id = Neo4J.lookUpMostFollowedDiet();
+        dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
     }
 
     public Diet lookUpMostPopularDiet() {
-        Diet dietTarget = null;
+        Diet dietTarget = null; String id;
 
-        //dietTarget = Neo4J.lookUpMostPopularDiet();
-
-        return  dietTarget;
-    }
-
-    public Diet lookUpMostCompletedDiet() {
-        Diet dietTarget = null;
-
-        //dietTarget = Neo4J.lookUpMostCompletedDiet();
+        id = Neo4J.lookUpMostPopularDiet();
+        dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
     }
 
-    public Diet lookUpRecommendedDiet() {
-        Diet dietTarget = null;
+    public Diet lookUpMostSucceededDiet() {
+        Diet dietTarget = null; String id;
 
-        //dietTarget = Neo4J.lookUpMostCompletedDiet();
+        id = Neo4J.lookUpMostSucceededDiet();
+        dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
     }
 
+    public Diet lookUpMostRecommendedDiet() {
+        Diet dietTarget = null; String id;
+
+        id = Neo4J.lookUpMostRecommendedDiet((StandardUser) currentUser);
+        dietTarget = lookUpDietByID(id);
+
+        return  dietTarget;
+    }
+
+    /**Conflitto di parametri tra questa funzione e la sua corrispettiva in Neo4j --> vedere txt apposito*/
     public Diet lookUpMostFollowedDietByNutritionist(String username) {
-        Diet dietTarget = null;
+        Diet dietTarget = null; String id;
 
-        //dietTarget = Neo4J.lookUpMostFollowedDietByNutritionist(username);
-
+        /*
+        id = Neo4J.lookUpMostFollowedDietByNutritionist(username);
+        dietTarget = lookUpDietByID(id);
+        */
         return  dietTarget;
     }
 
@@ -154,7 +183,7 @@ public class LogicManager {
         return nutritionistTarget;
     }
 
-    //Write-Operations
+    /** Write-Operations*/
     public boolean registerUser(User user){
         boolean mongoDB = false, neo4J = false;
 
@@ -220,10 +249,11 @@ public class LogicManager {
         }
     }
 
-    public boolean addFoodToEatenFood(String name){
-        boolean task = false;
+    public boolean addFoodToEatenFood(String name, String quantity){
+        boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
 
-        //task = MongoDB.addFoodToEatenFood(name, currentUser);
+
+        //task = MongoDB.addFoodToEatenFood(name, quantity, currentUser);
 
         return  task;
     }
@@ -313,5 +343,90 @@ public class LogicManager {
         return  task;
     }
 
-    // ****Missing checkDietProgress() ****
+    private int nutrientIndex(List<Nutrient> lista, String nutrientName){
+        int i = 0;
+        for(i = 0; i < lista.size(); i++){
+            if(lista.get(i).getName().equals(nutrientName))
+                return i;
+        }
+        return -1;
+    }
+
+
+    public boolean checkDietProgress (){
+        List<EatenFood> eatenFoodsList;
+        Food foodTarget;
+        Diet dietTarget;
+        int i, index, counterFails = 0, totalQuantityEatenFoods = 0;
+        double[] total = new double[17];
+        boolean[] isBelow = new boolean[17];
+        Arrays.fill(isBelow, false); //set all the values of the bool array to 'false'. We suppose at the beginning all the values of the nutrients of the currentUSer EatenFood are higher than the corresponding nutrients values of the diet followed
+        Arrays.fill(total, 0); //set all the values of the double array to 0
+
+        //1) i retrive the eatenFood list of the current user
+
+        //eatenFoodsList = lookUpStandardUserEatenFoods(); //trivial i have already the eaten food list (it is modified each time the user add a food to EFL)
+        /**
+         * the EatenFood has only the ID of the food, with no values of each nutrients.
+         * We are required to make an accesso to MongoDB for each nutrientFood of the list to get/obtain the values of each (its )nutrient to compute the totals
+         * Then we have to comapre the totals[] with the values of the CurrentDiet.
+         */
+        for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
+            foodTarget = lookUpFoodByID(ef.getFoodID());
+            //i = 0;
+            for(int j = 0; j < nutrients_names.length; j++){
+                index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
+                total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;
+            }
+            totalQuantityEatenFoods += ef.getQuantity();
+        }
+
+        //2) i retrive the diet of the current User
+        dietTarget = lookUpStandardUserCurrentDiet();
+
+        //3) check if the currentUser is respecting the followed diet
+        for(int j = 0; j < nutrients_names.length; j++){
+            index = nutrientIndex(dietTarget.getNutrients(), nutrients_names[j]);
+            if( ( total[j]/ (totalQuantityEatenFoods / 100) ) < dietTarget.getNutrients().get(index).getQuantity() )
+                isBelow[j] = true;
+            //System.out.println(nutrients_names[j]+": EatenFood average : "+( total[j]/ (totalQuantityEatenFoods / 100) )+" / Diet: "+dietTarget.getNutrients().get(index).getQuantity() );
+        }
+
+        for(int j = 0; j < isBelow.length; j++){
+            if(!isBelow[j])
+                counterFails++;
+
+            if(counterFails > MAX_FAIL_NUTRIENT)
+                return false;
+        }
+        return true;
+    }
+
+    public HashMap<Nutrient, double[]> dietProgress (){
+        List<EatenFood> eatenFoodsList; Food foodTarget; Diet dietTarget; HashMap<Nutrient, double[]> hashMap = new HashMap<>();
+        int i, index, totalQuantityEatenFoods = 0;
+        double[] total = new double[17]; boolean[] isBelow = new boolean[17];
+        Arrays.fill(isBelow, false); //set all the values of the bool array to 'false'. We suppose at the beginning all the values of the nutrients of the currentUSer EatenFood are higher than the corresponding nutrients values of the diet followed
+        Arrays.fill(total, 0); //set all the values of the double array to 0
+
+        for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
+            foodTarget = lookUpFoodByID(ef.getFoodID());
+            for(int j = 0; j < nutrients_names.length; j++){
+                index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
+                total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;
+            }
+            totalQuantityEatenFoods += ef.getQuantity();
+        }
+
+        dietTarget = lookUpStandardUserCurrentDiet();
+
+        for(int j = 0; j < nutrients_names.length; j++){
+            index = nutrientIndex(dietTarget.getNutrients(), nutrients_names[j]);
+            if( ( total[j]/ (totalQuantityEatenFoods / 100) ) < dietTarget.getNutrients().get(index).getQuantity() ) {
+                double [] tmp = { (total[j]/ (totalQuantityEatenFoods / 100)), dietTarget.getNutrients().get(index).getQuantity() };
+                hashMap.put(dietTarget.getNutrients().get(index), tmp);
+            }
+        }
+        return hashMap;
+    }
 }

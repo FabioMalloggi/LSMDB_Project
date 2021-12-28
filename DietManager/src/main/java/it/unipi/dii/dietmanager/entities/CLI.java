@@ -115,7 +115,7 @@ public class CLI {
                 "help food\t\t-> retrieve help commands on foods\n" +
                 "help diet\t\t-> retrieve help commands on diets\n" +
                 "help user\t\t-> retrieve help commands on users\n"+
-                "exit \t\t-> log-out from application\n");
+                "exit \t\t\t-> log-out from application\n");
         /*System.out.print("> ");
         helpType = scan.nextLine();*/
         /*
@@ -293,7 +293,7 @@ public class CLI {
         while(hmIterator.hasNext()){
             Map.Entry mapElement = (Map.Entry)hmIterator.next();
             Nutrient n = ((Nutrient) mapElement.getValue());
-            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() ); //getKey returns a generic Object. I can't call the methods of Nutritionist
+            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() );
         }
     }
 
@@ -341,4 +341,30 @@ public class CLI {
             System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodID()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
         }
     }
+
+    public void printCheckDietProgress(boolean check){
+        if(check)
+            System.out.println("You have successfully completed the followed diet");
+        else
+            System.out.println("You don't have successfully completed the followed diet");
+    }
+
+    public void printDietProgress(HashMap<Nutrient, double[]> hashMap){
+        Iterator hmIterator = hashMap.entrySet().iterator();
+        while(hmIterator.hasNext()){
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            double[] value = ((double[]) mapElement.getValue());
+            System.out.println(((Nutrient)(mapElement.getKey())).getName()+": EatenFood average : "+value[0]+" / Diet: "+value[1]); //getKey returns a generic Object. I can't call the methods of Nutritionist
+        }
+    }
+
+    public String quantityOfEatenFood(){
+        String in;
+        System.out.println("insert the quantity (in g)");
+        System.out.print("> ");
+        in = scan.nextLine();
+        return in;
+    }
+
+
 }

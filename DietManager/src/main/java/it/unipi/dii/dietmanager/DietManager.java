@@ -53,6 +53,8 @@ public class DietManager {
         return dietCreated;
     }
 
+
+
     public static void main(String[] args) {
         CLI cli = new CLI();
         LogicManager lM = new LogicManager();
@@ -159,7 +161,7 @@ public class DietManager {
             while (isLogged == true){
                 String helpType;
                 String choose;
-                String input;
+                String input, input2;
                 String[] tokens;
                 //help menu
 
@@ -201,6 +203,8 @@ public class DietManager {
                     }
                     else{
                         System.err.println("Any food with that name");
+                        System.out.flush();
+                        System.err.flush();
                     }
                 }
                 else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length==3){
@@ -234,14 +238,18 @@ public class DietManager {
                 else if(tokens[0].equals("add") && tokens[1].equals("-ef") && tokens.length == 3){
                     System.out.println("-> add food to your eaten foods list");
 
+                    /** CHIEDERE LA QUANTITA (in grammi)***/
+                    input2 = cli.quantityOfEatenFood();
                     checkOperation = false;
-                    checkOperation = lM.addFoodToEatenFood(tokens[2]);
+                    checkOperation = lM.addFoodToEatenFood(tokens[2], input2);
 
                     if(checkOperation){
                         System.out.println(tokens[2]+" correctly added in your EatenFoodList");
                     }
                     else {
                         System.err.println(tokens[2]+" not added in your EatenFoodList");
+                        System.out.flush();
+                        System.err.flush();
                     }
 
                 }
@@ -310,45 +318,13 @@ public class DietManager {
                 //helpDiet
                 //check diet progress
                 else if(tokens[0].equals("check")){
-                    int i;
-                    double[] total = new double[17];
-                    boolean[] isBelow = new boolean[17];
-                    Arrays.fill(isBelow, false); //set all the values of the bool array to 'false'. We suppose at the beginning all the values of the nutrients of the currentUSer EatenFood are higher than the corresponding nutrients values of the diet followed
-                    Arrays.fill(total, 0); //set all the values of the double array to 0
+                    boolean check;
                     /*if(lM.currentUser instanceof StandardUser){
-
+                        //qui ci va il codice di questo else if
                     }*/
                     System.out.println("checking...");
-                    //first i retrive the eatenFood list of the current user
-                    eatenFoodsList = lM.lookUpStandardUserEatenFoods();
-
-                    /**
-                     * the EatenFood has only the ID of the food, with no values of each nutrients.
-                     * We are required to make an accesso to MongoDB for each nutrientFood of the list to get/obtain the values of each (its )nutrient to compute the totals
-                     * Then we have to comapre the totals[] with the values of the CurrentDiet.
-                    */
-                    for (EatenFood ef : eatenFoodsList){
-                        foodTarget = lM.lookUpFoodByID(ef.getFoodID());
-                        i = 0;
-                        for(Nutrient n : foodTarget.getNutrients()){
-                            total[i] += n.getQuantity();
-                            i++;
-                        }
-                    }
-
-                    //then i retrive the diet of the current User
-                    dietTarget = lM.lookUpStandardUserCurrentDiet();
-
-                    i = 0;
-                    for(Nutrient n: dietTarget.getNutrients()){
-                        if(total[i] < n.getQuantity()) {
-                            isBelow[i] = true;
-                        }
-                        System.out.println(nutrients_names[i]+": EatenFood totals : "+total[i]+" / Diet: "+n.getQuantity());
-                    }
-
-                    // ***compute the value of true and determine the decision {succeeded, failed} ***
-
+                    check = lM.checkDietProgress();
+                    cli.printCheckDietProgress(check);
                 }
 
                 // follow a diet
@@ -442,7 +418,7 @@ public class DietManager {
                     else if(tokens[2].equals("-mc")){
                         System.out.println("-> search most completed diet");
 
-                        dietTarget = lM.lookUpMostCompletedDiet();
+                        dietTarget = lM.lookUpMostSucceededDiet();
                         if(dietTarget != null) {
                             cli.printDiet(dietTarget);
                         }
@@ -451,9 +427,9 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-r")){
-                        System.out.println("-> lookup recommended diet");
+                        System.out.println("-> lookup most recommended diet");
 
-                        dietTarget = lM.lookUpRecommendedDiet();
+                        dietTarget = lM.lookUpMostRecommendedDiet();
                         if(dietTarget != null) {
                             cli.printDiet(dietTarget);
                         }
@@ -559,7 +535,7 @@ public class DietManager {
                     }
                     else if(tokens[2].equals("-mpn")){
                         System.out.println("-> lookup most popular nutritionist");
-                        //(Nutritionist) userTarget = lM.lookUpMostPopularNutritionist(); //*** non funge il cast***
+                        //((Nutritionist) userTarget) = lM.lookUpMostPopularNutritionist(); //*** non funge il cast***
                         cli.printUser(userTarget);
                     }
                 }
