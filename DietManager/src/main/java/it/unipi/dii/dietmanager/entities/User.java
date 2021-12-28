@@ -19,7 +19,7 @@ public abstract class  User {
         this.country = Country;
     }
 
-    public User( String username){
+    public User(String username){
         this.username = username;
     }
 

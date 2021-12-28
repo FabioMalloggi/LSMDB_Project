@@ -1,6 +1,7 @@
 package it.unipi.dii.dietmanager.entities;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -25,6 +26,20 @@ public class Food
         nutrients.add(nutrient);
     }
 
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<Nutrient> getNutrients() {
+        return nutrients;
+    }
+    public void setNutrients(List<Nutrient> nutrients) {
+        this.nutrients = nutrients;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonFood = new JSONObject();
         try {
@@ -45,19 +60,24 @@ public class Food
         return jsonFood;
     }
 
-    public String getId() {
-        return id;
-    }
+    public static Food fromJSON(JSONObject jsonFood){
+        Food newFood = null;
+        String id;
+        List<Nutrient> nutrients = new ArrayList<>();
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        //first i retrive the attributes values from the JSONObject
+        try{
+            id = jsonFood.getString("_id");
+            JSONArray jsonNutrients = jsonFood.getJSONArray("nutrients");
 
-    public List<Nutrient> getNutrients() {
-        return nutrients;
-    }
-
-    public void setNutrients(List<Nutrient> nutrients) {
-        this.nutrients = nutrients;
+            for (int i = 0; i < jsonNutrients.length(); i++){
+                nutrients.add((Nutrient) jsonNutrients.get(i));
+            }
+            //then generate the new object Food
+            newFood = new Food( id, nutrients);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return newFood;
     }
 }

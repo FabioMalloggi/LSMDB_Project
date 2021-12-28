@@ -1,5 +1,6 @@
 package it.unipi.dii.dietmanager.entities;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Nutrient
@@ -25,12 +26,10 @@ public class Nutrient
     {
         this.name = name;
     }
-
     public void setUnit(String unit)
     {
         this.unit = unit;
     }
-
     public void setQuantity(double quantity)
     {
         this.quantity = quantity;
@@ -40,12 +39,10 @@ public class Nutrient
     {
         return name;
     }
-
     public String getUnit()
     {
         return unit;
     }
-
     public double getQuantity()
     {
         return quantity;
@@ -64,5 +61,24 @@ public class Nutrient
             System.exit(1);
         }
         return jsonNutrient;
+    }
+
+    public static Nutrient fromJSON(JSONObject jsonNutrient){
+        String name, unit;
+        double quantity;
+        Nutrient newNutrient = null;
+        //first i retrive the attributes values from the JSONObject
+        try{
+            name = jsonNutrient.getString("name");
+            unit = jsonNutrient.getString("unit");
+            quantity = jsonNutrient.getDouble("quantity");
+
+            //then generate the new object Nutrient
+            newNutrient = new Nutrient(name, unit, quantity);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return  newNutrient;
     }
 }

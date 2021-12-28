@@ -35,15 +35,12 @@ public class Diet {
     public String getId() {
         return id;
     }
-
     public String getName() {
         return name;
     }
-
     public List<Nutrient> getNutrients() {
         return nutrients;
     }
-
     public Nutritionist getNutritionist() {
         return nutritionist;
     }
@@ -69,10 +66,32 @@ public class Diet {
         return jsonDiet;
     }
 
-    /*
-    public static Diet fromJson(JSONObject jsonDiet){
-        return new Diet();
+    public static Diet fromJSON(JSONObject jsonDiet){
+        String id, name, nutritionistUsername;
+        List<Nutrient> nutrients = new ArrayList<>();
+        Nutritionist nutritionist = null;
+        Diet newDiet = null;
+
+        //first i retrive the attributes values from the JSONObject
+        try{
+            id = jsonDiet.getString("_id");
+            name = jsonDiet.getString("name");
+            nutritionistUsername = jsonDiet.getString("nutritionist");
+            nutritionist = new Nutritionist(nutritionistUsername);
+
+            JSONArray jsonNutrients = jsonDiet.getJSONArray("nutrients");
+            for (int i = 0; i < jsonNutrients.length(); i++){
+                nutrients.add((Nutrient) jsonNutrients.get(i));
+            }
+            //then generate the new object StandardUser
+            newDiet = new Diet(id, name, nutrients, nutritionist);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return newDiet;
     }
 
-     */
+
 }

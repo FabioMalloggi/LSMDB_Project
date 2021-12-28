@@ -21,7 +21,6 @@ public class EatenFood {
     public String getId() {
         return id;
     }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -29,7 +28,6 @@ public class EatenFood {
     public String getFoodID() {
         return foodID;
     }
-
     public void setFoodID(String foodID) {
         this.foodID = foodID;
     }
@@ -37,7 +35,6 @@ public class EatenFood {
     public int getQuantity() {
         return quantity;
     }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
@@ -45,7 +42,6 @@ public class EatenFood {
     public Timestamp getTimestamp() {
         return timestamp;
     }
-
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
@@ -54,19 +50,20 @@ public class EatenFood {
         String id, foodID;
         int quantity;
         Timestamp timestamp;
-        EatenFood eatenFood = null;
-
+        EatenFood newEatenFood = null;
+        //first i retrive the attributes values from the JSONObject
         try{
             id = jsonEatenFood.getString("eatenFoodID");
             foodID = jsonEatenFood.getString("foodID");
             quantity = jsonEatenFood.getInt("quantity");
             timestamp = Timestamp.valueOf(jsonEatenFood.getString("timestamp"));
 
-            eatenFood = new EatenFood(id, foodID, quantity, timestamp);
+            //then generate the new object EatenFood
+            newEatenFood = new EatenFood(id, foodID, quantity, timestamp);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
-        return  eatenFood;
+        return  newEatenFood;
     }
 }

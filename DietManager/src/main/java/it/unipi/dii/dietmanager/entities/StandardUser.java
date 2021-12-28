@@ -68,27 +68,27 @@ public class StandardUser extends User {
         return user;
     }
 
-    public static StandardUser fromJSON(JSONObject userJ){
+    public static StandardUser fromJSON(JSONObject jsonUser){
         String username, password, fullName, sex, country;
         int age;
         StandardUser newUser = null;
-        List<EatenFood> list = new ArrayList<>();
+        List<EatenFood> eatenFoods = new ArrayList<>();
 
         //first i retrive the attributes values from the JSONObject
         try{
-            username = userJ.getString("_id");
-            password = userJ.getString("password");
-            fullName = userJ.getString("name");
-            sex = userJ.getString("sex");
-            country = userJ.getString("country");
-            age = userJ.getInt("age");
+            username = jsonUser.getString("_id");
+            password = jsonUser.getString("password");
+            fullName = jsonUser.getString("name");
+            sex = jsonUser.getString("sex");
+            country = jsonUser.getString("country");
+            age = jsonUser.getInt("age");
 
-            JSONArray eatenfoods = userJ.getJSONArray("eatenFoods");
-            for (int i = 0; i < eatenfoods.length(); i++){
-                list.add((EatenFood) eatenfoods.get(i));
+            JSONArray jsonEatenFoods = jsonUser.getJSONArray("eatenFoods");
+            for (int i = 0; i < jsonEatenFoods.length(); i++){
+                eatenFoods.add((EatenFood) jsonEatenFoods.get(i));
             }
             //then generate the new object StandardUser
-            newUser = new StandardUser(username, fullName, sex, password, age, country, list);
+            newUser = new StandardUser(username, fullName, sex, password, age, country, eatenFoods);
         }
         catch (JSONException e){
             e.printStackTrace();
