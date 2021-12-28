@@ -25,7 +25,6 @@ abstract class FoodSchema{
 }
 /*
 Collections: users | diets | foods
-
 user:
         _id: "username",
         password: "",
