@@ -26,7 +26,6 @@ public abstract class  User {
     public String getUsername() {
         return username;
     }
-
     public void setUsername (String userName) {
         this.username = userName;
     }
@@ -34,15 +33,20 @@ public abstract class  User {
     public String getFullName() {
         return fullName;
     }
-
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getSex() {
         return sex;
     }
-
     public void setSex(String sex) {
         this.sex = sex;
     }
@@ -50,7 +54,6 @@ public abstract class  User {
     public int getAge() {
         return age;
     }
-
     public void setAge(int age) {
         this.age = age;
     }
@@ -58,18 +61,9 @@ public abstract class  User {
     public String getCountry() {
         return country;
     }
-
     public void setCountry(String country) {
         this.country = country;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public abstract JSONObject toJSON ();
+    public abstract JSONObject toJSON();
 }
