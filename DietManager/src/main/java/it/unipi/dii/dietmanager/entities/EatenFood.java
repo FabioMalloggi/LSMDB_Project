@@ -69,5 +69,4 @@ public class EatenFood {
         }
         return  eatenFood;
     }
-
 }
