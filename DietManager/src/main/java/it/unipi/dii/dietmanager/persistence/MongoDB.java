@@ -78,12 +78,6 @@ public class MongoDB implements AutoCloseable{
         mongoClient.close();
     }
 
-    private List<EatenFood> eatenFoodsFromJSONArray(JSONArray jsonEatenFoods){
-        for(int i=0; i<jsonEatenFoods.length(); i++){
-
-        }
-    }
-
     private User getUserObjectFromJSON(JSONObject jsonUser){
         String userType = jsonUser.getString("userType");
         if(userType.equals("standardUser"))
@@ -144,11 +138,11 @@ public class MongoDB implements AutoCloseable{
     }
 
 
-    public Diet lookUpStandardUserCurrentDiet(String username){
+    /*public Diet lookUpStandardUserCurrentDiet(String username){
         MongoCollection<Document> usersCollection = database.getCollection("users");
         JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
         return lookUpDietByID(jsonUser.getString("currentDiet"));
-    }
+    }*/
 
     public List<EatenFood> lookUpStandardUserEatenFoods(String username){
         MongoCollection<Document> usersCollection = database.getCollection("users");
