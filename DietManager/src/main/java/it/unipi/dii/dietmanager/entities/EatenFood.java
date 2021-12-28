@@ -1,5 +1,8 @@
 package it.unipi.dii.dietmanager.entities;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Timestamp;
 
 public class EatenFood {
@@ -45,5 +48,25 @@ public class EatenFood {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public static EatenFood fromJSON(JSONObject jsonEatenFood){
+        String id, foodID;
+        int quantity;
+        Timestamp timestamp;
+        EatenFood eatenFood = null;
+
+        try{
+            id = jsonEatenFood.getString("eatenFoodID");
+            foodID = jsonEatenFood.getString("foodID");
+            quantity = jsonEatenFood.getInt("quantity");
+            timestamp = Timestamp.valueOf(jsonEatenFood.getString("timestamp"));
+
+            eatenFood = new EatenFood(id, foodID, quantity, timestamp);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return  eatenFood;
     }
 }

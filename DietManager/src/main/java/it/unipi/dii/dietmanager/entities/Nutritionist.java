@@ -46,12 +46,11 @@ public class Nutritionist extends User {
     public static Nutritionist fromJSON(JSONObject userJ){
         String username, password, fullName, sex, country;
         int age;
-        Nutritionist newNut = null;
+        Nutritionist newNutritionist = null;
 
         //first i retrive the attributes values from the JSONObject
         try{
             username = userJ.getString("_id");
-            //username = userJ.getString("username");
             password = userJ.getString("password");
             fullName = userJ.getString("name");
             sex = userJ.getString("sex");
@@ -59,12 +58,12 @@ public class Nutritionist extends User {
             age = userJ.getInt("age");
 
             //then generate the new object Nutritionist
-            newNut = new Nutritionist(username, fullName, sex, password, age, country, null);
+            newNutritionist = new Nutritionist(username, fullName, sex, password, age, country);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
-        return  newNut;
+        return  newNutritionist;
     }
 
     public List<Diet> getDiets() {
