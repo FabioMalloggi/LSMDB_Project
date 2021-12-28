@@ -1,28 +1,25 @@
 package it.unipi.dii.dietmanager.persistence;
-import com.mongodb.ConnectionString;
 
-import com.mongodb.client.*;
-import it.unipi.dii.dietmanager.entities.Administrator;
-import it.unipi.dii.dietmanager.entities.Nutritionist;
-import it.unipi.dii.dietmanager.entities.StandardUser;
-import it.unipi.dii.dietmanager.entities.User;
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import com.mongodb.ConnectionString;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import it.unipi.dii.dietmanager.entities.*;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
 
-import javax.json.stream.JsonParser;
-
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.eq;
 /*
 Collections: users | diets | foods
 user:
         _id: "username",
         password: "",
-        name: "",
+        fullName: "",
         sex: "",
         age: "",
         country: "",
@@ -83,64 +80,51 @@ public class MongoDB implements AutoCloseable{
         mongoClient.close();
     }
 
+    private List<EatenFood> eatenFoodsFromJSONArray(JSONArray jsonEatenFoods){
+        for(int i=0; i<jsonEatenFoods.length(); i++){
+
+        }
+    }
+
     private User userFromDocument(Document userDocument)
     {
+        if(userDocument == null)
+            return null;
         User user;
-
-        String password, username, name, country;
-        int age;
-        JSONArray jsonFoods;
         JSONObject jsonDocument = new JSONObject(userDocument.toString());
-        //String userType = (String) userDocument.get("userType");
+
         String userType = jsonDocument.getString("userType");
-        if(userType == "StandardUser"){
-            //JSONObject jsonUser = new JSONObject(userDocument.toString());
-            password = jsonDocument.getString("password");
-            //StandardUser standardUser = jsonUser.;
-            jsonFoods = jsonDocument.getJSONArray("eatenFoods");
-            for(int i=0; i<jsonFoods.length(); i++){
+        if(userType.equals("standardUser"))
+            user = StandardUser.fromJSON(jsonDocument);
 
-            }
-        }else if(userType == "nutritionist"){
-            Nutritionist nutritionist = gson.fromJson(userDocument.toJson(), Nutritionist.class);
-            user = nutritionist;
-        }else if(userType == "administrator"){
-            Administrator administrator = gson.fromJson(userDocument.toJson(), Administrator.class);
-            user = administrator;
-        } else{
+        else if(userType.equals("nutritionist"))
+            user = Nutritionist.fromJSON(jsonDocument);
+
+        else if(userType.equals("administrator"))
+            user = Administrator.fromJSON(jsonDocument);
+        else
             return null;
-        }
+
         return user;
     }
 
-    private String userToDocument(User user)
-    {
-
-        Document userDocument = Document.parse(user.toJSON().toString());
-
-        String userString;
-        String userType = (String) userDocument.get("userType");
-        if(user instanceof StandardUser){
-            userString = gson.toString((StandardUser)user);
-        }else if(userType == "nutritionist"){
-            Nutritionist nutritionist = gson.fromJson(userDocument.toJson(), Nutritionist.class);
-            user = nutritionist;
-        }else if(userType == "administrator"){
-            Administrator administrator = gson.fromJson(userDocument.toJson(), Administrator.class);
-            user = administrator;
-        } else{
-            return null;
-        }
-        return user;
+    private Document userToDocument(User user){
+        return Document.parse(user.toJSON().toString());
     }
 
-    public User lookUpUserByID(String username)
-    {
+    // for both sign in and lookUpUser
+    public User lookUpUserByID(String username){
         MongoCollection<Document> usersCollection = database.getCollection("users");
         Document userDocument = usersCollection.find(eq("_id", new ObjectId(username))).first(); // there can be at least only 1 match.
         return userFromDocument(userDocument);
     }
 
+    public boolean registerUser(User user){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        Document userDocument = Document.parse(user.toJSON().toString());
+        usersCollection.insertOne(userDocument);
+        return lookUpUserByID(user.getUsername()) != null;
+    }
     /*
     MongoCollection<Document> usersCollection = database.getCollection("users");
         try(MongoCursor<Document> cursor = usersCollection.find().iterator())

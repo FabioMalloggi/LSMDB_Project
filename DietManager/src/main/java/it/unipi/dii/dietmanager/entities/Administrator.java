@@ -25,4 +25,28 @@ public class Administrator extends User{
         }
         return user;
     }
+
+    public static Administrator fromJSON(JSONObject userJ){
+        String username, password, fullName, sex, country;
+        int age;
+        Administrator newAdministrator = null;
+
+        //first i retrive the attributes values from the JSONObject
+        try{
+            username = userJ.getString("_id");
+            password = userJ.getString("password");
+            fullName = userJ.getString("name");
+            sex = userJ.getString("sex");
+            country = userJ.getString("country");
+            age = userJ.getInt("age");
+
+            //then generate the new object Administrator
+            newAdministrator = new Administrator(username, fullName, password, sex, age, country);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        return  newAdministrator;
+    }
+
 }
