@@ -5,12 +5,14 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import it.unipi.dii.dietmanager.entities.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -63,10 +65,6 @@ public class MongoDB implements AutoCloseable{
     private final MongoClient mongoClient;
     private final MongoDatabase database;
 
-    private final Gson gson = new Gson();
-    private JSONParser parser = new JSONParser();
-    JSONObject json = (JSONObject) parser.parse(stringToParse);
-
     public MongoDB(int localhostPort)
     {
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
@@ -86,26 +84,27 @@ public class MongoDB implements AutoCloseable{
         }
     }
 
+    private User getUserObjectFromJSON(JSONObject jsonUser){
+        String userType = jsonUser.getString("userType");
+        if(userType.equals("standardUser"))
+            return StandardUser.fromJSON(jsonUser);
+
+        if(userType.equals("nutritionist"))
+            return Nutritionist.fromJSON(jsonUser);
+
+        if(userType.equals("administrator"))
+            return Administrator.fromJSON(jsonUser);
+
+        return null;
+    }
+
     private User userFromDocument(Document userDocument)
     {
         if(userDocument == null)
             return null;
-        User user;
-        JSONObject jsonDocument = new JSONObject(userDocument.toString());
 
-        String userType = jsonDocument.getString("userType");
-        if(userType.equals("standardUser"))
-            user = StandardUser.fromJSON(jsonDocument);
-
-        else if(userType.equals("nutritionist"))
-            user = Nutritionist.fromJSON(jsonDocument);
-
-        else if(userType.equals("administrator"))
-            user = Administrator.fromJSON(jsonDocument);
-        else
-            return null;
-
-        return user;
+        JSONObject jsonUser = new JSONObject(userDocument.toString());
+        return getUserObjectFromJSON(jsonUser);
     }
 
     private Document userToDocument(User user){
@@ -125,6 +124,42 @@ public class MongoDB implements AutoCloseable{
         usersCollection.insertOne(userDocument);
         return lookUpUserByID(user.getUsername()) != null;
     }
+
+    public boolean removeUser(String username){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        usersCollection.deleteOne(Filters.eq("username", username));
+        return lookUpUserByID(username) == null;
+    }
+
+    public User lookUpUserByUsername(String username){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
+        return getUserObjectFromJSON(jsonUser);
+    }
+
+    public User lookUpUserByCountry(String country){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("country", country)).first().toJson());
+        return getUserObjectFromJSON(jsonUser);
+    }
+
+
+    public Diet lookUpStandardUserCurrentDiet(String username){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
+        return lookUpDietByID(jsonUser.getString("currentDiet"));
+    }
+
+    public List<EatenFood> lookUpStandardUserEatenFoods(String username){
+        MongoCollection<Document> usersCollection = database.getCollection("users");
+        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
+        JSONArray jsonEatenFoods = jsonUser.getJSONArray("eatenFoods");
+        List<EatenFood> eatenFoods = new ArrayList<>();
+        for(int i=0; i<jsonEatenFoods.length(); i++)
+            eatenFoods.add(EatenFood.fromJSON(jsonEatenFoods.getJSONObject(i)));
+        return eatenFoods;
+    }
+
     /*
     MongoCollection<Document> usersCollection = database.getCollection("users");
         try(MongoCursor<Document> cursor = usersCollection.find().iterator())
