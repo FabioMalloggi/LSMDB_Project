@@ -241,7 +241,7 @@ public class DietManager {
                     /** CHIEDERE LA QUANTITA (in grammi)***/
                     input2 = cli.quantityOfEatenFood();
                     checkOperation = false;
-                    checkOperation = lM.addFoodToEatenFood(tokens[2]);
+                    checkOperation = lM.addFoodToEatenFood(tokens[2], input2);
 
                     if(checkOperation){
                         System.out.println(tokens[2]+" correctly added in your EatenFoodList");
@@ -319,6 +319,9 @@ public class DietManager {
                 //check diet progress
                 else if(tokens[0].equals("check")){
                     boolean check;
+                    /*if(lM.currentUser instanceof StandardUser){
+                        //qui ci va il codice di questo else if
+                    }*/
                     System.out.println("checking...");
                     check = lM.checkDietProgress();
                     cli.printCheckDietProgress(check);
@@ -415,7 +418,7 @@ public class DietManager {
                     else if(tokens[2].equals("-mc")){
                         System.out.println("-> search most completed diet");
 
-                        dietTarget = lM.lookUpMostCompletedDiet();
+                        dietTarget = lM.lookUpMostSucceededDiet();
                         if(dietTarget != null) {
                             cli.printDiet(dietTarget);
                         }
@@ -424,9 +427,9 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-r")){
-                        System.out.println("-> lookup recommended diet");
+                        System.out.println("-> lookup most recommended diet");
 
-                        dietTarget = lM.lookUpRecommendedDiet();
+                        dietTarget = lM.lookUpMostRecommendedDiet();
                         if(dietTarget != null) {
                             cli.printDiet(dietTarget);
                         }
@@ -532,7 +535,7 @@ public class DietManager {
                     }
                     else if(tokens[2].equals("-mpn")){
                         System.out.println("-> lookup most popular nutritionist");
-                        //(Nutritionist) userTarget = lM.lookUpMostPopularNutritionist(); //*** non funge il cast***
+                        //((Nutritionist) userTarget) = lM.lookUpMostPopularNutritionist(); //*** non funge il cast***
                         cli.printUser(userTarget);
                     }
                 }
