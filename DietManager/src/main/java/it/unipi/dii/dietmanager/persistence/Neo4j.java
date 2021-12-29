@@ -24,6 +24,10 @@ public class Neo4j implements AutoCloseable
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ) );
     }
 
+    public void closeConnection() throws Exception{
+        close();
+    }
+
     @Override
     public void close() throws Exception
     {
@@ -44,7 +48,7 @@ public class Neo4j implements AutoCloseable
                 return false;
             });
 
-            close();
+            closeConnection();
             return userAlreadyExists;
         }catch(Exception e){
             e.printStackTrace();
@@ -68,7 +72,7 @@ public class Neo4j implements AutoCloseable
                 return false;
             });
 
-            close();
+            closeConnection();
             return dietAlreadyExists;
         }catch(Exception e){
             e.printStackTrace();
@@ -91,7 +95,7 @@ public class Neo4j implements AutoCloseable
                     return true;
                 return false;
             });
-            close();
+            closeConnection();
             return userAlreadyFollowedAnyDiet;
         }catch(Exception e){
             e.printStackTrace();
@@ -118,7 +122,7 @@ public class Neo4j implements AutoCloseable
                     tx.run( "MERGE (:Nutritionist {username: $username})", parameters( "username", user.getUsername()));
                     return null;
                 });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -149,7 +153,7 @@ public class Neo4j implements AutoCloseable
                         parameters("username", diet.getNutritionist().getUsername(), "id", diet.getId()));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -172,7 +176,7 @@ public class Neo4j implements AutoCloseable
                     return true;
                 return false;
             });
-            close();
+            closeConnection();
             return userAlreadyFollowedDiet;
         }catch(Exception e){
             e.printStackTrace();
@@ -202,7 +206,7 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", user.getUsername(), "id", dietID));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -237,7 +241,7 @@ public class Neo4j implements AutoCloseable
                                     "failedCountIncrement", failedCountIncrement, "succeededCountIncrement", succeededCountIncrement));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -265,7 +269,7 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", user.getUsername(), "id", diet.getId()));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -286,7 +290,7 @@ public class Neo4j implements AutoCloseable
                         parameters( "id", dietID));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -326,7 +330,7 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", username));
                 return null;
             });
-            close();
+            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -344,7 +348,7 @@ public class Neo4j implements AutoCloseable
                 Result result = tx.run( "MATCH (diet: Diet) RETURN diet.id AS ID ORDER BY diet.followersCount DESC LIMIT 1");
                 return result.next().get("ID").asString();
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -366,7 +370,7 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("ID").asString();
                 return null;
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -383,7 +387,7 @@ public class Neo4j implements AutoCloseable
                 Result result = tx.run( "MATCH (diet: Diet) RETURN diet.id AS ID ORDER BY diet.succeededCount DESC LIMIT 1");
                 return result.next().get("ID").asString();
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -401,7 +405,7 @@ public class Neo4j implements AutoCloseable
                         "ORDER BY diet.succeededCount+diet.followersCount DESC LIMIT 1");
                 return result.next().get("ID").asString();
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -422,7 +426,7 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("username").asString();
                 return null;
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -452,7 +456,7 @@ public class Neo4j implements AutoCloseable
                 // of the target user don't have completed diets, then I return the most succeeded diet (in general)
                 return lookUpMostSucceededDiet();
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -468,7 +472,7 @@ public class Neo4j implements AutoCloseable
                 tx.run( "MATCH (n) DETACH DELETE n");
                 return null;
             });
-            close();
+            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
