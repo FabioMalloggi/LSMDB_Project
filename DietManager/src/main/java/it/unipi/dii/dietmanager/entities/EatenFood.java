@@ -18,6 +18,13 @@ public class EatenFood {
         this.timestamp = timestamp;
     }
 
+    public EatenFood( String foodID, int quantity, Timestamp timestamp) {
+        this.id = null;
+        this.foodID = foodID;
+        this.quantity = quantity;
+        this.timestamp = timestamp;
+    }
+
     public String getId() {
         return id;
     }
