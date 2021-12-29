@@ -50,7 +50,12 @@ public class DietManager {
             tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
             newList.add(tmp);
         }
+
         dietCreated = new Diet(name, newList, creator);
+
+        /** Da usare se si vuole sostituire l'oggetto nutritionist in diet con il suo username*/
+        //dietCreated = new Diet(name, newList, creator.getUsername());
+
         return dietCreated;
     }
 
@@ -348,16 +353,31 @@ public class DietManager {
 
                 //stop a diet
                 else if(tokens[0].equals("stop")){
-                    System.out.println("stopped a diet, ID:" + tokens[1]);
+                    System.out.println("stopped the current diet");
 
                     checkOperation = false;
-                    checkOperation = lM.stopDiet(); //***lM.stopDiet must call the check before complete the unfollowing***
+                    checkOperation = lM.stopDiet();
 
                     if(checkOperation){
-                        System.out.println("Correctly stopped diet with ID: "+tokens[1]);
+                        System.out.println("Correctly stopped the current diet");
                     }
                     else {
-                        System.err.println("NOT correctly stopped diet with ID: "+tokens[1]);
+                        System.err.println("NOT correctly stopped the current diet");
+                    }
+                }
+
+                //unfollow a diet
+                else if(tokens[0].equals("unfollow")){
+                    System.out.println("unfollowed the current diet");
+
+                    checkOperation = false;
+                    checkOperation = lM.unfollowDiet();
+
+                    if(checkOperation){
+                        System.out.println("Correctly unfollowed the current diet");
+                    }
+                    else {
+                        System.err.println("NOT correctly unfollowed the current diet");
                     }
                 }
 

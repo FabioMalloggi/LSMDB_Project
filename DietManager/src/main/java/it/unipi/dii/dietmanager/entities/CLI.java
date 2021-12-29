@@ -159,7 +159,8 @@ public class CLI {
                 "find -d -r\t\t\t\t-> lookup recommended diet\n" +
                 "find -d -mfnut \"username\" \t-> search most followed diet by Nutritionist username\n" +
                 "follow \"dietID\"\t-> follow a diet\n" +
-                "stop \"dietID\"\t-> stop a diet\n" +
+                "unfollow\t\t\t\t-> unfollow a diet" +
+                "stop\t\t\t\t\t-> stop a diet\n" +
                 "check\t\t\t\t\t-> check your current diet against your eaten foods\n" +
                 "find -d -c\t\t\t\t-> lookup your current diet\n" +
                 "find -npn\t\t\t\t-> lookup most suggested nutrient for each nutritionist");

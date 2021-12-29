@@ -248,7 +248,7 @@ public class LogicManager {
                 if(!neo4J){
                     System.out.println("Errore cross-consistency");
                     //to do something.. REMOVE su MONGO
-                    //MongoDB.unfollow(id);
+                    //MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
                     return false;
                 }
                 else {
@@ -261,6 +261,43 @@ public class LogicManager {
                 //to do something..
                 return false;
             }
+        }
+        else return false;
+    }
+
+    public boolean unfollowDiet(){
+        boolean mongoDB = false, neo4J = false, check = false;
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
+            return false;
+        }
+
+        if(((StandardUser)currentUser).getCurrentDiet() != null){
+            /** da rimuovere id diet != null FORSE*/
+            Diet diet = null;
+            diet = lookUpDietByID(((StandardUser)currentUser).getCurrentDiet().getId());
+            if(diet != null) { //check if diet is not null
+
+                neo4J = Neo4J.unfollowDiet((StandardUser)currentUser);
+                if(neo4J){
+                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    if(!mongoDB){
+                        System.out.println("Errore cross-consistency");
+                        //to do something.. //RE-INSERT IN NEO4j
+                        Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
+                        return false;
+                    }
+                    else {
+                        ((StandardUser)currentUser).stopCurrentDiet();
+                        return true;
+                    }
+                }
+                else{
+                    System.out.println("Error in MongoDB");
+                    //to do something..
+                    return false;
+                }
+            }
+            else return false;
         }
         else return false;
     }
@@ -281,7 +318,7 @@ public class LogicManager {
                 check = checkDietProgress(); //check diet progress
                 neo4J = Neo4J.stopDiet((StandardUser) currentUser, check);
                 if(neo4J){
-                    //mongoDB = MongoDB.stopDiet(id, currentUser);
+                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
                     if(!mongoDB){
                         System.out.println("Errore cross-consistency");
                         //to do something.. //RE-INSERT IN NEO4j
@@ -318,13 +355,24 @@ public class LogicManager {
 
 
     public boolean removeEatenFood(String id){
-        boolean task = false;
+        boolean task = false; int indexTarget = -1;
         if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){
             return false;
         }
         //task = MongoDB.removeEatenFood(id, (StandardUser) currentUser);
 
-        /** scorrere tutta la lsita, torvare quello con 'id' e rimuoverlo*/
+
+        if(task){
+            int i;
+            for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
+                if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
+                    indexTarget = i;
+                }
+
+            }
+        }
+        //if(indexTarget < 0) // ***CONVIENE FARE un controllo sul indexTarget ? nel caso ci sia un problema di incosistenza nella lsita di cibi?? penso di no
+            ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
         return  task;
     }
 
