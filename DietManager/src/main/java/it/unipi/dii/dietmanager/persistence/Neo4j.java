@@ -246,6 +246,34 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
+    public boolean unfollowDiet(StandardUser user){
+        Diet diet = user.getCurrentDiet();
+        if(!userAlreadyExists(user) || !dietAlreadyExists(diet.getId()))
+            return false;
+
+        // if user didn't follow the diet, the operation can't be done
+        if(!userAlreadyFollowedDiet(user, diet))
+            return false;
+        openConnection();
+
+        try ( Session session = driver.session() )
+        {
+            session.writeTransaction((TransactionWork<Void>) tx -> {
+                tx.run( "MATCH (user:User)-[follows:FOLLOWS]->(diet:Diet) WHERE user.username = $username " +
+                                "AND diet.id = $id SET diet.followersCount = diet.followersCount - 1 " +
+                                "DELETE follows",
+                        parameters( "username", user.getUsername(), "id", diet.getId()));
+                return null;
+            });
+            close();
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
     public boolean removeDiet(Diet diet){
         if(!dietAlreadyExists(diet.getId()))
             return false;
