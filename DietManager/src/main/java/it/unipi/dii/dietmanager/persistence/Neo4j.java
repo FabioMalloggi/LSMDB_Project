@@ -30,14 +30,14 @@ public class Neo4j implements AutoCloseable
         driver.close();
     }
 
-    private boolean userAlreadyExists(User user){
+    private boolean userAlreadyExists(String username){
         openConnection();
         try ( Session session = driver.session() )
         {
             // I perform the query to understand if this user already exists
             Boolean userAlreadyExists = session.readTransaction((TransactionWork<Boolean>) tx -> {
                 Result result = tx.run( "MATCH (user: User) WHERE user.username = $username RETURN user",
-                        parameters( "username", user.getUsername()));
+                        parameters( "username", username));
                 if(result.hasNext()) {
                     return true;
                 }
@@ -102,7 +102,7 @@ public class Neo4j implements AutoCloseable
 
     public boolean addUser(User user)
     {
-        if(userAlreadyExists(user))
+        if(userAlreadyExists(user.getUsername()))
             return false;
         openConnection();
 
@@ -185,7 +185,7 @@ public class Neo4j implements AutoCloseable
     // will be forgotten
     public boolean followDiet(StandardUser user, String dietID)
     {
-        if(!userAlreadyExists(user) || !dietAlreadyExists(dietID))
+        if(!userAlreadyExists(user.getUsername()) || !dietAlreadyExists(dietID))
             return false;
 
         // if the user already followed a diet, the operation can't be done
@@ -213,7 +213,7 @@ public class Neo4j implements AutoCloseable
 
     public boolean stopDiet(StandardUser user, boolean isSucceeded){
         Diet diet = user.getCurrentDiet();
-        if(!userAlreadyExists(user) || !dietAlreadyExists(diet.getId()))
+        if(!userAlreadyExists(user.getUsername()) || !dietAlreadyExists(diet.getId()))
             return false;
 
         // if user didn't follow the diet, the operation can't be done
@@ -248,7 +248,7 @@ public class Neo4j implements AutoCloseable
 
     public boolean unfollowDiet(StandardUser user){
         Diet diet = user.getCurrentDiet();
-        if(!userAlreadyExists(user) || !dietAlreadyExists(diet.getId()))
+        if(!userAlreadyExists(user.getUsername()) || !dietAlreadyExists(diet.getId()))
             return false;
 
         // if user didn't follow the diet, the operation can't be done
@@ -274,8 +274,8 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
-    public boolean removeDiet(Diet diet){
-        if(!dietAlreadyExists(diet.getId()))
+    public boolean removeDiet(String dietID){
+        if(!dietAlreadyExists(dietID))
             return false;
         openConnection();
 
@@ -283,7 +283,7 @@ public class Neo4j implements AutoCloseable
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (diet: Diet{id: $id}) DETACH DELETE diet",
-                        parameters( "id", diet.getId()));
+                        parameters( "id", dietID));
                 return null;
             });
             close();
@@ -295,8 +295,8 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
-    public boolean removeUser(User user){
-        if(!userAlreadyExists(user))
+    public boolean removeUser(String username){
+        if(!userAlreadyExists(username))
             return false;
 
         openConnection();
@@ -310,20 +310,20 @@ public class Neo4j implements AutoCloseable
                                 "SET diet.followersCount = diet.followersCount - followersCountDecrement, " +
                                 "diet.failedCount = diet.failedCount - failedCountDecrement, " +
                                 "diet.succeededCount = diet.succeededCount - succeededCountDecrement DETACH DELETE user",
-                        parameters( "username", user.getUsername()));
+                        parameters( "username", username));
                 return null;
             });
 
             // if the user does not have relationship, then I have to delete him
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (user: User{username: $username}) DETACH DELETE user",
-                        parameters( "username", user.getUsername()));
+                        parameters( "username", username));
                 return null;
             });
 
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (nutritionist: Nutritionist{username: $username}) DETACH DELETE nutritionist",
-                        parameters( "username", user.getUsername()));
+                        parameters( "username", username));
                 return null;
             });
             close();
@@ -571,7 +571,7 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.followDiet(user2, diet3));
             System.out.println(neo4j.stopDiet(diet3, user2, true));
 */
-/*            System.out.println(neo4j.removeDiet(diet1));
+/*            System.out.println(neo4j.removeDiet(diet1.getID()));
             System.out.println(neo4j.removeUser(user1));
             System.out.println(neo4j.removeUser(user4));
             System.out.println(neo4j.removeUser(nutritionist2));
