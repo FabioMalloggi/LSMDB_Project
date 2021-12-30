@@ -17,6 +17,13 @@ public class EatenFood {
     private int quantity;
     private Timestamp timestamp;
 
+    // only for first time an eatenFood is created by standard users
+    public EatenFood(String foodID, int quantity, Timestamp timestamp) {
+        this.foodID = foodID;
+        this.quantity = quantity;
+        this.timestamp = timestamp;
+    }
+
     public EatenFood(String id, String foodID, int quantity, Timestamp timestamp) {
         this.id = id;
         this.foodID = foodID;
