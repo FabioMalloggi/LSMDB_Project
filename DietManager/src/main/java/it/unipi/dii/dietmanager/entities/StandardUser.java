@@ -8,23 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StandardUser extends User {
+    public static final String EATENFOODS = "eatenFoods";
+    public static final String CURRENT_DIET = "currentDiet";
 
     private List<EatenFood> eatenFoods;
     private Diet currentDiet;
-    // private Date currentDietStartDate; //we do not need the dateofStartingDiet to consider only the eatenfood since the diet is started if we mantain only the eatenFoods for the currentDiet
 
     //this first constructor should be used during the registration when the SU does not have the list of EatenFood yet
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = null;
-        //this.currentDietStartDate = null;
-        this.currentDiet = null;
-    }
-
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods) {
-        super(UserName, FullName, Password, Sex, Age, Country);
-        this.eatenFoods = eatenFoods;
-        //this.currentDietStartDate = null;
         this.currentDiet = null;
     }
 
@@ -32,35 +25,29 @@ public class StandardUser extends User {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;
         this.currentDiet = currentDiet;
-        //this.currentDietStartDate = currentDietStartDate;
-    }
-
-    public StandardUser(String username){
-        super(username);
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject user = new JSONObject();
         try {
-            user.put("_id", this.getUsername()); // new change
-            user.put("password", this.getPassword());
-            user.put("name", this.getFullName());
-            user.put("sex", this.getSex());
-            user.put("age", this.getAge());
-            user.put("country", this.getCountry());
-            user.put("userType", "standardUser");
-            JSONArray eatenFoods = new JSONArray();
+            user.put(User.USERNAME, this.getUsername());        // inserting username
+            user.put(User.PASSWORD, this.getPassword());        // inserting password
+            user.put(User.FULLNAME, this.getFullName());        // inserting fullName
+            user.put(User.SEX, this.getSex());                  // inserting sex
+            user.put(User.AGE, this.getAge());                  // inserting age
+            user.put(User.COUNTRY, this.getCountry());          // inserting country
+            user.put(User.USERTYPE, User.USERTYPE_STANDARDUSER);// inserting usertype
 
-            /*JSONObject eatenFood = new JSONObject();
-            eatenFood.put("eatenFoodID", "");
-            eatenFood.put("foodID", "");
-            eatenFood.put("quantity", "");
-            eatenFood.put("timestamp", "");
-            eatenFoods.put(eatenFood);*/
-            user.put("eatenFoods", eatenFoods);
-
-
+            if(eatenFoods != null){
+                JSONArray jsonEatenFoods = new JSONArray();
+                for(EatenFood eatenFood: this.getEatenFoods())
+                    jsonEatenFoods.put(eatenFood.toJSONObject());
+                user.put(StandardUser.EATENFOODS, eatenFoods);                 // inserting eatenFoods
+            }
+            if(currentDiet != null){
+                user.put(StandardUser.CURRENT_DIET, currentDiet.getId());      // inserting currentDiet
+            }
         }
         catch(JSONException ee){
             ee.printStackTrace();
@@ -68,30 +55,30 @@ public class StandardUser extends User {
         return user;
     }
 
-    public static StandardUser fromJSON(JSONObject jsonUser){
-        String username, password, fullName, sex, country;
+    public static StandardUser fromJSONObject(JSONObject jsonUser){
+        String username, password, fullName, sex, country, jsonCurrentDietStringID;
         int age;
         StandardUser newUser = null;
         List<EatenFood> eatenFoods = new ArrayList<>();
-
-        //first i retrive the attributes values from the JSONObject
         try{
-            username = jsonUser.getString("_id");
-            password = jsonUser.getString("password");
-            fullName = jsonUser.getString("name");
-            sex = jsonUser.getString("sex");
-            country = jsonUser.getString("country");
-            age = jsonUser.getInt("age");
+            username = jsonUser.getString(User.USERNAME);       // retrieving username
+            password = jsonUser.getString(User.PASSWORD);       // retrieving password
+            fullName = jsonUser.getString(User.FULLNAME);       // retrieving name
+            sex = jsonUser.getString(User.SEX);                 // retrieving sex
+            country = jsonUser.getString(User.COUNTRY);         // retrieving country
+            age = jsonUser.getInt(User.AGE);                    // retrieving age
 
-            JSONArray jsonEatenFoods = jsonUser.getJSONArray("eatenFoods");
+            JSONArray jsonEatenFoods = jsonUser.getJSONArray(StandardUser.EATENFOODS);
             for (int i = 0; i < jsonEatenFoods.length(); i++){
-                eatenFoods.add((EatenFood) jsonEatenFoods.get(i));
+                eatenFoods.add(EatenFood.fromJSONObject(new JSONObject(jsonEatenFoods.get(i))));    // retrieve eatenFoods
             }
-            //then generate the new object StandardUser
-            newUser = new StandardUser(username, fullName, sex, password, age, country, eatenFoods);
+            jsonCurrentDietStringID = jsonUser.getString(StandardUser.CURRENT_DIET);    // retrieving current Diet
+            Diet currentDiet = new Diet(jsonCurrentDietStringID);
+            newUser = new StandardUser(username, fullName, sex, password, age, country, eatenFoods, currentDiet);
         }
         catch (JSONException e){
             e.printStackTrace();
+            newUser = null;
         }
         return  newUser;
     }

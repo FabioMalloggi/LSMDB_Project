@@ -9,49 +9,48 @@ import java.util.List;
 
 public class Food
 {
-    private String id;
+    public static final String NAME = "_id";
+    public static final String CATEGORY = "category";
+    public static final String NUTRIENTS = "nutrients";
+    public static final String EATEN_TIMES_COUNT = "eatenTimesCount";
+
+    private String name;
+    private String category;
     private List<Nutrient> nutrients;
+    private int eatenTimesCount;
 
-    public Food(String id) {
-        this.id = id;
-        nutrients = new ArrayList<>();
-    }
-
-    public Food(String id, List<Nutrient> nutrients) {
-        this.id = id;
+    public Food(String name, String category, List<Nutrient> nutrients, int eatenTimesCount){
+        this.name = name;
+        this.category = category;
         this.nutrients = nutrients;
+        this.eatenTimesCount = eatenTimesCount;
     }
 
-    public void addNutrient(Nutrient nutrient){
-        nutrients.add(nutrient);
-    }
+    public String getName() { return name; }
+    public String getCategory(){ return category; }
+    public List<Nutrient> getNutrients() { return nutrients; }
+    public int getEatenTimesCount(){ return eatenTimesCount; }
 
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setId(String id) { this.name = name; }
+    public void setNutrients(List<Nutrient> nutrients) { this.nutrients = nutrients; }
+    public void setCategory(String category){ this.category = category;}
 
-    public List<Nutrient> getNutrients() {
-        return nutrients;
-    }
-    public void setNutrients(List<Nutrient> nutrients) {
-        this.nutrients = nutrients;
-    }
+    public void incrementEatenTimesCount(){ this.eatenTimesCount++; }
 
-    public JSONObject toJSON(){
+    public JSONObject toJSONObject(){
         JSONObject jsonFood = new JSONObject();
         try {
+            jsonFood.put(Food.NAME, name);                          // inserting name
+            jsonFood.put(Food.CATEGORY, category);                  // inserting category
+            jsonFood.put(Food.EATEN_TIMES_COUNT, eatenTimesCount);  // inserting eatenTimesCount
+
             JSONArray jsonNutrients = new JSONArray();
             JSONObject jsonNutrient;
-
-            jsonFood.put("id", id);
             for(int i=0; i<nutrients.size(); i++){
                 jsonNutrient = nutrients.get(i).toJSON();
                 jsonNutrients.put(jsonNutrient);
-                jsonFood.put("nutrients", jsonNutrients);
             }
+            jsonFood.put(Food.NUTRIENTS, jsonNutrients);            // inserting nutrients
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -60,21 +59,21 @@ public class Food
         return jsonFood;
     }
 
-    public static Food fromJSON(JSONObject jsonFood){
+    public static Food fromJSONObject(JSONObject jsonFood){
         Food newFood = null;
-        String id;
+        String name, category;
+        int eatenTimesCount;
         List<Nutrient> nutrients = new ArrayList<>();
-
-        //first i retrive the attributes values from the JSONObject
         try{
-            id = jsonFood.getString("_id");
-            JSONArray jsonNutrients = jsonFood.getJSONArray("nutrients");
+            name = jsonFood.getString(Food.NAME);                           // retrieving name
+            category = jsonFood.getString(Food.CATEGORY);                   // retrieving category
+            eatenTimesCount = jsonFood.getInt(Food.EATEN_TIMES_COUNT);      // retrieving eatenTimesCount
+            JSONArray jsonNutrients = jsonFood.getJSONArray(Food.NUTRIENTS);
 
             for (int i = 0; i < jsonNutrients.length(); i++){
-                nutrients.add((Nutrient) jsonNutrients.get(i));
+                nutrients.add(Nutrient.fromJSON(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
             }
-            //then generate the new object Food
-            newFood = new Food( id, nutrients);
+            newFood = new Food( name, category, nutrients, eatenTimesCount);
         }catch (JSONException e){
             e.printStackTrace();
         }

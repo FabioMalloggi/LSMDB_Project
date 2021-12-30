@@ -3,6 +3,18 @@ package it.unipi.dii.dietmanager.entities;
 import org.json.JSONObject;
 
 public abstract class  User {
+    public static final String USERNAME = "_id";
+    public static final String PASSWORD = "password";
+    public static final String FULLNAME = "fullName";
+    public static final String SEX = "sex";
+    public static final String AGE = "age";
+    public static final String COUNTRY = "country";
+    public static final String USERTYPE = "userType";
+
+    public static final String USERTYPE_STANDARDUSER = "standardUser";
+    public static final String USERTYPE_NUTRITIONIST = "nutritionist";
+    public static final String USERTYPE_ADMINISTRATOR = "administrator";
+
     private String username;
     private String fullName;
     private String password;
@@ -26,44 +38,30 @@ public abstract class  User {
     public String getUsername() {
         return username;
     }
-    public void setUsername (String userName) {
-        this.username = userName;
-    }
-
     public String getFullName() {
         return fullName;
     }
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
     public String getPassword() {
         return password;
     }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getSex() {
         return sex;
     }
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
     public int getAge() {
         return age;
     }
     public void setAge(int age) {
         this.age = age;
     }
-
     public String getCountry() {
         return country;
     }
-    public void setCountry(String country) {
-        this.country = country;
-    }
 
-    public abstract JSONObject toJSON();
+    // public void setUsername (String userName) { this.username = userName; }
+    // public void setFullName(String fullName) { this.fullName = fullName; }
+    // public void setPassword(String password) { this.password = password; }
+    // public void setSex(String sex) { this.sex = sex; }
+    // public void setCountry(String country) { this.country = country; }
+
+    public abstract JSONObject toJSONObject();
 }

@@ -272,7 +272,7 @@ public class CLI {
     }
 
     public void printDiet(Diet dietTarget){
-        System.out.println("Diet, ID: "+dietTarget.getId()+", Name: "+dietTarget.getName()+", Nutritionist: "+dietTarget.getNutritionist().getUsername());
+        System.out.println("Diet, ID: "+dietTarget.getId()+", Name: "+dietTarget.getName()+", Nutritionist: "+dietTarget.getNutritionist());
         for (Nutrient n : dietTarget.getNutrients()) {
             System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
         }
@@ -298,7 +298,7 @@ public class CLI {
     }
 
     public void printFood(Food foodTarget){
-        System.out.println("Food, ID: "+foodTarget.getId());
+        System.out.println("Food, name: "+foodTarget.getName());
         for (Nutrient n : foodTarget.getNutrients()) {
             System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity());
         }

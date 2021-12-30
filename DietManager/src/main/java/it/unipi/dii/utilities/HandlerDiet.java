@@ -103,7 +103,7 @@ public class HandlerDiet {
 
             while(line != null){
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[1].replace("\"","")));
+                nutritionists.add(new Nutritionist(tokens[1].replace("\"",""),"", "", "", 0, ""));
                 nutritionistNumber++;
                 line = readerNutritionist.readLine();
             }
@@ -146,7 +146,7 @@ public class HandlerDiet {
                                                         // nutritionistNumber => in case there are lower than DIETS_NUMBER/2 nutritionist.
 
 
-            diets.add(new Diet(id,name, nutrientList,dietAuthor));
+            diets.add(new Diet(id,name, nutrientList,dietAuthor.getUsername()));
             nutrientList.clear();
         }
     }
@@ -166,7 +166,7 @@ public class HandlerDiet {
 
     public void printNutritionists(){
         for(Nutritionist nutritionist: nutritionists){
-            System.out.println(nutritionist.toJSON().toString());
+            System.out.println(nutritionist.toJSONObject().toString());
         }
     }
 

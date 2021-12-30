@@ -2,15 +2,16 @@ package it.unipi.dii.dietmanager.persistence;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import it.unipi.dii.dietmanager.entities.*;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -68,16 +69,12 @@ diet:
 */
 
 
-public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  ???
+public class MongoDB{
 
     private MongoClient mongoClient;
     private MongoDatabase database;
 
     private final int localhostPort;
-
-    private final String USERTYPE_STANDARD_USER = "standardUser";
-    private final String USERTYPE_NUTRITIONIST = "nutritionists";
-    private final String USERTYPE_ADMINISTRATOR = "administrator";
 
     private final String COLLECTION_USERS = "users";
     private final String COLLECTION_DIETS = "diets";
@@ -99,12 +96,6 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
 
     public void closeConnection()
     {
-        close();
-    }
-
-    @Override
-    public void close()
-    {
         try{
             mongoClient.close();
         }catch(Exception e){
@@ -115,15 +106,15 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
     /*************************** Users related methods **********************************/
 
     private User userFromJSON(JSONObject jsonUser){
-        String userType = jsonUser.getString(UserString.USER_TYPE);
-        if(userType.equals(USERTYPE_STANDARD_USER))
-            return StandardUser.fromJSON(jsonUser);
+        String userType = jsonUser.getString(User.USERTYPE);
+        if(userType.equals(User.USERTYPE_STANDARDUSER))
+            return StandardUser.fromJSONObject(jsonUser);
 
-        if(userType.equals(USERTYPE_NUTRITIONIST))
-            return Nutritionist.fromJSON(jsonUser);
+        if(userType.equals(User.USERTYPE_NUTRITIONIST))
+            return Nutritionist.fromJSONObject(jsonUser);
 
-        if(userType.equals(USERTYPE_ADMINISTRATOR))
-            return Administrator.fromJSON(jsonUser);
+        if(userType.equals(User.USERTYPE_ADMINISTRATOR))
+            return Administrator.fromJSONObject(jsonUser);
 
         return null;
     }
@@ -136,14 +127,14 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
     }
 
     private Document userToDocument(User user){
-        return Document.parse(user.toJSON().toString());
+        return Document.parse(user.toJSONObject().toString());
     }
 
-    // for both sign in and lookUpUser
+    // for both signIn and lookUpUserbyUsername
     public User lookUpUserByID(String username){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        Document userDocument = usersCollection.find(eq(UserString.USERNAME, new ObjectId(username))).first(); // there can be at least only 1 match.
+        Document userDocument = usersCollection.find(eq(User.USERNAME, new ObjectId(username))).first(); // there can be at least only 1 match.
         closeConnection();
         return userFromDocument(userDocument);
     }
@@ -159,24 +150,17 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
     public boolean removeUser(String username){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        usersCollection.deleteOne(Filters.eq(UserString.USERNAME, username));
+        usersCollection.deleteOne(Filters.eq(User.USERNAME, username));
         closeConnection();
         return lookUpUserByID(username) == null;
     }
-    /*  ALREADY DEFINED IN LOOKUP-USER-BY-ID
-    public User lookUpUserByUsername(String username){
-        MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
-        return getUserObjectFromJSON(jsonUser);
-    }
-     */
 
-    public List<Nutritionist> lookUpNutritionistByCountry(String country){
+    public List<Nutritionist> lookUpNutritionistsByCountry(String country){
         openConnection();
         List<Nutritionist> nutritionists = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
-                and(eq(UserString.COUNTRY, country),eq(UserString.USERNAME, USERTYPE_NUTRITIONIST))).iterator()){
+                and(eq(User.COUNTRY, country),eq(User.USERNAME, User.USERTYPE_NUTRITIONIST))).iterator()){
             while(cursor.hasNext())
                 nutritionists.add((Nutritionist) userFromDocument(cursor.next()));
         }
@@ -189,7 +173,7 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         List<User> users = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
-                eq(UserString.COUNTRY, country)).iterator()){
+                eq(User.COUNTRY, country)).iterator()){
             while(cursor.hasNext()){
                 users.add(userFromDocument(cursor.next()));
             }
@@ -198,18 +182,8 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         return users;
     }
 
-    /*  useless: StandardUser Current diet is already read at log in.
-                 If he does not have one, whenever he add a diet Logic Manager add it also into logic User object.
-                 therefore it does not belong to a MongoDB query.
 
-    public Diet lookUpStandardUserCurrentDiet(String username){
-        MongoCollection<Document> usersCollection = database.getCollection("users");
-        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
-        return lookUpDietByID(jsonUser.getString("currentDiet"));
-    }
-     */
-
-    /* useless: as above.
+    /* useless: trivial: Logic Manager should have always all the EatenFoods updated.
 
     public List<EatenFood> lookUpStandardUserEatenFoods(String username){
         MongoCollection<Document> usersCollection = database.getCollection("users");
@@ -239,7 +213,7 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
     public Diet lookUpDietByID(String id){
         openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
-        Document dietDocument = dietCollection.find(eq(DietString.ID, new ObjectId(id))).first(); // there can be at least only 1 match.
+        Document dietDocument = dietCollection.find(eq(Diet.ID, new ObjectId(id))).first(); // there can be at least only 1 match.
         closeConnection();
         return dietFromDocument(dietDocument);
     }
@@ -249,7 +223,7 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         try(MongoCursor<Document> cursor = dietCollection.find(
-                eq(DietString.NAME, name)).iterator()){
+                eq(Diet.NAME, name)).iterator()){
             while(cursor.hasNext()){
                 diets.add(dietFromDocument(cursor.next()));
             }
@@ -258,12 +232,12 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         return diets;
     }
 
-    public List<Diet> lookUpDietByNutritionist(Nutritionist nutritionist){
+    public List<Diet> lookUpDietByNutritionist(String username){
         openConnection();
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         try(MongoCursor<Document> cursor = dietCollection.find(
-                eq(DietString.NUTRITIONIST, nutritionist.getUsername())).iterator()){
+                eq(Diet.NUTRITIONIST, username)).iterator()){
             while(cursor.hasNext()){
                 diets.add(dietFromDocument(cursor.next()));
             }
@@ -271,6 +245,34 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         closeConnection();
         return diets;
     }
+
+    /*      DA FINIRE
+    public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
+        openConnection();
+        HashMap<String, Nutrient> nutritionistNutrientMap = new HashMap<>();
+        Bson myAggregator = Aggregates.group(Diet.NUTRITIONIST,Filters.eq(Diet.NUTRITIONIST, ));
+
+        List<Diet> diets = new ArrayList<>();
+        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+        try(MongoCursor<Document> cursor = dietCollection.find(
+                eq(Diet.NUTRITIONIST, username)).iterator()){
+            while(cursor.hasNext()){
+                diets.add(dietFromDocument(cursor.next()));
+            }
+        }
+        closeConnection();
+        return nutritionistNutrientMap;
+
+
+        Iterator hmIterator = npn.entrySet().iterator();
+        while(hmIterator.hasNext()){
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            Nutrient n = ((Nutrient) mapElement.getValue());
+            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() );
+        }
+    }
+
+     */
 
     /************************************************************************************/
     /*************************** Foods related methods **********************************/
@@ -280,11 +282,11 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         if(foodDocument == null)
             return null;
         JSONObject jsonFood = new JSONObject(foodDocument.toString());
-        return Food.fromJSON(jsonFood);
+        return Food.fromJSONObject(jsonFood);
     }
 
     private Document foodToDocument(Food food){
-        return Document.parse(food.toJSON().toString());
+        return Document.parse(food.toJSONObject().toString());
     }
 
     public List<Food> lookUpFoodsByName(String name){
@@ -294,7 +296,7 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         List<Food> foods = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_FOODS);
         try(MongoCursor<Document> cursor = dietCollection.find(
-                eq(FoodString.NAME, regex)).iterator()){
+                eq(Food.NAME, regex)).iterator()){
             while(cursor.hasNext()){
                 foods.add(foodFromDocument(cursor.next()));
             }
@@ -303,37 +305,30 @@ public class MongoDB implements AutoCloseable{  // FUNZIONA SOLO CON TRY CATCH  
         return foods;
     }
 
+    public Food lookUpMostEatenFoodByCategory(String category){
+        openConnection();
+
+        Food currentFood, targetFood = null;
+        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_FOODS);
+
+        try(MongoCursor<Document> cursor = dietCollection.find(
+                eq(Food.CATEGORY, category)).iterator()){
+            while(cursor.hasNext()){
+                currentFood = foodFromDocument(cursor.next());
+                if(targetFood == null || currentFood.getEatenTimesCount() > targetFood.getEatenTimesCount())
+                    targetFood = currentFood;
+            }
+        }
+        closeConnection();
+        return targetFood;
+    }
+
     /************************************************************************************/
 
 
     public static void main( String... args ) throws Exception {
-        try( MongoDB mongoDB = new MongoDB( 7687)){
+        MongoDB mongoDB = new MongoDB( 7687);
 
-        }
-    }
-
-    abstract class UserString{
-        public static final String USERNAME = "_id";
-        public static final String PASSWORD = "password";
-        public static final String FULLNAME = "fullName";
-        public static final String SEX = "sex";
-        public static final String AGE = "age";
-        public static final String COUNTRY = "country";
-        public static final String USER_TYPE = "userType";
-        public static final String EATENFOODS = "eatenFoods";
-        public static final String CURRENT_DIET = "currentDiet";
-    }
-    abstract class FoodString{
-        public static final String NAME = "_id";
-        public static final String CATEGORY = "category";
-        public static final String NUTRIENTS = "nutrients";
-        public static final String EATEN_TIMES_COUNT = "eatenTimesCount";
-    }
-    abstract class DietString{
-        public static final String ID = "_id";
-        public static final String NAME = "name";
-        public static final String NUTRIENTS = "nutrients";
-        public static final String NUTRITIONIST = "nutritionist";
     }
 }
 

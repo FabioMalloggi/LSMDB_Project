@@ -9,16 +9,16 @@ public class Administrator extends User{
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject user = new JSONObject();
         try {
-            user.put("_id", this.getUsername()); // new change
-            user.put("password", this.getPassword());
-            user.put("name", this.getFullName());
-            user.put("sex", this.getSex());
-            user.put("age", this.getAge());
-            user.put("country", this.getCountry());
-            user.put("userType", "administrator");
+            user.put(User.USERNAME, this.getUsername());        // inserting username
+            user.put(User.PASSWORD, this.getPassword());        // inserting password
+            user.put(User.FULLNAME, this.getFullName());        // inserting fullName
+            user.put(User.SEX, this.getSex());                  // inserting sex
+            user.put(User.AGE, this.getAge());                  // inserting age
+            user.put(User.COUNTRY, this.getCountry());          // inserting country
+            user.put(User.USERTYPE, User.USERTYPE_ADMINISTRATOR);// inserting usertype
         }
         catch(JSONException ee){
             ee.printStackTrace();
@@ -26,25 +26,23 @@ public class Administrator extends User{
         return user;
     }
 
-    public static Administrator fromJSON(JSONObject jsonUser){
+    public static Administrator fromJSONObject(JSONObject jsonUser){
         String username, password, fullName, sex, country;
         int age;
-        Administrator newAdministrator = null;
-
-        //first i retrive the attributes values from the JSONObject
+        Administrator newAdministrator;
         try{
-            username = jsonUser.getString("_id");
-            password = jsonUser.getString("password");
-            fullName = jsonUser.getString("name");
-            sex = jsonUser.getString("sex");
-            country = jsonUser.getString("country");
-            age = jsonUser.getInt("age");
+            username = jsonUser.getString(User.USERNAME);       // retrieving username
+            password = jsonUser.getString(User.PASSWORD);       // retrieving password
+            fullName = jsonUser.getString(User.FULLNAME);       // retrieving name
+            sex = jsonUser.getString(User.SEX);                 // retrieving sex
+            country = jsonUser.getString(User.COUNTRY);         // retrieving country
+            age = jsonUser.getInt(User.AGE);                    // retrieving age
 
-            //then generate the new object Administrator
             newAdministrator = new Administrator(username, fullName, password, sex, age, country);
         }
         catch (JSONException e){
             e.printStackTrace();
+            newAdministrator = null;
         }
         return  newAdministrator;
     }

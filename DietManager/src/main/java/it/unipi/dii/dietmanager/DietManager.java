@@ -31,7 +31,7 @@ public class DietManager {
             tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
             newList.add(tmp);
         }
-        foodCreated = new Food(name, newList);
+        foodCreated = new Food(name, "", newList, 0);
         return foodCreated;
     }
 
@@ -49,7 +49,7 @@ public class DietManager {
             tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
             newList.add(tmp);
         }
-        dietCreated = new Diet(name, newList, creator);
+        dietCreated = new Diet(name, newList, creator.getUsername());
         return dietCreated;
     }
 

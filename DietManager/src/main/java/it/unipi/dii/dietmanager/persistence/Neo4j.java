@@ -146,7 +146,7 @@ public class Neo4j implements AutoCloseable
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run("MATCH (nutritionist:Nutritionist), (diet:Diet) WHERE nutritionist.username = $username " +
                             "AND diet.id = $id CREATE (nutritionist)-[:PROVIDES]->(diet)",
-                        parameters("username", diet.getNutritionist().getUsername(), "id", diet.getId()));
+                        parameters("username", diet.getNutritionist(), "id", diet.getId()));
                 return null;
             });
             close();
@@ -453,29 +453,29 @@ public class Neo4j implements AutoCloseable
         try ( Neo4j neo4j = new Neo4j() )
         {
             neo4j.dropAll();
-            StandardUser user1 = new StandardUser("user1");
-            StandardUser user2 = new StandardUser("user2");
-            StandardUser user3 = new StandardUser("user3");
-            StandardUser user4 = new StandardUser("user4");
-            StandardUser user5 = new StandardUser("user5");
-            StandardUser user6 = new StandardUser("user6");
-            StandardUser user7 = new StandardUser("user7");
-            StandardUser user8 = new StandardUser("user8");
-            StandardUser user9 = new StandardUser("user9");
-            StandardUser user10 = new StandardUser("user10");
-            StandardUser user11 = new StandardUser("user11");
-            StandardUser user12 = new StandardUser("user12");
-            StandardUser user13 = new StandardUser("user13");
-            StandardUser user14 = new StandardUser("user14");
-            StandardUser user15 = new StandardUser("user15");
-            StandardUser user16 = new StandardUser("user16");
-            StandardUser user17 = new StandardUser("user17");
-            StandardUser user18 = new StandardUser("user18");
-            Nutritionist nutritionist1 = new Nutritionist("nut1");
-            Nutritionist nutritionist2 = new Nutritionist("nut2");
-            Diet diet1 = new Diet("diet1", "diet1", nutritionist1);
-            Diet diet2 = new Diet("diet2", "diet2", nutritionist1);
-            Diet diet3 = new Diet("diet3", "diet3", nutritionist2);
+            StandardUser user1 = new StandardUser("user1","", "", "", 0, "");
+            StandardUser user2 = new StandardUser("user2","", "", "", 0, "");
+            StandardUser user3 = new StandardUser("user3","", "", "", 0, "");
+            StandardUser user4 = new StandardUser("user4","", "", "", 0, "");
+            StandardUser user5 = new StandardUser("user5","", "", "", 0, "");
+            StandardUser user6 = new StandardUser("user6","", "", "", 0, "");
+            StandardUser user7 = new StandardUser("user7","", "", "", 0, "");
+            StandardUser user8 = new StandardUser("user8","", "", "", 0, "");
+            StandardUser user9 = new StandardUser("user9","", "", "", 0, "");
+            StandardUser user10 = new StandardUser("user10","", "", "", 0, "");
+            StandardUser user11 = new StandardUser("user11","", "", "", 0, "");
+            StandardUser user12 = new StandardUser("user12","", "", "", 0, "");
+            StandardUser user13 = new StandardUser("user13","", "", "", 0, "");
+            StandardUser user14 = new StandardUser("user14","", "", "", 0, "");
+            StandardUser user15 = new StandardUser("user15","", "", "", 0, "");
+            StandardUser user16 = new StandardUser("user16","", "", "", 0, "");
+            StandardUser user17 = new StandardUser("user17","", "", "", 0, "");
+            StandardUser user18 = new StandardUser("user18","", "", "", 0, "");
+            Nutritionist nutritionist1 = new Nutritionist("nut1", "", "", "", 0, "");
+            Nutritionist nutritionist2 = new Nutritionist("nut2", "", "", "", 0, "");
+            Diet diet1 = new Diet("diet1", "diet1", nutritionist1.getUsername());
+            Diet diet2 = new Diet("diet2", "diet2", nutritionist1.getUsername());
+            Diet diet3 = new Diet("diet3", "diet3", nutritionist2.getUsername());
             System.out.println("****Testing addUser****");
             System.out.println(neo4j.addUser(user1));
             System.out.println(neo4j.addUser(user1));

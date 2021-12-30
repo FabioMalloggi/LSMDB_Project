@@ -8,34 +8,22 @@ import java.util.List;
 public class Nutritionist extends User {
     private List<Diet> diets;
 
-    //this first constructor should be used during the registration when the SU does not have the list of EatenFood yet
     public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country) {
         super(Id, FullName, Password, Sex, Age, Country);
         this.diets = null;
     }
 
-    public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country, List<Diet> Diets) {
-        super(Id, FullName, Password, Sex, Age, Country);
-        this.diets = Diets;
-    }
-
-    public Nutritionist (String username){
-        super(username);
-    }
-
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSONObject() {
         JSONObject user = new JSONObject();
         try {
-            //I generate a new user
-
-            user.put("_id", this.getUsername());
-            user.put("password", this.getPassword());
-            user.put("name", this.getFullName());
-            user.put("sex", this.getSex());
-            user.put("age", this.getAge());
-            user.put("country", this.getCountry());
-            user.put("userType", "nutritionist");
+            user.put(User.USERNAME, this.getUsername());        // inserting username
+            user.put(User.PASSWORD, this.getPassword());        // inserting password
+            user.put(User.FULLNAME, this.getFullName());        // inserting fullName
+            user.put(User.SEX, this.getSex());                  // inserting sex
+            user.put(User.AGE, this.getAge());                  // inserting age
+            user.put(User.COUNTRY, this.getCountry());          // inserting country
+            user.put(User.USERTYPE, User.USERTYPE_NUTRITIONIST);// inserting usertype
         }
         catch(JSONException ee){
             ee.printStackTrace();
@@ -43,25 +31,23 @@ public class Nutritionist extends User {
         return user;
     }
 
-    public static Nutritionist fromJSON(JSONObject jsonUser){
+    public static Nutritionist fromJSONObject(JSONObject jsonUser){
         String username, password, fullName, sex, country;
         int age;
-        Nutritionist newNutritionist = null;
-
-        //first i retrive the attributes values from the JSONObject
+        Nutritionist newNutritionist;
         try{
-            username = jsonUser.getString("_id");
-            password = jsonUser.getString("password");
-            fullName = jsonUser.getString("name");
-            sex = jsonUser.getString("sex");
-            country = jsonUser.getString("country");
-            age = jsonUser.getInt("age");
+            username = jsonUser.getString(User.USERNAME);       // retrieving username
+            password = jsonUser.getString(User.PASSWORD);       // retrieving password
+            fullName = jsonUser.getString(User.FULLNAME);       // retrieving name
+            sex = jsonUser.getString(User.SEX);                 // retrieving sex
+            country = jsonUser.getString(User.COUNTRY);         // retrieving country
+            age = jsonUser.getInt(User.AGE);                    // retrieving age
 
-            //then generate the new object Nutritionist
             newNutritionist = new Nutritionist(username, fullName, sex, password, age, country);
         }
         catch (JSONException e){
             e.printStackTrace();
+            newNutritionist = null;
         }
         return  newNutritionist;
     }
