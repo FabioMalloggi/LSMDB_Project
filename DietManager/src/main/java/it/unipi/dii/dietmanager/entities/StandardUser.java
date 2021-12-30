@@ -97,6 +97,9 @@ public class StandardUser extends User {
         this.currentDiet = currentDiet;
     }
 
+    public void stopCurrentDiet(){
+        this.currentDiet = null;
+    }
     /* we do not need the dateofStartingDiet to consider only the eatenfood since the diet is started if we mantain only the eatenFoods for the currentDiet
     public Date getCurrentDietStartDate() {
         return currentDietStartDate;

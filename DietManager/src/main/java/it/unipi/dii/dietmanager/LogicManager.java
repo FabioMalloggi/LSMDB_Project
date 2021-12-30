@@ -3,6 +3,7 @@ package it.unipi.dii.dietmanager;
 import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.persistence.*;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,16 +28,19 @@ public class LogicManager {
 
     public LogicManager() {
         this.currentUser = null;
-        Neo4J = new Neo4j( "neo4j://localhost:7687", "neo4j", "root" ) ;
+        Neo4J = new Neo4j() ;
         MongoDB = new MongoDB(MONGO_DB_PORT);
     }
 
     public boolean signIn(String username, String password){
-        boolean test = false;
-        System.out.println("LogiManagment: Sign In");
-        //test = MongoDB.signIn(String username, String password);
-        //to test
-        return test;
+        User userTarget;
+        userTarget = lookUpUserByUsername(username);
+
+        if(userTarget != null && userTarget.getPassword().equals(password)) {
+            currentUser = userTarget;
+            return true;
+        }
+        else return false;
     }
 
     public Diet lookUpDietByID(String id){
@@ -78,12 +82,12 @@ public class LogicManager {
         return foodTarget;
     }
 
-    public List<Food> lookUpMostEatenFoodByCategory (String category){
-        List<Food> foodsTarget = null;
+    public Food lookUpMostEatenFoodByCategory (String category){
+        Food foodTarget = null;
 
-        //foodsTarget = MongoDB.lookUpMostEatenFoodByCategory(category);
+        //foodTarget = MongoDB.lookUpMostEatenFoodByCategory(category);
 
-        return  foodsTarget;
+        return  foodTarget;
     }
 
     public User lookUpUserByUsername(String username){
@@ -94,10 +98,15 @@ public class LogicManager {
         return userTarget;
     }
 
+    /** Restituiscono una LISTA di utenti: toDOO*/
     public User lookUpUserByCountry(String country){
         User userTarget = null;
-
-        //userTarget = MongoDB.lookUpUserByCountry(country);
+        if(currentUser instanceof StandardUser){
+            MongoDB.lookUpNutritionistByCountry(country);
+        }
+        else if(currentUser instanceof Administrator){
+            MongoDB.lookUpAllUsersByCountry(country);
+        }
 
         return userTarget;
     }
@@ -105,17 +114,29 @@ public class LogicManager {
     public Diet lookUpStandardUserCurrentDiet (){
         Diet dietTarget = null;
 
-        //dietTarget = MongoDB.lookUpStandardUserCurrentDiet(currentUser);
+        if( ((StandardUser) currentUser).getCurrentDiet() != null ) {
+            if(((StandardUser) currentUser).getCurrentDiet().getName() != null) //check if the currentDiet is alredy stored locally(or only the id without the other parameters).
+                return ((StandardUser) currentUser).getCurrentDiet();
+            else{
+                //used the first time the user look his current diet
 
+                dietTarget = MongoDB.lookUpDietByID( ((StandardUser) currentUser).getCurrentDiet().getId() );
+                ((StandardUser) currentUser).setCurrentDiet(dietTarget);
+            }
+        }
         return dietTarget;
     }
 
+
     public List<EatenFood> lookUpStandardUserEatenFoods() {
         List<EatenFood> eatenFoods = null;
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
+            return null;
+        }
 
-        //eatenFoods = MongoDB.lookUpStandardUserEatenFoods(currentUser);
+        //eatenFoods = MongoDB.lookUpStandardUserEatenFoods(currentUser); //* trivial : viene letto direttamente da list<EF> di current user
 
-        return eatenFoods;
+        return ((StandardUser)currentUser).getEatenFoods();
     }
 
     public HashMap<Nutritionist, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
@@ -155,10 +176,10 @@ public class LogicManager {
         return  dietTarget;
     }
 
-    public Diet lookUpMostRecommendedDiet() {
+    public Diet lookUpRecommendedDiet() {
         Diet dietTarget = null; String id;
 
-        id = Neo4J.lookUpMostRecommendedDiet((StandardUser) currentUser);
+        id = Neo4J.lookUpRecommendedDiet((StandardUser) currentUser);
         dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
@@ -176,23 +197,31 @@ public class LogicManager {
     }
 
     public Nutritionist lookUpMostPopularNutritionist(){
-        Nutritionist nutritionistTarget = null;
+        Nutritionist nutritionistTarget = null; String username;
 
-        //nutritionistTarget = Neo4j.lookUpMostPopularNutritionist();
 
-        return nutritionistTarget;
+        username = Neo4J.lookUpMostPopularNutritionist();
+        User usertarget = null;
+        usertarget = lookUpUserByUsername(username);
+        if(usertarget instanceof Nutritionist)
+            return nutritionistTarget;
+        else {
+            System.out.println("Errore non è un nutrizionista - Inconsistenza tra i due DB");
+            return  null;
+        }
     }
 
     /** Write-Operations*/
     public boolean registerUser(User user){
         boolean mongoDB = false, neo4J = false;
 
-        //mongoDB = MongoDB.registerUser(user);
+        mongoDB = MongoDB.addUser(user);
         if(mongoDB){
-            //neo4J = Neo4J.registerUser(user);
+            neo4J = Neo4J.addUser(user);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
                 //to do something.. //REMOVE DA MONGO
+                MongoDB.removeUser(user.getUsername());
                 return false;
             }
             else return true;
@@ -207,78 +236,165 @@ public class LogicManager {
 
     public boolean followDiet(String id){
         boolean mongoDB = false, neo4J = false;
-        /* unuseful if the check is done by Mongo/Neo4J
-        Diet diet;
-        diet = lookUpDietByID(id);*/
-        //mongoDB = MongoDB.followDiet(id, currentUser);
-        if(mongoDB){
-            //neo4J = Neo4J.followDiet(id, currentUser);
-            if(!neo4J){
-                System.out.println("Errore cross-consistency");
-                //to do something.. REMOVE su MONGO
-                return false;
-            }
-            else return true;
-        }
-        else{
-            System.out.println("Error in MongoDB");
-            //to do something..
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
             return false;
         }
-    }
-
-    public boolean stopDiet(String id){
-        boolean mongoDB = false, neo4J = false;
-
-        //*** PRIMA NEO E POI MONGO
-
-        //neo4J = Neo4J.stopDiet(id, currentUser);
-        if(neo4J){
-            //mongoDB = MongoDB.stopDiet(id, currentUser);
-            if(!mongoDB){
-                System.out.println("Errore cross-consistency");
-                //to do something.. //RE-INSERT IN NEO4j
+        Diet diet = null;
+        diet = lookUpDietByID(id);
+        if(diet != null && ((StandardUser)currentUser).getCurrentDiet() == null ){ //check
+            //mongoDB = MongoDB.followDiet(id, currentUser);
+            if(mongoDB){
+                neo4J = Neo4J.followDiet((StandardUser) currentUser, id);
+                if(!neo4J){
+                    System.out.println("Errore cross-consistency");
+                    //to do something.. REMOVE su MONGO
+                    //MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    return false;
+                }
+                else {
+                    ((StandardUser)currentUser).setCurrentDiet(diet);
+                    return true;
+                }
+            }
+            else{
+                System.out.println("Error in MongoDB");
+                //to do something..
                 return false;
             }
-            else return true;
         }
-        else{
-            System.out.println("Error in MongoDB");
-            //to do something..
-            return false;
-        }
+        else return false;
     }
 
-    public boolean addFoodToEatenFood(String name, String quantity){
+    public boolean unfollowDiet(){
+        boolean mongoDB = false, neo4J = false, check = false;
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
+            return false;
+        }
+
+        if(((StandardUser)currentUser).getCurrentDiet() != null){
+            /** da rimuovere id diet != null FORSE*/
+            Diet diet = null;
+            diet = lookUpDietByID(((StandardUser)currentUser).getCurrentDiet().getId());
+            if(diet != null) { //check if diet is not null
+
+                neo4J = Neo4J.unfollowDiet((StandardUser)currentUser);
+                if(neo4J){
+                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    if(!mongoDB){
+                        System.out.println("Errore cross-consistency");
+                        //to do something.. //RE-INSERT IN NEO4j
+                        Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
+                        return false;
+                    }
+                    else {
+                        ((StandardUser)currentUser).stopCurrentDiet();
+                        return true;
+                    }
+                }
+                else{
+                    System.out.println("Error in MongoDB");
+                    //to do something..
+                    return false;
+                }
+            }
+            else return false;
+        }
+        else return false;
+    }
+
+    public boolean stopDiet(){
+        boolean mongoDB = false, neo4J = false, check = false;
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
+            return false;
+        }
+        /** PRIMA NEO E POI MONGO */
+
+        if(((StandardUser)currentUser).getCurrentDiet() != null){
+            /** da rimuovere id diet != null FORSE*/
+            Diet diet = null;
+            diet = lookUpDietByID(((StandardUser)currentUser).getCurrentDiet().getId());
+            if(diet != null) { //check if diet is not null
+
+                check = checkDietProgress(); //check diet progress
+                neo4J = Neo4J.stopDiet((StandardUser) currentUser, check);
+                if(neo4J){
+                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    if(!mongoDB){
+                        System.out.println("Errore cross-consistency");
+                        //to do something.. //RE-INSERT IN NEO4j
+                        Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
+                        return false;
+                    }
+                    else {
+                        ((StandardUser)currentUser).stopCurrentDiet();
+                        return true;
+                    }
+                }
+                else{
+                    System.out.println("Error in MongoDB");
+                    //to do something..
+                    return false;
+                }
+            }
+            else return false;
+        }
+        else return false;
+    }
+
+    public boolean addFoodToEatenFoods(EatenFood ef){
         boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
+            return false;
+        }
 
-
-        //task = MongoDB.addFoodToEatenFood(name, quantity, currentUser);
-
+        //task = MongoDB.addFoodToEatenFoods(name, quantity, timestamp, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
+        if(task)
+            ((StandardUser)currentUser).getEatenFoods().add(ef);
         return  task;
     }
 
 
     public boolean removeEatenFood(String id){
-        boolean task = false;
+        boolean task = false; int indexTarget = -1;
+        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){
+            return false;
+        }
+        //task = MongoDB.removeEatenFood(id, (StandardUser) currentUser);
 
-        //task = MongoDB.removeEatenFood(id, currentUser);
 
+        if(task){
+            int i;
+            for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
+                if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
+                    indexTarget = i;
+                }
+
+            }
+        }
+        //if(indexTarget < 0) // ***CONVIENE FARE un controllo sul indexTarget ? nel caso ci sia un problema di incosistenza nella lsita di cibi?? penso di no
+            ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
         return  task;
     }
 
     public boolean addDiet(Diet diet){
-        boolean mongoDB = false, neo4J = false;
+        boolean mongoDB = false;
+        boolean neo4J = false;
+        if(currentUser instanceof StandardUser || currentUser instanceof Administrator){ //only nutritionist
+            return false;
+        }
 
-        //mongoDB = MongoDB.stopDiet(diet, currentUser); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+        //mongoDB = MongoDB.addDiet(diet); it will return the ID of the new Diet added
         if(mongoDB){
-            //neo4J = Neo4J.stopDiet(diet, currentUSer); // *** come può Neo4J (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+            //neo4J = Neo4J.addDiet(diet);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
-                //to do something..
+                //MongoDB.removeDiet(diet.getID());
                 return false;
             }
-            else return true;
+            else{
+                ((Nutritionist)currentUser).getDiets().add(diet);
+                return true;
+            }
         }
         else{
             System.out.println("Error in MongoDB");
@@ -287,18 +403,27 @@ public class LogicManager {
         }
     }
 
-    public boolean removeDiet(String ID){ //OLD VERSION: Diet diet <-- con questa devo vedere se l'oggetto nutrizionista ha nella lista di diete, un istanza dieta con quell ID e poi ricavere quall'istanza e passarla qui
+    public boolean removeDiet(String id){ //OLD VERSION: Diet diet <-- con questa devo vedere se l'oggetto nutrizionista ha nella lista di diete, un istanza dieta con quell ID e poi ricavere quall'istanza e passarla qui
         boolean mongoDB = false, neo4J = false;
-
-        //mongoDB = MongoDB.removeDiet(ID, currentUser); // *** come può MongoDB (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+        Diet dietToRemove;
+        if(currentUser instanceof StandardUser || currentUser instanceof Administrator){ //only nutritionist
+            return false;
+        }
+        dietToRemove = lookUpDietByID(id);
+        //mongoDB = MongoDB.removeDiet(ID); --> questa funzione di mongoDB
         if(mongoDB){
-            //neo4J = Neo4J.remove(ID, currentUer); // *** come può Neo4J (Classe) avere il currentUser se è LogicalManager che crea MongoDB ? serve passare anche currentUser
+            //neo4J = Neo4J.removeDiet(ID);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
                 //to do something..
+
+                //MongoDB.addDiet(dietToRemove);
                 return false;
             }
-            else return true;
+            else {
+                ((Nutritionist)currentUser).getDiets().remove(dietToRemove);
+                return true;
+            }
         }
         else{
             System.out.println("Error in MongoDB");
@@ -309,13 +434,18 @@ public class LogicManager {
 
     public boolean removeUser(String username){
         boolean mongoDB = false, neo4J = false;
-
-        //mongoDB = MongoDB.removeUser(user);
+        User userToRemove;
+        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
+            return false;
+        }
+        userToRemove = lookUpUserByUsername(username);
+        mongoDB = MongoDB.removeUser(username);
         if(mongoDB){
-            //neo4J = Neo4J.removeUser(user);
+            neo4J = Neo4J.removeUser(username);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
                 //to do something..
+                MongoDB.addUser(userToRemove);
                 return false;
             }
             else return true;
@@ -329,16 +459,21 @@ public class LogicManager {
 
     public boolean addFood(Food food){
         boolean task = false;
-
+        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
+            return false;
+        }
         //task = MongoDB.addFood(food);
 
         return  task;
     }
 
-    public boolean removeFood(String food){
+    public boolean removeFood(String foodID){
         boolean task = false;
 
-        //task = MongoDB.removeFood(food);
+        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
+            return false;
+        }
+        //task = MongoDB.removeFood(foodID);
 
         return  task;
     }

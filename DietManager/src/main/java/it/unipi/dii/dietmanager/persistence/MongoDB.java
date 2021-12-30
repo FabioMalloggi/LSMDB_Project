@@ -139,7 +139,7 @@ public class MongoDB{
         return userFromDocument(userDocument);
     }
 
-    public boolean registerUser(User user){
+    public boolean addUser(User user){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         usersCollection.insertOne(userToDocument(user));
