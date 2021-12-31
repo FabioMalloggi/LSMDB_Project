@@ -339,7 +339,7 @@ public class CLI {
     public void printEatenFood(User user){
         System.out.println("List of Eaten foods: ");
         for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
-            System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodID()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
+            System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodName()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
         }
     }
 

@@ -14,7 +14,6 @@ public class StandardUser extends User {
     private List<EatenFood> eatenFoods;
     private Diet currentDiet;
 
-    //this first constructor should be used during the registration when the SU does not have the list of EatenFood yet
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = null;
@@ -100,12 +99,4 @@ public class StandardUser extends User {
     public void stopCurrentDiet(){
         this.currentDiet = null;
     }
-    /* we do not need the dateofStartingDiet to consider only the eatenfood since the diet is started if we mantain only the eatenFoods for the currentDiet
-    public Date getCurrentDietStartDate() {
-        return currentDietStartDate;
-    }
-
-    public void setCurrentDietStartDate(Date currentDietStartDate) {
-        this.currentDietStartDate = currentDietStartDate;
-    }*/
 }

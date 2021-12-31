@@ -102,7 +102,7 @@ public class LogicManager {
     public User lookUpUserByCountry(String country){
         User userTarget = null;
         if(currentUser instanceof StandardUser){
-            MongoDB.lookUpNutritionistByCountry(country);
+            MongoDB.lookUpNutritionistsByCountry(country);
         }
         else if(currentUser instanceof Administrator){
             MongoDB.lookUpAllUsersByCountry(country);
@@ -507,7 +507,7 @@ public class LogicManager {
          * Then we have to comapre the totals[] with the values of the CurrentDiet.
          */
         for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
-            foodTarget = lookUpFoodByID(ef.getFoodID());
+            foodTarget = lookUpFoodByID(ef.getFoodName());
             //i = 0;
             for(int j = 0; j < nutrients_names.length; j++){
                 index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
@@ -545,7 +545,7 @@ public class LogicManager {
         Arrays.fill(total, 0); //set all the values of the double array to 0
 
         for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
-            foodTarget = lookUpFoodByID(ef.getFoodID());
+            foodTarget = lookUpFoodByID(ef.getFoodName());
             for(int j = 0; j < nutrients_names.length; j++){
                 index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
                 total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;

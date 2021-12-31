@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Administrator extends User{
-    public Administrator (String UserName, String FullName, String Password,String Sex, int Age, String Country ){
+    public Administrator (String UserName, String FullName, String Sex, String Password, int Age, String Country ){
         super(UserName, FullName, Password, Sex, Age, Country);
     }
 
