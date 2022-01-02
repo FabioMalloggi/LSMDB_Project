@@ -38,7 +38,7 @@ public class Administrator extends User{
             country = jsonUser.getString(User.COUNTRY);         // retrieving country
             age = jsonUser.getInt(User.AGE);                    // retrieving age
 
-            newAdministrator = new Administrator(username, fullName, password, sex, age, country);
+            newAdministrator = new Administrator(username, fullName, sex, password, age, country);
         }
         catch (JSONException e){
             e.printStackTrace();
