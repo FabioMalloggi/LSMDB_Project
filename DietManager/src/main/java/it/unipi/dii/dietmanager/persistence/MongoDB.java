@@ -17,13 +17,6 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 
-abstract class DietSchema{
-
-}
-
-abstract class FoodSchema{
-
-}
 /*
 Collections: users | diets | foods
 user:
