@@ -375,5 +375,9 @@ public class CLI {
         return in;
     }
 
+    //general function to print
+    public void generalPrint(String toPrint){
+        System.out.println(toPrint);
+    }
 
 }

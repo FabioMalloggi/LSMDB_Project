@@ -87,7 +87,7 @@ public class DietManager {
             while (step1 != true) {
                 tmp = cli.startWelcomeMenu();
                 if (!tmp.equals("R") && !tmp.equals("S") &&!tmp.equals("end")) //fare qualcosa
-                    System.out.println("fare qualcosa con eccezione");
+                    cli.generalPrint("Choice not allowed");
 
                 else if(tmp.equals("end")) { //only during this window the user can end/close the application
                     notFinish = false;
@@ -138,19 +138,19 @@ public class DietManager {
 
                 if(newRegister[6].equals("SU")){
                     //the attribute user of LogicalManagement  = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
-                    System.out.println("StandardUSer correttamente generato!");
+                    cli.generalPrint("StandardUSer correttamente generato!"); //System.out.println("StandardUSer correttamente generato!");
                     isLogged = true;
                 }
 
                 else if(newRegister[6].equals("N")){
                     //the attribute user of LogicalManagement  = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
-                    System.out.println("Nutritionist correttamente generato!");
+                    cli.generalPrint("Nutritionist correttamente generato!"); //System.out.println("Nutritionist correttamente generato!");
                     isLogged = true;
                 }
 
                 //else{ ...is the same
                 else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) { //fare qualcosa
-                    System.out.println("fare qualcosa con eccezione");
+                    cli.generalPrint("fare qualcosa con eccezione"); //System.out.println("fare qualcosa con eccezione");
 
                 }
 
@@ -173,8 +173,8 @@ public class DietManager {
                 //helpType = cli.helpMenu(lM.currentUser.getUserName());
 
                 // to test
-                System.out.println("Write help or write a command");
-                System.out.print("> ");
+                cli.generalPrint("Write help or write a command"); //System.out.println("Write help or write a command");
+                cli.generalPrint("> "); //System.out.println("> ");
                 input = scanner.nextLine();
                 tokens = input.split(" ");
 
@@ -197,11 +197,10 @@ public class DietManager {
 
                 //helpFood
                 else if(tokens[0].equals("find") && tokens[1].equals("-f") && tokens.length == 3){
-                    System.out.println("-> search food by name");
+                    cli.generalPrint("-> search food by name"); //System.out.println("-> search food by name");
                     foodsTarget = lM.lookUpFoodByName(tokens[2]);
 
-                    System.out.println("List of Food with the subString: "+tokens[2]);
-
+                    cli.generalPrint("List of Food with the subString: "+tokens[2]); //System.out.println("List of Food with the subString: "+tokens[2]);
                     if(foodsTarget != null) {
                         cli.printFoods(foodsTarget);
                     }
@@ -213,11 +212,11 @@ public class DietManager {
                 }
                 else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length==3){
                     if(tokens[2].equals("-personal") && (lM.currentUser instanceof StandardUser)) {
-                        System.out.println("-> lookup your eaten foods list");
-
+                        cli.generalPrint("-> lookup your eaten foods list"); // System.out.println("-> lookup your eaten foods list");
                         eatenFoodsList = lM.lookUpStandardUserEatenFoods();
 
-                        System.out.println("List of EatenFood : "+tokens[2]);
+
+                        cli.generalPrint("List of EatenFood : "+tokens[2]); // System.out.println("List of EatenFood : "+tokens[2]);
                                 /*String result ="";
                                 for(EatenFood ef: eatenFoodsList){
                                     result += "/"+ef.getId()+" "+ef.getFoodID()+" "+ef.getQuantity()+ " "+ef.getTimestamp()+"/";
@@ -225,12 +224,11 @@ public class DietManager {
                                 System.out.println(result);*/
                     }
                     else {
-                        System.out.println("-> lookup most eaten food by category");
+                        cli.generalPrint("-> lookup most eaten food by category"); // System.out.println("-> lookup most eaten food by category");
 
                         foodTarget = lM.lookUpMostEatenFoodByCategory(tokens[2]); //*** data una categoria non ne deve restituire uno ??***
 
-                        System.out.println("List of most eaten food by category: "+tokens[2]);
-
+                        cli.generalPrint("List of most eaten food by category: "+tokens[2]); // System.out.println("List of most eaten food by category: "+tokens[2]);
                         if(foodTarget != null) {
                             cli.printFood(foodTarget);
                         }
@@ -240,7 +238,8 @@ public class DietManager {
                     }
                 }
                 else if(tokens[0].equals("add") && tokens[1].equals("-ef") && tokens.length == 3 && (lM.currentUser instanceof StandardUser)){
-                    System.out.println("-> add food to your eaten foods list");
+
+                    cli.generalPrint("-> add food to your eaten foods list"); //System.out.println("-> add food to your eaten foods list");
 
                     /** CHIEDERE LA QUANTITA (in grammi)***/
                     input2 = cli.quantityOfEatenFood();
@@ -250,7 +249,8 @@ public class DietManager {
                     checkOperation = lM.addFoodToEatenFoods(ef);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly added in your EatenFoodList");
+
+                        cli.generalPrint(tokens[2]+" correctly added in your EatenFoodList"); //System.out.println(tokens[2]+" correctly added in your EatenFoodList");
                     }
                     else {
                         System.err.println(tokens[2]+" not added in your EatenFoodList");
@@ -261,13 +261,14 @@ public class DietManager {
                 }
 
                 else if(tokens[0].equals("rm") && tokens[1].equals("-ef") && tokens.length == 3 && (lM.currentUser instanceof StandardUser)){
-                    System.out.println("-> remove eaten food from your eaten foods list");
+                    cli.generalPrint("-> remove eaten food from your eaten foods list"); //System.out.println("-> remove eaten food from your eaten foods list");
 
                     checkOperation = false;
                     checkOperation = lM.removeEatenFood(tokens[2]);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly removed from your EatenFoodList");
+
+                        cli.generalPrint(tokens[2]+" correctly removed from your EatenFoodList"); // System.out.println(tokens[2]+" correctly removed from your EatenFoodList");
                     }
                     else {
                         System.err.println(tokens[2]+" not removed from your EatenFoodList");
@@ -279,7 +280,7 @@ public class DietManager {
                     String[] chooseNutrients;
                     Food newFood;
                     checkOperation = false;
-                    System.out.println("-> add food to catalog");
+                    cli.generalPrint("-> add food to catalog"); //System.out.println("-> add food to catalog");
                     chooseNutrients = cli.menuInsertNutrient(); //work
 
 
@@ -288,13 +289,15 @@ public class DietManager {
                     for(String s: chooseNutrients){
                         result += "nutrient "+s;
                     }
-                    System.out.println("result menuNutrient: "+result);
+
+                    cli.generalPrint("result menuNutrient: "+result); //System.out.println("result menuNutrient: "+result);
 
                     newFood = generateFood(tokens[2], chooseNutrients);
                     checkOperation = lM.addFood(newFood);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly inserted into catalog");
+
+                        cli.generalPrint(tokens[2]+" correctly inserted into catalog"); //System.out.println(tokens[2]+" correctly inserted into catalog");
                     }
                     else {
                         System.err.println(tokens[2]+" not inserted into catalog");
@@ -303,13 +306,13 @@ public class DietManager {
                 }
 
                 else if(tokens[0].equals("rm") && tokens[1].equals("-f") && tokens.length == 3 && (lM.currentUser instanceof Administrator)){
-                    System.out.println("-> remove food from catalog");
+                    cli.generalPrint("-> remove food from catalog"); //System.out.println("-> remove food from catalog");
 
                     checkOperation = false;
                     checkOperation = lM.removeFood(tokens[2]);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly removed from catalog");
+                        cli.generalPrint(tokens[2]+" correctly removed from catalog"); //System.out.println(tokens[2]+" correctly removed from catalog");
                     }
                     else {
                         System.err.println(tokens[2]+" not removed from catalog");
@@ -324,20 +327,21 @@ public class DietManager {
                     /*if(lM.currentUser instanceof StandardUser){
                         //qui ci va il codice di questo else if
                     }*/
-                    System.out.println("checking...");
+                    cli.generalPrint("checking..."); // System.out.println("checking...");
                     check = lM.checkDietProgress();
                     cli.printCheckDietProgress(check);
                 }
 
                 // follow a diet
                 else if(tokens[0].equals("follow") && tokens.length == 2 && (lM.currentUser instanceof StandardUser)){
-                    System.out.println("start to follow, ID:" + tokens[1]);
+
+                    cli.generalPrint("start to follow, ID:" + tokens[1]); // System.out.println("start to follow, ID:" + tokens[1]);
 
                     checkOperation = false;
                     checkOperation = lM.followDiet(tokens[1]);
 
                     if(checkOperation){
-                        System.out.println("Correctly followed diet with ID: "+tokens[1]);
+                        cli.generalPrint("Correctly followed diet with ID: "+tokens[1]); //System.out.println("Correctly followed diet with ID: "+tokens[1]);
                     }
                     else {
                         System.err.println("NOT correctly followed diet with ID: "+tokens[1]);
@@ -346,13 +350,13 @@ public class DietManager {
 
                 //stop a diet
                 else if(tokens[0].equals("stop") && (lM.currentUser instanceof StandardUser)){
-                    System.out.println("stopped the current diet");
+                    cli.generalPrint("stopped the current diet"); //System.out.println("stopped the current diet");
 
                     checkOperation = false;
                     checkOperation = lM.stopDiet();
 
                     if(checkOperation){
-                        System.out.println("Correctly stopped the current diet");
+                        cli.generalPrint("Correctly stopped the current diet"); // System.out.println("Correctly stopped the current diet");
                     }
                     else {
                         System.err.println("NOT correctly stopped the current diet");
@@ -361,13 +365,13 @@ public class DietManager {
 
                 //unfollow a diet
                 else if(tokens[0].equals("unfollow") && (lM.currentUser instanceof StandardUser)){
-                    System.out.println("unfollowed the current diet");
+                    cli.generalPrint("unfollowed the current diet"); //System.out.println("unfollowed the current diet");
 
                     checkOperation = false;
                     checkOperation = lM.unfollowDiet();
 
                     if(checkOperation){
-                        System.out.println("Correctly unfollowed the current diet");
+                        cli.generalPrint("Correctly unfollowed the current diet"); // System.out.println("Correctly unfollowed the current diet");
                     }
                     else {
                         System.err.println("NOT correctly unfollowed the current diet");
@@ -378,7 +382,7 @@ public class DietManager {
                 else if(tokens[0].equals("find") && tokens[1].equals("-d") && tokens.length >= 3){
 
                     if(tokens[2].equals("-id") && tokens.length == 4){
-                        System.out.println("-> search diet by ID");
+                        cli.generalPrint("-> search diet by ID"); //System.out.println("-> search diet by ID");
 
                         dietTarget = lM.lookUpDietByID(tokens[3]);
                         if(dietTarget != null) {
@@ -389,7 +393,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-name") && tokens.length == 4){
-                        System.out.println("-> search diets by names");
+                        cli.generalPrint("-> search diets by names"); //System.out.println("-> search diets by names");
 
                         dietsTarget = lM.lookUpDietByName(tokens[3]);
                         if(dietsTarget != null){
@@ -400,7 +404,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-nut") && tokens.length == 4){
-                        System.out.println("-> search diets by Nutritionist username");
+                        cli.generalPrint("-> search diets by Nutritionist username"); //System.out.println("-> search diets by Nutritionist username");
 
                         dietsTarget = lM.lookUpDietByNutritionist(tokens[3]);
                         if(dietsTarget != null){
@@ -411,7 +415,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-mf")){
-                        System.out.println("-> search most currently followed diet");
+                        cli.generalPrint("-> search most currently followed diet"); //System.out.println("-> search most currently followed diet");
 
                         dietTarget = lM.lookUpMostFollowedDiet();
                         if(dietTarget != null) {
@@ -422,7 +426,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-mp")){
-                        System.out.println("-> search most popular diet");
+                        cli.generalPrint("-> search most popular diet"); //System.out.println("-> search most popular diet");
 
                         dietTarget = lM.lookUpMostPopularDiet();
                         if(dietTarget != null) {
@@ -433,7 +437,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-mc")){
-                        System.out.println("-> search most completed diet");
+                        cli.generalPrint("-> search most completed diet"); // System.out.println("-> search most completed diet");
 
                         dietTarget = lM.lookUpMostSucceededDiet();
                         if(dietTarget != null) {
@@ -444,7 +448,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-r")){
-                        System.out.println("-> lookup most recommended diet");
+                        cli.generalPrint("-> lookup most recommended diet"); //System.out.println("-> lookup most recommended diet");
 
                         dietTarget = lM.lookUpRecommendedDiet();
                         if(dietTarget != null) {
@@ -455,7 +459,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-mfnut") && tokens.length ==4){
-                        System.out.println("-> search most followed diet by Nutritionist username");
+                        cli.generalPrint("-> search most followed diet by Nutritionist username"); //System.out.println("-> search most followed diet by Nutritionist username");
 
                         dietTarget = lM.lookUpMostFollowedDietByNutritionist(tokens[3]);
                         if(dietTarget != null) {
@@ -466,7 +470,7 @@ public class DietManager {
                         }
                     }
                     else if(tokens[2].equals("-c")){
-                        System.out.println("-> lookup your current diet");
+                        cli.generalPrint("-> lookup your current diet"); //System.out.println("-> lookup your current diet");
 
                         //if utente è uno standardUser
                         dietTarget = lM.lookUpStandardUserCurrentDiet();
@@ -481,7 +485,7 @@ public class DietManager {
                 }
 
                 else if(tokens[0].equals("find") && tokens[1].equals("-npn")){
-                    System.out.println("-> lookup most suggested nutrient for each nutritionist");
+                    cli.generalPrint("-> lookup most suggested nutrient for each nutritionist"); //System.out.println("-> lookup most suggested nutrient for each nutritionist");
 
                     npn = lM.lookUpMostSuggestedNutrientForEachNutritionist();
                     if(npn != null){
@@ -496,7 +500,7 @@ public class DietManager {
                 else if(tokens[0].equals("add") && tokens[1].equals("-d") && tokens.length == 3 && (lM.currentUser instanceof Nutritionist)){
                     String[] chooseNutrients;
                     Diet newDiet;
-                    System.out.println("-> add diet: "+tokens[2]);
+                    cli.generalPrint("-> add diet: "+tokens[2]); //System.out.println("-> add diet: "+tokens[2]);
                     chooseNutrients = cli.menuInsertNutrient(); //work
 
                     //to test menuNut //work
@@ -504,7 +508,7 @@ public class DietManager {
                     for(String s: chooseNutrients){
                         result += "nutrient "+s;
                     }
-                    System.out.println("result menuNutrient: "+result);
+                    cli.generalPrint("result menuNutrient: "+result); //System.out.println("result menuNutrient: "+result);
 
                     //***CREARE FUNZIONE CHE RESTITUISCE Diet DATO token[2] e STRING[] di nutirenti.*****
                     //create a List of Nutrients with the chooseNutrients[] values
@@ -516,7 +520,7 @@ public class DietManager {
                     checkOperation = lM.addDiet(newDiet);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" diet correctly inserted.");
+                        cli.generalPrint(tokens[2]+" diet correctly inserted."); //System.out.println(tokens[2]+" diet correctly inserted.");
                     }
                     else {
                         System.err.println(tokens[2]+" diet not inserted.");
@@ -524,13 +528,13 @@ public class DietManager {
                 }
 
                 else if(tokens[0].equals("rm") && tokens[1].equals("-d") && tokens.length == 3 && (lM.currentUser instanceof Nutritionist)){
-                    System.out.println("-> remove diet");
+                    cli.generalPrint("-> remove diet"); //System.out.println("-> remove diet");
 
                     checkOperation = false;
                     checkOperation = lM.removeDiet(tokens[2]);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly removed from diet");
+                        cli.generalPrint(tokens[2]+" correctly removed from diet"); //System.out.println(tokens[2]+" correctly removed from diet");
                     }
                     else {
                         System.err.println("Diet with ID: "+tokens[2]+" not removed");
@@ -541,17 +545,17 @@ public class DietManager {
                 //helpUser
                 else if(tokens[0].equals("find") && tokens[1].equals("-u")){
                     if(tokens[2].equals("-u") && tokens.length == 4){
-                        System.out.println("-> search user by username");
+                        cli.generalPrint("-> search user by username"); // System.out.println("-> search user by username");
                         userTarget = lM.lookUpUserByUsername(tokens[3]);
                         cli.printUser(userTarget);
                     }
                     else if(tokens[2].equals("-c") && tokens.length == 4){ /** in LM a seconda del tipo di utente che la chiama, sarà chiamata una delle 2 dunzionipresenti in MongoDB*/
-                        System.out.println("-> search user by country");
+                        cli.generalPrint("-> search user by country"); //System.out.println("-> search user by country");
                         usersTarget = lM.lookUpUserByCountry(tokens[3]);
                         cli.printUsers(usersTarget);
                     }
                     else if(tokens[2].equals("-mpn")){
-                        System.out.println("-> lookup most popular nutritionist");
+                        cli.generalPrint("-> lookup most popular nutritionist"); //System.out.println("-> lookup most popular nutritionist");
                         //((Nutritionist) userTarget) = lM.lookUpMostPopularNutritionist(); //*** non funge il cast***
                         nutritionistTarget = lM.lookUpMostPopularNutritionist();
                         cli.printUser(userTarget);
@@ -560,14 +564,13 @@ public class DietManager {
 
                 //commands for administrator(User)
                 else if (tokens[0].equals("rm") && tokens[1].equals("-u") && tokens.length == 3 && (lM.currentUser instanceof Administrator) ){
-
-                    System.out.println("-> remove user, with username: "+tokens[2]);
+                    cli.generalPrint("-> remove user, with username: "+tokens[2]); //System.out.println("-> remove user, with username: "+tokens[2]);
 
                     checkOperation = false;
                     checkOperation = lM.removeUser(tokens[2]);
 
                     if(checkOperation){
-                        System.out.println(tokens[2]+" correctly removed ");
+                        cli.generalPrint(tokens[2]+" correctly removed "); //System.out.println(tokens[2]+" correctly removed ");
                     }
                     else {
                         System.err.println("User with username: "+tokens[2]+" not removed");
@@ -582,7 +585,7 @@ public class DietManager {
 
                 //error
                 else{
-                    System.out.println("Wrong or incomplete command");
+                    cli.generalPrint("Wrong or incomplete command"); //System.out.println("Wrong or incomplete command");
                 }
 
             }// while (isLogged)
