@@ -1,4 +1,6 @@
-package it.unipi.dii.dietmanager.entities;
+package it.unipi.dii.dietmanager.client;
+
+import it.unipi.dii.dietmanager.entities.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

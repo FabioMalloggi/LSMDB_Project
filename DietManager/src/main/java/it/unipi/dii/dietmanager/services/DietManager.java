@@ -1,6 +1,7 @@
-package it.unipi.dii.dietmanager;
+package it.unipi.dii.dietmanager.services;
 
 import it.unipi.dii.dietmanager.entities.*;
+import it.unipi.dii.dietmanager.client.CLI;
 
 import java.sql.Timestamp;
 import java.util.*;
