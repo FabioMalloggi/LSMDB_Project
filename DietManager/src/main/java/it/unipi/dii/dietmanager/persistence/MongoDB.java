@@ -1,12 +1,15 @@
 package it.unipi.dii.dietmanager.persistence;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Filters;
-import it.unipi.dii.dietmanager.entities.*;
+import com.mongodb.client.model.*;
+import com.mongodb.client.result.*;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import it.unipi.dii.dietmanager.entities.*;
 
 import java.util.*;
 
@@ -86,17 +89,17 @@ public class MongoDB{
     public boolean addUser(User user){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        usersCollection.insertOne(userToDocument(user));
+        InsertOneResult insertOneResult = usersCollection.insertOne(userToDocument(user));
         closeConnection();
-        return lookUpUserByID(user.getUsername()) != null;
+        return insertOneResult.wasAcknowledged();
     }
 
     public boolean removeUser(String username){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        usersCollection.deleteOne(Filters.eq(User.USERNAME, username));
+        DeleteResult deleteResult = usersCollection.deleteOne(eq(User.USERNAME, username));
         closeConnection();
-        return lookUpUserByID(username) == null;
+        return deleteResult.wasAcknowledged();
     }
 
     public List<Nutritionist> lookUpNutritionistsByCountry(String country){
@@ -176,11 +179,66 @@ public class MongoDB{
         return diets;
     }
 
-    /*      DA FINIRE
+    public boolean followDiet(StandardUser standardUser, String dietID){
+        openConnection();
+        // verifica esistenza Dieta
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+        Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
+        Bson insertCurrentDietField = Updates.set(StandardUser.CURRENT_DIET, dietID);
+        UpdateResult updateResult = userCollection.updateOne(userFilter, insertCurrentDietField);
+        closeConnection();
+        return updateResult.wasAcknowledged();
+    }
+
+    // it can be called either 'unfollowDiet' or 'stopDiet'
+    public boolean unfollowDiet(StandardUser standardUser){
+        openConnection();
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+
+        Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
+        Bson deleteCurrentDietField = Updates.unset(StandardUser.CURRENT_DIET);
+        Bson deleteEatenFoodsField = Updates.unset(StandardUser.EATENFOODS);
+
+        UpdateOneModel<Document> updateRemoveCurrentDietDocument = new UpdateOneModel<>(
+                userFilter, deleteCurrentDietField);
+        UpdateOneModel<Document> updateRemoveEatenFoodsDocument = new UpdateOneModel<>(
+                userFilter, deleteEatenFoodsField);
+
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
+
+        closeConnection();
+        return bulkWriteResult.wasAcknowledged();
+    }
+
+    public boolean addDiet(Diet diet){
+        openConnection();
+        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+        InsertOneResult insertOneResult = dietCollection.insertOne(dietToDocument(diet));
+        closeConnection();
+        return insertOneResult.wasAcknowledged(); // before: lookUpDietByID(diet.getId()) != null
+    }
+
+    public boolean removeDiet(String dietID){
+        openConnection();
+        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+        DeleteResult deleteResult = dietCollection.deleteOne(eq(Diet.ID, dietID));
+        closeConnection();
+        return deleteResult.wasAcknowledged();
+    }
+
+    /*
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
         openConnection();
         HashMap<String, Nutrient> nutritionistNutrientMap = new HashMap<>();
-        Bson myAggregator = Aggregates.group(Diet.NUTRITIONIST,Filters.eq(Diet.NUTRITIONIST, ));
+
+        Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
+        Bson projection1 = project(fields(include(Diet.NUTRITIONIST,Nutrient.QUANTITY),computed("nutrientName",Diet.NUTRIENTS)));
+        Bson groupByNutrientAndNutritionist = new Document("$group",
+                new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST).append(Diet.NUTRIENTS,"$"+Diet.NUTRIENTS)
+                .append("totalQuantity", new Document("$sum","$"+Nutrient.QUANTITY)));
+
+
 
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
@@ -194,15 +252,8 @@ public class MongoDB{
         return nutritionistNutrientMap;
 
 
-        Iterator hmIterator = npn.entrySet().iterator();
-        while(hmIterator.hasNext()){
-            Map.Entry mapElement = (Map.Entry)hmIterator.next();
-            Nutrient n = ((Nutrient) mapElement.getValue());
-            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() );
-        }
     }
-
-     */
+    */
 
     /************************************************************************************/
     /*************************** Foods related methods **********************************/
@@ -217,6 +268,17 @@ public class MongoDB{
 
     private Document foodToDocument(Food food){
         return Document.parse(food.toJSONObject().toString());
+    }
+
+    private EatenFood eatenFoodFromDocument(Document eatenFoodDocument) {
+        if(eatenFoodDocument == null)
+            return null;
+        JSONObject jsonEatenFood = new JSONObject(eatenFoodDocument.toString());
+        return EatenFood.fromJSONObject(jsonEatenFood);
+    }
+
+    private Document eatenFoodToDocument(EatenFood eatenFood){
+        return Document.parse(eatenFood.toJSONObject().toString());
     }
 
     public List<Food> lookUpFoodsByName(String name){
@@ -252,6 +314,47 @@ public class MongoDB{
         closeConnection();
         return targetFood;
     }
+
+    public boolean addFood(Food food){
+        openConnection();
+        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+        InsertOneResult insertOneResult = foodCollection.insertOne(foodToDocument(food));
+        closeConnection();
+        return insertOneResult.wasAcknowledged();
+    }
+
+    public boolean removeFood(String foodName){
+        openConnection();
+        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+        DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
+        closeConnection();
+        return deleteResult.wasAcknowledged();
+    }
+
+    public boolean addEatenFood(StandardUser standardUser, EatenFood eatenFood){
+        openConnection();
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+
+        Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
+        Bson insertEatenFoodDocument = Updates.push(StandardUser.EATENFOODS, eatenFoodToDocument(eatenFood));
+        UpdateResult updateResult = userCollection.updateOne(userFilter, insertEatenFoodDocument);
+
+        closeConnection();
+        return updateResult.wasAcknowledged();
+    }
+
+    public boolean removeEatenFood(StandardUser standardUser, String eatenFoodID){
+        openConnection();
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+
+        Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
+        Bson deleteEatenFoodDocument = Updates.pull(StandardUser.EATENFOODS, new Document(EatenFood.ID, eatenFoodID));
+        UpdateResult updateResult = userCollection.updateOne(userFilter, deleteEatenFoodDocument);
+
+        closeConnection();
+        return updateResult.wasAcknowledged();
+    }
+
 
     /************************************************************************************/
 

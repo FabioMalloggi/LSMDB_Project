@@ -49,8 +49,8 @@ public class HandlerDiet {
         nutrientsMatrix = new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length];
     }
 
-    private String[] extractTargetNutrientfromMax(){
-        String[] targetLine = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
+    public String[] extractTargetNutrientfromMax(){
+        String[] targetNutrientsMax = new String[TARGET_NUTRIENT_INDEXES_DB2.length];
 
         try(BufferedReader readerMax = new BufferedReader(new FileReader(fileMax))){
 
@@ -59,13 +59,13 @@ public class HandlerDiet {
             String[] lineArray = line.split(";");
             int currentIndex = 0;
             for(int i: TARGET_NUTRIENT_INDEXES_DB2) {
-                targetLine[currentIndex] = lineArray[i];
+                targetNutrientsMax[currentIndex] = lineArray[i];
                 currentIndex++;
             }
         }catch(Exception e){
             e.printStackTrace();
         }
-        return targetLine;
+        return targetNutrientsMax;
     }
 
     private void nutrientsGeneratorByMax(){
@@ -173,9 +173,11 @@ public class HandlerDiet {
 
     public static void main(String[] args) {
         HandlerDiet handlerDiet = new HandlerDiet(2000);
-        handlerDiet.dietCreator();
-        //hd.printNutritionists();
-        handlerDiet.printDietsToFile();
+        //handlerDiet.dietCreator();
+        //handlerDiet.printNutritionists();
+        //handlerDiet.printDietsToFile();
+        for(String max: handlerDiet.extractTargetNutrientfromMax())
+            System.out.println(max);
     }
 
 }

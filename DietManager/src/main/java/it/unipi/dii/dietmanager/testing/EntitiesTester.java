@@ -176,7 +176,7 @@ public class EntitiesTester {
         //te.nutrientTester();
         //te.foodTester();
         //te.eatenFoodTester();
-        //te.dietTester();
+        te.dietTester();
         //te.standardUserCompleteTester();
         //te.standardUserPartialTester();
         //te.nutritionistTester();
