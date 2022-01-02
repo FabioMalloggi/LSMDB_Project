@@ -69,7 +69,6 @@ public class Food
             category = jsonFood.getString(Food.CATEGORY);                   // retrieving category
             eatenTimesCount = jsonFood.getInt(Food.EATEN_TIMES_COUNT);      // retrieving eatenTimesCount
             JSONArray jsonNutrients = jsonFood.getJSONArray(Food.NUTRIENTS);
-            System.out.println(jsonNutrients.toString());
 
             for (int i = 0; i < jsonNutrients.length(); i++){
                 nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
