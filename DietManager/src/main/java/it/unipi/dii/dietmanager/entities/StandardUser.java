@@ -20,7 +20,7 @@ public class StandardUser extends User {
         this.currentDiet = null;
     }
 
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet /*, Date currentDietStartDate*/) {
+    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;
         this.currentDiet = currentDiet;
@@ -68,10 +68,11 @@ public class StandardUser extends User {
             age = jsonUser.getInt(User.AGE);                    // retrieving age
 
             JSONArray jsonEatenFoods = jsonUser.getJSONArray(StandardUser.EATENFOODS);
-            for (int i = 0; i < jsonEatenFoods.length(); i++){
-                eatenFoods.add(EatenFood.fromJSONObject(new JSONObject(jsonEatenFoods.get(i))));    // retrieve eatenFoods
-            }
-            jsonCurrentDietStringID = jsonUser.getString(StandardUser.CURRENT_DIET);    // retrieving current Diet
+            if(jsonEatenFoods != null)
+                for (int i = 0; i < jsonEatenFoods.length(); i++){
+                    eatenFoods.add(EatenFood.fromJSONObject(new JSONObject(jsonEatenFoods.get(i))));    // retrieve eatenFoods
+                }
+            jsonCurrentDietStringID = jsonUser.getString("StandardUser.CURRENT_DIET");    // retrieving current Diet
             Diet currentDiet = new Diet(jsonCurrentDietStringID);
             newUser = new StandardUser(username, fullName, sex, password, age, country, eatenFoods, currentDiet);
         }

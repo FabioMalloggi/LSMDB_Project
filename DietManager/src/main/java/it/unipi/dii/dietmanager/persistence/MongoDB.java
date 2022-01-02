@@ -2,65 +2,16 @@ package it.unipi.dii.dietmanager.persistence;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import it.unipi.dii.dietmanager.entities.*;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-
-
-/*
-Collections: users | diets | foods
-user:
-        _id: "username",
-        password: "",
-        fullName: "",
-        sex: "",
-        age: "",
-        country: "",
-        userType: "standardUser" || "nutritionist" || "administrator",
-        --------- standardUser ---------
-        eatenFoods: [   {
-                        eatenFoodID: "00112364",
-                        foodID: "92378562",
-                        quantity: int,	 (sempre grammi)
-                        timestamp: Timestamp
-                        },
-                    ],
-        currentDiet: "stringID"
-        ---------------------------------
-
-food:
-        _id: "StringName",
-        category: "",
-        nutrients:   [	{           // Per100g
-                        name: "Energy",
-                        unit: "KCAL",
-                        quantity: double
-                        }
-                    ],
-        eatenTimesCount: ""
-
-diet:
-        _id: "454784791",
-        name: "",
-        nutrients:   [	{           // Per100g
-                    name: "Energy",
-                    unit: "KCAL",
-                    quantity: double
-                    }
-                ],
-	    nutritionist: "username"
-*/
-
 
 public class MongoDB{
 
@@ -98,7 +49,7 @@ public class MongoDB{
 
     /*************************** Users related methods **********************************/
 
-    private User userFromJSON(JSONObject jsonUser){
+    private User userFromJSONObject(JSONObject jsonUser){
         String userType = jsonUser.getString(User.USERTYPE);
         if(userType.equals(User.USERTYPE_STANDARDUSER))
             return StandardUser.fromJSONObject(jsonUser);
@@ -116,7 +67,7 @@ public class MongoDB{
         if(userDocument == null)
             return null;
         JSONObject jsonUser = new JSONObject(userDocument.toString());
-        return userFromJSON(jsonUser);
+        return userFromJSONObject(jsonUser);
     }
 
     private Document userToDocument(User user){
@@ -174,20 +125,6 @@ public class MongoDB{
         closeConnection();
         return users;
     }
-
-
-    /* useless: trivial: Logic Manager should have always all the EatenFoods updated.
-
-    public List<EatenFood> lookUpStandardUserEatenFoods(String username){
-        MongoCollection<Document> usersCollection = database.getCollection("users");
-        JSONObject jsonUser = new JSONObject(usersCollection.find(eq("username", username)).first().toJson());
-        JSONArray jsonEatenFoods = jsonUser.getJSONArray("eatenFoods");
-        List<EatenFood> eatenFoods = new ArrayList<>();
-        for(int i=0; i<jsonEatenFoods.length(); i++)
-            eatenFoods.add(EatenFood.fromJSON(jsonEatenFoods.getJSONObject(i)));
-        return eatenFoods;
-    }
-     */
 
     /************************************************************************************/
     /*************************** Diets related methods **********************************/

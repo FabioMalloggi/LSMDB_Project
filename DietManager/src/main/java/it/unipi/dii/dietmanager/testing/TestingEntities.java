@@ -1,13 +1,14 @@
 package it.unipi.dii.dietmanager.testing;
 
 import it.unipi.dii.dietmanager.entities.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class testingEntities {
+public class TestingEntities {
     private final int NUM_NUTRIENTS = 17;
     private final int NUM_FOODS = 10;
     private final int NUM_EATEN_FOODS = 10;
@@ -26,6 +27,17 @@ public class testingEntities {
     private List<StandardUser> standardUsers_p = new ArrayList<>();
     private List<Administrator> administrators = new ArrayList<>();
     private List<Nutritionist> nutritionists = new ArrayList<>();
+
+    private JSONArray jsonNutrients;
+    private JSONArray jsonFoods;
+    private JSONArray jsonEatenFoods;
+    private JSONArray jsonDiets;
+    private JSONArray jsonUsers;
+    private JSONArray jsonStandardUsersComplete;
+    private JSONArray jsonStandardUsersPartial;
+    private JSONArray jsonNutritionist;
+    private JSONArray jsonAdministrator;
+
 
     public void populate(){
         for (int i = 0; i < NUM_NUTRIENTS; i++) {
@@ -64,6 +76,14 @@ public class testingEntities {
 
 
     public static void main(String[] args){
+        TestingEntities te = new TestingEntities();
+        te.populate();
+
+        System.out.println(te.nutrients.toString());
+        for(Nutrient nutrient: te.nutrients){
+            nutrient.toJSONObject();
+        }
+
         /********************** testing Standard User **********************/
 
     }
