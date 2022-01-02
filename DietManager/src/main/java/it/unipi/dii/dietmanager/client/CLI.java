@@ -338,6 +338,12 @@ public class CLI {
         }
     }
 
+    public void printUsers(List<User> usersTarget){
+        for(User u: usersTarget){
+            printUser(u);
+        }
+    }
+
     public void printEatenFood(User user){
         System.out.println("List of Eaten foods: ");
         for(EatenFood ef: ((StandardUser)user).getEatenFoods()){

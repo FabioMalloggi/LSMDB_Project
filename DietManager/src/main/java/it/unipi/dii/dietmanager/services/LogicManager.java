@@ -100,16 +100,15 @@ public class LogicManager {
     }
 
     /** Restituiscono una LISTA di utenti: toDOO*/
-    public User lookUpUserByCountry(String country){
-        User userTarget = null;
+    public List<User> lookUpUserByCountry(String country){
+        List<User> usersTarget = null;
         if(currentUser instanceof StandardUser){
-            MongoDB.lookUpNutritionistsByCountry(country);
+            MongoDB.lookUpNutritionistsByCountry(country); /**CONFLITTO perché restituisce una lista di <Nutritionist> invece che una lista di<User>*/
         }
         else if(currentUser instanceof Administrator){
-            MongoDB.lookUpAllUsersByCountry(country);
+            return MongoDB.lookUpAllUsersByCountry(country);
         }
-
-        return userTarget;
+        return null;
     }
 
     public Diet lookUpStandardUserCurrentDiet (){
@@ -186,14 +185,13 @@ public class LogicManager {
         return  dietTarget;
     }
 
-    /**Conflitto di parametri tra questa funzione e la sua corrispettiva in Neo4j --> vedere txt apposito*/
     public Diet lookUpMostFollowedDietByNutritionist(String username) {
         Diet dietTarget = null; String id;
 
-        /*
+
         id = Neo4J.lookUpMostFollowedDietByNutritionist(username);
         dietTarget = lookUpDietByID(id);
-        */
+
         return  dietTarget;
     }
 
@@ -237,9 +235,6 @@ public class LogicManager {
 
     public boolean followDiet(String id){
         boolean mongoDB = false, neo4J = false;
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
-            return false;
-        }
         Diet diet = null;
         diet = lookUpDietByID(id);
         if(diet != null && ((StandardUser)currentUser).getCurrentDiet() == null ){ //check
@@ -268,9 +263,6 @@ public class LogicManager {
 
     public boolean unfollowDiet(){
         boolean mongoDB = false, neo4J = false, check = false;
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
-            return false;
-        }
 
         if(((StandardUser)currentUser).getCurrentDiet() != null){
             /** da rimuovere id diet != null FORSE*/
@@ -305,9 +297,6 @@ public class LogicManager {
 
     public boolean stopDiet(){
         boolean mongoDB = false, neo4J = false, check = false;
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
-            return false;
-        }
         /** PRIMA NEO E POI MONGO */
 
         if(((StandardUser)currentUser).getCurrentDiet() != null){
@@ -344,10 +333,6 @@ public class LogicManager {
 
     public boolean addFoodToEatenFoods(EatenFood ef){
         boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
-            return false;
-        }
-
         //task = MongoDB.addFoodToEatenFoods(name, quantity, timestamp, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
         if(task)
             ((StandardUser)currentUser).getEatenFoods().add(ef);
@@ -357,12 +342,7 @@ public class LogicManager {
 
     public boolean removeEatenFood(String id){
         boolean task = false; int indexTarget = -1;
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){
-            return false;
-        }
         //task = MongoDB.removeEatenFood(id, (StandardUser) currentUser);
-
-
         if(task){
             int i;
             for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
@@ -380,9 +360,6 @@ public class LogicManager {
     public boolean addDiet(Diet diet){
         boolean mongoDB = false;
         boolean neo4J = false;
-        if(currentUser instanceof StandardUser || currentUser instanceof Administrator){ //only nutritionist
-            return false;
-        }
 
         //mongoDB = MongoDB.addDiet(diet); it will return the ID of the new Diet added
         if(mongoDB){
@@ -407,9 +384,6 @@ public class LogicManager {
     public boolean removeDiet(String id){ //OLD VERSION: Diet diet <-- con questa devo vedere se l'oggetto nutrizionista ha nella lista di diete, un istanza dieta con quell ID e poi ricavere quall'istanza e passarla qui
         boolean mongoDB = false, neo4J = false;
         Diet dietToRemove;
-        if(currentUser instanceof StandardUser || currentUser instanceof Administrator){ //only nutritionist
-            return false;
-        }
         dietToRemove = lookUpDietByID(id);
         //mongoDB = MongoDB.removeDiet(ID); --> questa funzione di mongoDB
         if(mongoDB){
@@ -436,9 +410,6 @@ public class LogicManager {
     public boolean removeUser(String username){
         boolean mongoDB = false, neo4J = false;
         User userToRemove;
-        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
-            return false;
-        }
         userToRemove = lookUpUserByUsername(username);
         mongoDB = MongoDB.removeUser(username);
         if(mongoDB){
