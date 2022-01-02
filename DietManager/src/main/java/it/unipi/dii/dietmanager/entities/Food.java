@@ -79,4 +79,14 @@ public class Food
         }
         return newFood;
     }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", nutrients=" + nutrients +
+                ", eatenTimesCount=" + eatenTimesCount +
+                '}';
+    }
 }

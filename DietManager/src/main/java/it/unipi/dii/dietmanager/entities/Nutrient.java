@@ -83,4 +83,13 @@ public class Nutrient
         }
         return  newNutrient;
     }
+
+    @Override
+    public String toString() {
+        return "Nutrient{" +
+                "name='" + name + '\'' +
+                ", unit='" + unit + '\'' +
+                ", quantity=" + quantity +
+                '}';
+    }
 }

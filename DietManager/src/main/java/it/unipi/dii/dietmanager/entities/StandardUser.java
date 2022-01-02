@@ -11,8 +11,8 @@ public class StandardUser extends User {
     public static final String EATENFOODS = "eatenFoods";
     public static final String CURRENT_DIET = "currentDiet";
 
-    private List<EatenFood> eatenFoods;
     private Diet currentDiet;
+    private List<EatenFood> eatenFoods;
 
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
         super(UserName, FullName, Password, Sex, Age, Country);
@@ -97,5 +97,14 @@ public class StandardUser extends User {
 
     public void stopCurrentDiet(){
         this.currentDiet = null;
+    }
+
+    @Override
+    public String toString() {
+        return "StandardUser{" +
+                super.toString() +
+                ", currentDiet=" + currentDiet +
+                ", eatenFoods=" + eatenFoods +
+                '}';
     }
 }

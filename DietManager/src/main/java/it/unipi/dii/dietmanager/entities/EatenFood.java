@@ -1,6 +1,5 @@
 package it.unipi.dii.dietmanager.entities;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -68,5 +67,15 @@ public class EatenFood {
             e.printStackTrace();
         }
         return  newEatenFood;
+    }
+
+    @Override
+    public String toString() {
+        return "EatenFood{" +
+                "id='" + id + '\'' +
+                ", foodName='" + foodName + '\'' +
+                ", quantity=" + quantity +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }

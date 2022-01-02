@@ -64,4 +64,16 @@ public abstract class  User {
     // public void setCountry(String country) { this.country = country; }
 
     public abstract JSONObject toJSONObject();
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", password='" + password + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }

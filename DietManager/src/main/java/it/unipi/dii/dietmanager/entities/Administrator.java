@@ -46,4 +46,10 @@ public class Administrator extends User{
         return  newAdministrator;
     }
 
+    @Override
+    public String toString() {
+        return "Administrator{" +
+                super.toString() +
+                "}";
+    }
 }

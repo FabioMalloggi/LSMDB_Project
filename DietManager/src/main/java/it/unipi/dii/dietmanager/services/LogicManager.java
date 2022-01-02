@@ -1,9 +1,9 @@
 package it.unipi.dii.dietmanager.services;
 
 import it.unipi.dii.dietmanager.entities.*;
-import it.unipi.dii.dietmanager.persistence.*;
+import it.unipi.dii.dietmanager.persistence.MongoDB;
+import it.unipi.dii.dietmanager.persistence.Neo4j;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +33,7 @@ public class LogicManager {
     }
 
     public boolean signIn(String username, String password){
+        // check user type (if it's nutritionist then load him diets)
         User userTarget;
         userTarget = lookUpUserByUsername(username);
 

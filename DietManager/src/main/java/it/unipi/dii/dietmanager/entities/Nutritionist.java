@@ -58,5 +58,13 @@ public class Nutritionist extends User {
     public void setDiets(List<Diet> diets) {
         this.diets = diets;
     }
+
+    @Override
+    public String toString() {
+        return "Nutritionist{" +
+                super.toString() +
+                ", diets=" + diets +
+                '}';
+    }
 }
 

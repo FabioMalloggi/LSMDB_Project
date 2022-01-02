@@ -14,8 +14,8 @@ public class Diet {
 
     private String id;
     private String name;
-    private List<Nutrient> nutrients = new ArrayList<>(); // Per100g
     private String nutritionist;
+    private List<Nutrient> nutrients = new ArrayList<>(); // Per100g
 
     public Diet(String id){
         this.id = id;
@@ -97,5 +97,13 @@ public class Diet {
         return newDiet;
     }
 
-
+    @Override
+    public String toString() {
+        return "Diet{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", nutritionist='" + nutritionist + '\'' +
+                ", nutrients=" + nutrients +
+                '}';
+    }
 }
