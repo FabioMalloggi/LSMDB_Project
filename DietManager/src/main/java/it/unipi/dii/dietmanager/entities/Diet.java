@@ -56,18 +56,17 @@ public class Diet {
     public JSONObject toJSON() {
         JSONObject jsonDiet = new JSONObject();
         try {
-            jsonDiet.put("_id", id);
-            jsonDiet.put("name", name);
-            jsonDiet.put("nutritionist", nutritionist);
+            jsonDiet.put(Diet.ID, id);                      // inserting ID
+            jsonDiet.put(Diet.NAME, name);                  // inserting name
+            jsonDiet.put(Diet.NUTRITIONIST, nutritionist);  // inserting nutritionist
 
             JSONArray jsonNutrients = new JSONArray();
             JSONObject jsonNutrient;
             for (Nutrient nutrient : nutrients) {
-                jsonNutrient = nutrient.toJSON();
+                jsonNutrient = nutrient.toJSONObject();
                 jsonNutrients.put(jsonNutrient);
             }
-            jsonDiet.put("nutrients", jsonNutrients);
-
+            jsonDiet.put(Diet.NUTRIENTS, jsonNutrients);    // inserting nutrients
         }catch(JSONException e){
             e.printStackTrace();
         }
@@ -81,13 +80,13 @@ public class Diet {
 
         //first i retrive the attributes values from the JSONObject
         try{
-            id = jsonDiet.getString("_id");
-            name = jsonDiet.getString("name");
-            nutritionist = jsonDiet.getString("nutritionist");
+            id = jsonDiet.getString(Diet.ID);                           // retrieving ID
+            name = jsonDiet.getString(Diet.NAME);                       // retrieving name
+            nutritionist = jsonDiet.getString(Diet.NUTRITIONIST);       // retrieving nutritionist
 
-            JSONArray jsonNutrients = jsonDiet.getJSONArray("nutrients");
+            JSONArray jsonNutrients = jsonDiet.getJSONArray(Diet.NUTRIENTS);
             for (int i = 0; i < jsonNutrients.length(); i++){
-                nutrients.add(Nutrient.fromJSON(new JSONObject(jsonNutrients.get(i))));
+                nutrients.add(Nutrient.fromJSONObject(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
             }
             //then generate the new object StandardUser
             newDiet = new Diet(id, name, nutrients, nutritionist);
@@ -95,7 +94,6 @@ public class Diet {
         catch (JSONException e){
             e.printStackTrace();
         }
-
         return newDiet;
     }
 

@@ -36,21 +36,13 @@ public class EatenFood {
     public int getQuantity() { return quantity;}
     public Timestamp getTimestamp() {return timestamp;}
 
-    /*
-    public void setId(String id) { this.id = id; }
-    public void setFoodID(String foodID) { this.foodID = foodID;}
-    public void setQuantity(int quantity) {this.quantity = quantity;}
-    public void setTimestamp(Timestamp timestamp) {this.timestamp = timestamp;}
-
-     */
-
     public JSONObject toJSONObject(){
         JSONObject jsonEatenFood = new JSONObject();
         try {
-            jsonEatenFood.put(EatenFood.ID, id);                    // inserting id
+            jsonEatenFood.put(EatenFood.ID, id);                        // inserting id
             jsonEatenFood.put(EatenFood.FOOD_NAME, foodName);           // inserting foodID
-            jsonEatenFood.put(EatenFood.QUANTITY, quantity);        // inserting quantity
-            jsonEatenFood.put(EatenFood.TIMESTAMP, timestamp);       // inserting timestamp
+            jsonEatenFood.put(EatenFood.QUANTITY, quantity);            // inserting quantity
+            jsonEatenFood.put(EatenFood.TIMESTAMP, timestamp);          // inserting timestamp
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -65,10 +57,10 @@ public class EatenFood {
         Timestamp timestamp;
         EatenFood newEatenFood;
         try{
-            id = jsonEatenFood.getString("eatenFoodID");
-            foodName = jsonEatenFood.getString("foodID");
-            quantity = jsonEatenFood.getInt("quantity");
-            timestamp = Timestamp.valueOf(jsonEatenFood.getString("timestamp"));
+            id = jsonEatenFood.getString(EatenFood.ID);                                 // Retrieving ID
+            foodName = jsonEatenFood.getString(EatenFood.FOOD_NAME);                    // Retrieving foodName
+            quantity = jsonEatenFood.getInt(EatenFood.QUANTITY);                        // Retrieving quantity
+            timestamp = Timestamp.valueOf(jsonEatenFood.getString(EatenFood.TIMESTAMP));// Retrieving timestamp
 
             newEatenFood = new EatenFood(id, foodName, quantity, timestamp);
         }

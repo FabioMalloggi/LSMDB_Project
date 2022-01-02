@@ -5,6 +5,8 @@ import org.json.JSONObject;
 
 public class Nutrient
 {
+    public static final String NAME = "name";
+
     private String name;
     private String unit;
     private double quantity;
@@ -48,7 +50,7 @@ public class Nutrient
         return quantity;
     }
 
-    public JSONObject toJSON()
+    public JSONObject toJSONObject()
     {
         JSONObject jsonNutrient = null;
         try {
@@ -63,7 +65,7 @@ public class Nutrient
         return jsonNutrient;
     }
 
-    public static Nutrient fromJSON(JSONObject jsonNutrient){
+    public static Nutrient fromJSONObject(JSONObject jsonNutrient){
         String name, unit;
         double quantity;
         Nutrient newNutrient = null;

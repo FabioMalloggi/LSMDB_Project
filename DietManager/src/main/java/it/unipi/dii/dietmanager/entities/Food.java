@@ -47,7 +47,7 @@ public class Food
             JSONArray jsonNutrients = new JSONArray();
             JSONObject jsonNutrient;
             for(int i=0; i<nutrients.size(); i++){
-                jsonNutrient = nutrients.get(i).toJSON();
+                jsonNutrient = nutrients.get(i).toJSONObject();
                 jsonNutrients.put(jsonNutrient);
             }
             jsonFood.put(Food.NUTRIENTS, jsonNutrients);            // inserting nutrients
@@ -71,7 +71,7 @@ public class Food
             JSONArray jsonNutrients = jsonFood.getJSONArray(Food.NUTRIENTS);
 
             for (int i = 0; i < jsonNutrients.length(); i++){
-                nutrients.add(Nutrient.fromJSON(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
+                nutrients.add(Nutrient.fromJSONObject(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
             }
             newFood = new Food( name, category, nutrients, eatenTimesCount);
         }catch (JSONException e){
