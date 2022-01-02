@@ -133,11 +133,11 @@ public class MongoDB{
         if(dietDocument == null)
             return null;
         JSONObject jsonDiet = new JSONObject(dietDocument.toString());
-        return Diet.fromJSON(jsonDiet);
+        return Diet.fromJSONObject(jsonDiet);
     }
 
     private Document dietToDocument(Diet diet){
-        return Document.parse(diet.toJSON().toString());
+        return Document.parse(diet.toJSONObject().toString());
     }
 
     public Diet lookUpDietByID(String id){

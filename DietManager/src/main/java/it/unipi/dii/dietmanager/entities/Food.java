@@ -71,7 +71,7 @@ public class Food
             JSONArray jsonNutrients = jsonFood.getJSONArray(Food.NUTRIENTS);
 
             for (int i = 0; i < jsonNutrients.length(); i++){
-                nutrients.add(Nutrient.fromJSONObject(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
+                nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
             }
             newFood = new Food( name, category, nutrients, eatenTimesCount);
         }catch (JSONException e){
@@ -83,7 +83,7 @@ public class Food
     @Override
     public String toString() {
         return "Food{" +
-                "name='" + name + '\'' +
+                "_id='" + name + '\'' +
                 ", category='" + category + '\'' +
                 ", nutrients=" + nutrients +
                 ", eatenTimesCount=" + eatenTimesCount +

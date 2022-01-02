@@ -156,7 +156,7 @@ public class HandlerDiet {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDietsjson))){
             JSONArray jsondietsArray = new JSONArray();
             for(Diet diet: diets){
-                jsondietsArray.put(diet.toJSON());
+                jsondietsArray.put(diet.toJSONObject());
             }
             writer.write(jsondietsArray.toString());
         } catch (IOException e) {
