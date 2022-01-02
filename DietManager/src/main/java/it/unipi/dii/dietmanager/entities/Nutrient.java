@@ -6,6 +6,8 @@ import org.json.JSONObject;
 public class Nutrient
 {
     public static final String NAME = "name";
+    public static final String UNIT = "unit";
+    public static final String QUANTITY = "quantity";
 
     private String name;
     private String unit;
@@ -55,9 +57,9 @@ public class Nutrient
         JSONObject jsonNutrient = null;
         try {
             jsonNutrient = new JSONObject();
-            jsonNutrient.put("name", name);
-            jsonNutrient.put("unit", unit);
-            jsonNutrient.put("quantity", quantity);
+            jsonNutrient.put(Nutrient.NAME, name);              // inserting name
+            jsonNutrient.put(Nutrient.UNIT, unit);              // inserting unit
+            jsonNutrient.put(Nutrient.QUANTITY, quantity);      // inserting quantity
         }catch(Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -69,13 +71,11 @@ public class Nutrient
         String name, unit;
         double quantity;
         Nutrient newNutrient = null;
-        //first i retrive the attributes values from the JSONObject
         try{
-            name = jsonNutrient.getString("name");
-            unit = jsonNutrient.getString("unit");
-            quantity = jsonNutrient.getDouble("quantity");
+            name = jsonNutrient.getString(Nutrient.NAME);           // retrieving name
+            unit = jsonNutrient.getString(Nutrient.UNIT);           // retrieving unit
+            quantity = jsonNutrient.getDouble(Nutrient.QUANTITY);   // retrieving quantity
 
-            //then generate the new object Nutrient
             newNutrient = new Nutrient(name, unit, quantity);
         }
         catch (JSONException e){

@@ -29,7 +29,7 @@ public class Administrator extends User{
     public static Administrator fromJSONObject(JSONObject jsonUser){
         String username, password, fullName, sex, country;
         int age;
-        Administrator newAdministrator;
+        Administrator newAdministrator = null;
         try{
             username = jsonUser.getString(User.USERNAME);       // retrieving username
             password = jsonUser.getString(User.PASSWORD);       // retrieving password
@@ -42,7 +42,6 @@ public class Administrator extends User{
         }
         catch (JSONException e){
             e.printStackTrace();
-            newAdministrator = null;
         }
         return  newAdministrator;
     }

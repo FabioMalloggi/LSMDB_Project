@@ -55,7 +55,7 @@ public class EatenFood {
         String id, foodName;
         int quantity;
         Timestamp timestamp;
-        EatenFood newEatenFood;
+        EatenFood newEatenFood = null;
         try{
             id = jsonEatenFood.getString(EatenFood.ID);                                 // Retrieving ID
             foodName = jsonEatenFood.getString(EatenFood.FOOD_NAME);                    // Retrieving foodName
@@ -66,7 +66,6 @@ public class EatenFood {
         }
         catch (JSONException e){
             e.printStackTrace();
-            newEatenFood = null;
         }
         return  newEatenFood;
     }

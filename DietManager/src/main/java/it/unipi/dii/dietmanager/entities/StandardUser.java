@@ -77,7 +77,6 @@ public class StandardUser extends User {
         }
         catch (JSONException e){
             e.printStackTrace();
-            newUser = null;
         }
         return  newUser;
     }

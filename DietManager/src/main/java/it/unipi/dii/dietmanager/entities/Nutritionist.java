@@ -34,7 +34,7 @@ public class Nutritionist extends User {
     public static Nutritionist fromJSONObject(JSONObject jsonUser){
         String username, password, fullName, sex, country;
         int age;
-        Nutritionist newNutritionist;
+        Nutritionist newNutritionist = null;
         try{
             username = jsonUser.getString(User.USERNAME);       // retrieving username
             password = jsonUser.getString(User.PASSWORD);       // retrieving password
@@ -47,7 +47,6 @@ public class Nutritionist extends User {
         }
         catch (JSONException e){
             e.printStackTrace();
-            newNutritionist = null;
         }
         return  newNutritionist;
     }
