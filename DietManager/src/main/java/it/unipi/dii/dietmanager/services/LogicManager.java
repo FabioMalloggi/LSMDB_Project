@@ -411,6 +411,7 @@ public class LogicManager {
         boolean mongoDB = false, neo4J = false;
         User userToRemove;
         userToRemove = lookUpUserByUsername(username);
+        // if userToRemove is null, return null;
         mongoDB = MongoDB.removeUser(username);
         if(mongoDB){
             neo4J = Neo4J.removeUser(username);
