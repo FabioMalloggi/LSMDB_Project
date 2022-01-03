@@ -143,19 +143,29 @@ public class DietManager {
 
                 if(newRegister[6].equals("SU")){
                     //the attribute user of LogicalManagement  = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
-                    cli.generalPrint("StandardUSer correttamente generato!"); //System.out.println("StandardUSer correttamente generato!");
-                    isLogged = true;
+                    userTarget = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1],Integer.parseInt(newRegister[3]),newRegister[5]);
+                    if(logicManager.addUser(userTarget)){
+                        logicManager.currentUser = userTarget;
+                        cli.generalPrint("StandardUSer correttamente generato!"); //System.out.println("StandardUSer correttamente generato!");
+                        isLogged = true;
+                    }
+
                 }
 
                 else if(newRegister[6].equals("N")){
                     //the attribute user of LogicalManagement  = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
-                    cli.generalPrint("Nutritionist correttamente generato!"); //System.out.println("Nutritionist correttamente generato!");
-                    isLogged = true;
+                    userTarget = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1],Integer.parseInt(newRegister[3]),newRegister[5]);
+                    if(logicManager.addUser(userTarget)){
+                        logicManager.currentUser = userTarget;
+                        cli.generalPrint("Nutritionist correttamente generato!"); //System.out.println("Nutritionist correttamente generato!");
+                        isLogged = true;
+                    }
                 }
 
                 //else{ ...is the same
                 else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) { //fare qualcosa
-                    cli.generalPrint("fare qualcosa con eccezione"); //System.out.println("fare qualcosa con eccezione");
+                    //cli.generalPrint("Tipo di utente non valido");
+                    System.err.println("Tipo di utente non valido");
 
                 }
 

@@ -204,7 +204,7 @@ public class LogicManager {
     }
 
     /** Write-Operations*/
-    public boolean registerUser(User user){
+    public boolean addUser(User user){
         boolean mongoDB = false, neo4J = false;
 
         mongoDB = MongoDB.addUser(user);
