@@ -76,12 +76,6 @@ public class LogicManager {
         return  foodsTarget;
     }
 
-    public Food lookUpFoodByID(String id){
-        Food foodTarget = null;
-
-        //foodTarget = MongoDB.lookUpFoodByID(); // *** Asking Fabio to develpo this method in MongoDB***
-        return foodTarget;
-    }
 
     public Food lookUpMostEatenFoodByCategory (String category){
         Food foodTarget = null;
@@ -103,7 +97,7 @@ public class LogicManager {
     public List<User> lookUpUserByCountry(String country){
         List<User> usersTarget = null;
         if(currentUser instanceof StandardUser){
-            MongoDB.lookUpNutritionistsByCountry(country); /**CONFLITTO perché restituisce una lista di <Nutritionist> invece che una lista di<User>*/
+            usersTarget.addAll(MongoDB.lookUpNutritionistsByCountry(country));
         }
         else if(currentUser instanceof Administrator){
             return MongoDB.lookUpAllUsersByCountry(country);
@@ -129,11 +123,7 @@ public class LogicManager {
 
 
     public List<EatenFood> lookUpStandardUserEatenFoods() {
-        List<EatenFood> eatenFoods = null;
-        if(currentUser instanceof Nutritionist || currentUser instanceof Administrator){ //only StandardUser
-            return null;
-        }
-
+        //List<EatenFood> eatenFoods = null;
         //eatenFoods = MongoDB.lookUpStandardUserEatenFoods(currentUser); //* trivial : viene letto direttamente da list<EF> di current user
 
         return ((StandardUser)currentUser).getEatenFoods();
@@ -179,8 +169,10 @@ public class LogicManager {
     public Diet lookUpRecommendedDiet() {
         Diet dietTarget = null; String id;
 
-        id = Neo4J.lookUpRecommendedDiet((StandardUser) currentUser);
-        dietTarget = lookUpDietByID(id);
+        if(((StandardUser)currentUser).getCurrentDiet() != null) {
+            id = Neo4J.lookUpRecommendedDiet((StandardUser) currentUser);
+            dietTarget = lookUpDietByID(id);
+        }
 
         return  dietTarget;
     }
@@ -188,9 +180,10 @@ public class LogicManager {
     public Diet lookUpMostFollowedDietByNutritionist(String username) {
         Diet dietTarget = null; String id;
 
-
-        id = Neo4J.lookUpMostFollowedDietByNutritionist(username);
-        dietTarget = lookUpDietByID(id);
+        if(lookUpUserByUsername(username) != null){
+            id = Neo4J.lookUpMostFollowedDietByNutritionist(username);
+            dietTarget = lookUpDietByID(id);
+        }
 
         return  dietTarget;
     }
@@ -244,7 +237,7 @@ public class LogicManager {
                 if(!neo4J){
                     System.out.println("Errore cross-consistency");
                     //to do something.. REMOVE su MONGO
-                    //MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    MongoDB.unfollowDiet((StandardUser)currentUser); //<--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
                     return false;
                 }
                 else {
@@ -272,7 +265,7 @@ public class LogicManager {
 
                 neo4J = Neo4J.unfollowDiet((StandardUser)currentUser);
                 if(neo4J){
-                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser); //<--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
                     if(!mongoDB){
                         System.out.println("Errore cross-consistency");
                         //to do something.. //RE-INSERT IN NEO4j
@@ -308,7 +301,7 @@ public class LogicManager {
                 check = checkDietProgress(); //check diet progress
                 neo4J = Neo4J.stopDiet((StandardUser) currentUser, check);
                 if(neo4J){
-                    //mongoDB = MongoDB.unfollow(id, (StandardUser)currentUser); <--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser); //<--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
                     if(!mongoDB){
                         System.out.println("Errore cross-consistency");
                         //to do something.. //RE-INSERT IN NEO4j
@@ -411,22 +404,25 @@ public class LogicManager {
         boolean mongoDB = false, neo4J = false;
         User userToRemove;
         userToRemove = lookUpUserByUsername(username);
-        mongoDB = MongoDB.removeUser(username);
-        if(mongoDB){
-            neo4J = Neo4J.removeUser(username);
-            if(!neo4J){
-                System.out.println("Errore cross-consistency");
+        if(userToRemove != null){
+            mongoDB = MongoDB.removeUser(username);
+            if(mongoDB){
+                neo4J = Neo4J.removeUser(username);
+                if(!neo4J){
+                    System.out.println("Errore cross-consistency");
+                    //to do something..
+                    MongoDB.addUser(userToRemove);
+                    return false;
+                }
+                else return true;
+            }
+            else{
+                System.out.println("Error in MongoDB");
                 //to do something..
-                MongoDB.addUser(userToRemove);
                 return false;
             }
-            else return true;
         }
-        else{
-            System.out.println("Error in MongoDB");
-            //to do something..
-            return false;
-        }
+        else return false;
     }
 
     public boolean addFood(Food food){
@@ -479,7 +475,7 @@ public class LogicManager {
          * Then we have to comapre the totals[] with the values of the CurrentDiet.
          */
         for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
-            foodTarget = lookUpFoodByID(ef.getFoodName());
+            foodTarget = lookUpFoodByName(ef.getFoodName()).get(0);
             //i = 0;
             for(int j = 0; j < nutrients_names.length; j++){
                 index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
@@ -517,7 +513,7 @@ public class LogicManager {
         Arrays.fill(total, 0); //set all the values of the double array to 0
 
         for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
-            foodTarget = lookUpFoodByID(ef.getFoodName());
+            foodTarget = lookUpFoodByName(ef.getFoodName()).get(0);
             for(int j = 0; j < nutrients_names.length; j++){
                 index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
                 total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;
