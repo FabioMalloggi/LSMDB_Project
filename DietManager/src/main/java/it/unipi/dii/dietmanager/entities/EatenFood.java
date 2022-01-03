@@ -38,10 +38,10 @@ public class EatenFood {
     public JSONObject toJSONObject(){
         JSONObject jsonEatenFood = new JSONObject();
         try {
-            jsonEatenFood.put(EatenFood.ID, id);                        // inserting id
-            jsonEatenFood.put(EatenFood.FOOD_NAME, foodName);           // inserting foodID
-            jsonEatenFood.put(EatenFood.QUANTITY, quantity);            // inserting quantity
-            jsonEatenFood.put(EatenFood.TIMESTAMP, timestamp);          // inserting timestamp
+            jsonEatenFood.put(EatenFood.ID, id);                                    // inserting id
+            jsonEatenFood.put(EatenFood.FOOD_NAME, foodName);                       // inserting foodID
+            jsonEatenFood.put(EatenFood.QUANTITY, quantity);                        // inserting quantity
+            jsonEatenFood.put(EatenFood.TIMESTAMP, timestamp.toString());           // inserting timestamp
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -59,7 +59,7 @@ public class EatenFood {
             id = jsonEatenFood.getString(EatenFood.ID);                                 // Retrieving ID
             foodName = jsonEatenFood.getString(EatenFood.FOOD_NAME);                    // Retrieving foodName
             quantity = jsonEatenFood.getInt(EatenFood.QUANTITY);                        // Retrieving quantity
-            timestamp = Timestamp.valueOf(jsonEatenFood.getString(EatenFood.TIMESTAMP));// Retrieving timestamp
+            timestamp = Timestamp.valueOf(jsonEatenFood.getString(EatenFood.TIMESTAMP));      // Retrieving timestamp
 
             newEatenFood = new EatenFood(id, foodName, quantity, timestamp);
         }

@@ -338,6 +338,12 @@ public class CLI {
         }
     }
 
+    public void printUsers(List<User> usersTarget){
+        for(User u: usersTarget){
+            printUser(u);
+        }
+    }
+
     public void printEatenFood(User user){
         System.out.println("List of Eaten foods: ");
         for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
@@ -369,5 +375,9 @@ public class CLI {
         return in;
     }
 
+    //general function to print
+    public void generalPrint(String toPrint){
+        System.out.println(toPrint);
+    }
 
 }

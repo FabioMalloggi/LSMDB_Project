@@ -20,11 +20,18 @@ public class StandardUser extends User {
         this.currentDiet = null;
     }
 
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet /*, Date currentDietStartDate*/) {
+    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;
         this.currentDiet = currentDiet;
     }
+
+    public List<EatenFood> getEatenFoods() {return eatenFoods; }
+    public Diet getCurrentDiet() { return currentDiet; }
+
+    public void setEatenFoods(List<EatenFood> eatenFoods) { this.eatenFoods = eatenFoods; }
+    public void setCurrentDiet(Diet currentDiet) { this.currentDiet = currentDiet; }
+    public void stopCurrentDiet(){ this.currentDiet = null; }
 
     @Override
     public JSONObject toJSONObject() {
@@ -59,6 +66,7 @@ public class StandardUser extends User {
         int age;
         StandardUser newUser = null;
         List<EatenFood> eatenFoods = new ArrayList<>();
+        Diet currentDiet = null;
         try{
             username = jsonUser.getString(User.USERNAME);       // retrieving username
             password = jsonUser.getString(User.PASSWORD);       // retrieving password
@@ -67,36 +75,23 @@ public class StandardUser extends User {
             country = jsonUser.getString(User.COUNTRY);         // retrieving country
             age = jsonUser.getInt(User.AGE);                    // retrieving age
 
-            JSONArray jsonEatenFoods = jsonUser.getJSONArray(StandardUser.EATENFOODS);
-            for (int i = 0; i < jsonEatenFoods.length(); i++){
-                eatenFoods.add(EatenFood.fromJSONObject(new JSONObject(jsonEatenFoods.get(i))));    // retrieve eatenFoods
+
+            if(!jsonUser.isNull(StandardUser.EATENFOODS)) {
+                JSONArray jsonEatenFoods = jsonUser.getJSONArray(StandardUser.EATENFOODS);
+                for (int i = 0; i < jsonEatenFoods.length(); i++) {
+                    eatenFoods.add(EatenFood.fromJSONObject(jsonEatenFoods.getJSONObject(i)));      // retrieve eatenFoods
+                }
             }
-            jsonCurrentDietStringID = jsonUser.getString(StandardUser.CURRENT_DIET);    // retrieving current Diet
-            Diet currentDiet = new Diet(jsonCurrentDietStringID);
+            if(!jsonUser.isNull(StandardUser.CURRENT_DIET)) {
+                jsonCurrentDietStringID = jsonUser.getString(StandardUser.CURRENT_DIET);            // retrieving current Diet
+                currentDiet = new Diet(jsonCurrentDietStringID);
+            }
             newUser = new StandardUser(username, fullName, sex, password, age, country, eatenFoods, currentDiet);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
         return  newUser;
-    }
-
-    public List<EatenFood> getEatenFoods() {
-        return eatenFoods;
-    }
-    public void setEatenFoods(List<EatenFood> eatenFoods) {
-        this.eatenFoods = eatenFoods;
-    }
-
-    public Diet getCurrentDiet() {
-        return currentDiet;
-    }
-    public void setCurrentDiet(Diet currentDiet) {
-        this.currentDiet = currentDiet;
-    }
-
-    public void stopCurrentDiet(){
-        this.currentDiet = null;
     }
 
     @Override

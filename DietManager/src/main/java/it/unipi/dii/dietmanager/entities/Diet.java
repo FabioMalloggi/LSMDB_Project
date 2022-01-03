@@ -53,7 +53,12 @@ public class Diet {
         return nutritionist;
     }
 
-    public JSONObject toJSON() {
+    public void setId(String id){ this.id = id; }
+    public void setName(String name){ this.name = name; }
+    public void setNutrients(List<Nutrient> nutrients){ this.nutrients = nutrients; }
+    public void setNutritionist(String nutritionist){ this.nutritionist = nutritionist; }
+
+    public JSONObject toJSONObject() {
         JSONObject jsonDiet = new JSONObject();
         try {
             jsonDiet.put(Diet.ID, id);                      // inserting ID
@@ -73,7 +78,7 @@ public class Diet {
         return jsonDiet;
     }
 
-    public static Diet fromJSON(JSONObject jsonDiet){
+    public static Diet fromJSONObject(JSONObject jsonDiet){
         String id, name, nutritionist;
         List<Nutrient> nutrients = new ArrayList<>();
         Diet newDiet = null;
@@ -86,7 +91,7 @@ public class Diet {
 
             JSONArray jsonNutrients = jsonDiet.getJSONArray(Diet.NUTRIENTS);
             for (int i = 0; i < jsonNutrients.length(); i++){
-                nutrients.add(Nutrient.fromJSONObject(new JSONObject(jsonNutrients.get(i)))); // retrieving nutrients
+                nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
             }
             //then generate the new object StandardUser
             newDiet = new Diet(id, name, nutrients, nutritionist);
