@@ -31,10 +31,9 @@ public class Food
     public List<Nutrient> getNutrients() { return nutrients; }
     public int getEatenTimesCount(){ return eatenTimesCount; }
 
-    public void setId(String id) { this.name = name; }
-    public void setNutrients(List<Nutrient> nutrients) { this.nutrients = nutrients; }
+    public void setName(String name) { this.name = name; }
     public void setCategory(String category){ this.category = category;}
-
+    public void setNutrients(List<Nutrient> nutrients) { this.nutrients = nutrients; }
     public void incrementEatenTimesCount(){ this.eatenTimesCount++; }
 
     public JSONObject toJSONObject(){

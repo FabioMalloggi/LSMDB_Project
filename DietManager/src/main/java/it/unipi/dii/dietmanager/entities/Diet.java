@@ -53,6 +53,11 @@ public class Diet {
         return nutritionist;
     }
 
+    public void setId(String id){ this.id = id; }
+    public void setName(String name){ this.name = name; }
+    public void setNutrients(List<Nutrient> nutrients){ this.nutrients = nutrients; }
+    public void setNutritionist(String nutritionist){ this.nutritionist = nutritionist; }
+
     public JSONObject toJSONObject() {
         JSONObject jsonDiet = new JSONObject();
         try {
