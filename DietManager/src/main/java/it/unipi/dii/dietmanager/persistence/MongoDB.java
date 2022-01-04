@@ -37,6 +37,51 @@ public class MongoDB{
 
     }
 
+    public void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
+        openConnection();
+        int sortingOrder = isAttributeAscending ? 1:-1;
+        //Retrieving the collection on which you want to create the index
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        //Creating an index
+        collection.createIndex(new Document(attributeName, sortingOrder));
+/*        System.out.println("Index created successfully");
+        //Printing the list of indices in the collection
+        for (Document index : collection.listIndexes()) {
+            System.out.println(index.toJson());
+        }
+ */
+        closeConnection();
+    }
+
+    public void createCompoundIndex(String collectionName, String firstAttributeName, boolean isFirstAttributeAscending,
+                                    String secondAttributeName, boolean isSecondAttributeAscending){
+        openConnection();
+        int firstAttributeSortingOrder = isFirstAttributeAscending ? 1:-1;
+        int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
+        //Retrieving the collection on which you want to create the index
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        //Creating an index
+        collection.createIndex(new Document(firstAttributeName, firstAttributeSortingOrder).append(secondAttributeName, secondAttributeSortingOrder));
+/*        System.out.println("Index created successfully");
+        //Printing the list of indices in the collection
+        for (Document index : collection.listIndexes()) {
+            System.out.println(index.toJson());
+        }
+*/
+        closeConnection();
+    }
+
+    public void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
+                                           String secondAttributeName, boolean isSecondAttributeAscending){
+        openConnection();
+        int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+        IndexOptions partialFilterIndexOptions = new IndexOptions()
+                .partialFilterExpression(Filters.eq(firstAttributeName, firstAttributeValue));
+        collection.createIndex(new Document(secondAttributeName, secondAttributeSortingOrder), partialFilterIndexOptions);
+        closeConnection();
+    }
+
     public boolean openConnection()
     {
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
@@ -439,6 +484,13 @@ public class MongoDB{
     public static void main( String... args ) throws Exception {
         MongoDB mongoDB = new MongoDB( 7687);
 
+        mongoDB.createSimpleIndex(mongoDB.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
+        mongoDB.createSimpleIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
+        mongoDB.createCompoundPartialIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
+                                        User.COUNTRY, true);// 3rd index (OPZIONE A)
+        mongoDB.createCompoundIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
+        mongoDB.createCompoundIndex(mongoDB.COLLECTION_FOODS, Food.CATEGORY, true,
+                                        Food.EATEN_TIMES_COUNT, false); // 5th index
     }
 }
 
