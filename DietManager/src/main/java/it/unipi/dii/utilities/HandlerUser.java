@@ -37,17 +37,6 @@ public class HandlerUser {
                 tokens = line.split(",");
 
                 userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
-
-                //I generate a new user
-                /*JSONObject user = new JSONObject();
-                user.put("_id", tokens[1]); //new decision
-                user.put("password", tokens[1]);
-                user.put("name", tokens[3]);
-                user.put("sex", tokens[4]);
-                user.put("age", tokens[5]);
-                user.put("country", tokens[6]);
-                user.put("userType", "nutritionist");*/
-
                 users.put(userTmp.toJSONObject());
                 line = opCSV.bufReader.readLine();
                 counter++;
@@ -91,35 +80,9 @@ public class HandlerUser {
             while (line != null) {
                 tokens = line.split(",");
 
-                /*
-                for(int j = 0; j < tokens.length; j++){
-                    tokens[j] = tokens[j].replace("\"", "");
-                }
-
-                String[] names = tokens[1].split(" ");
-                String username = "";
-
-                int i = 0;
-                while(i < names.length){
-                    username = username+names[i];
-                    i++;
-                }*/
-
-                //I generate a new user
                 JSONObject user = new JSONObject();
-
-                //user.put("_id", tokens[0]); //old decision
-                //user.put("username", username);
-                /*user.put("_id", tokens[1]); //new decision
-                user.put("password", tokens[1]);
-                user.put("name", tokens[3]);
-                user.put("sex", tokens[4]);
-                user.put("age", tokens[5]);
-                user.put("country", tokens[6]);*/
                 if(isNutritionist(counter)){ //nutritionist
-
                     userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
-                    //user.put("userType", "nutritionist");
                     bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterNut.newLine();
                     writeNut++;
@@ -127,18 +90,6 @@ public class HandlerUser {
 
                 else{ //standardUser
                     userTmp = new StandardUser(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
-
-                    //user.put("userType", "standardUser");
-                    //JSONArray eatenFoods = new JSONArray();
-                    /*JSONObject eatenFood = new JSONObject();
-                    eatenFood.put("eatenFoodID", "");
-                    eatenFood.put("foodID", "");
-                    eatenFood.put("quantity", "");
-                    eatenFood.put("timestamp", "");
-                    eatenFoods.put(eatenFood);*/
-                    //user.put("eatenFoods", eatenFoods);
-
-                    //bufWriterUser.write(line);
                     bufWriterUser.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterUser.newLine();
                     writeUser++;
@@ -149,8 +100,6 @@ public class HandlerUser {
                 counter++;
                 System.out.println("Counter: "+counter);
             }
-
-            //collection.put("users", users);
             bufWriterUser.close();
             bufWriterNut.close();
 
