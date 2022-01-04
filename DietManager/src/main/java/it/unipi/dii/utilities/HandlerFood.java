@@ -313,6 +313,9 @@ public class HandlerFood
 
 
     public void createInputFile(){
+        File originalFood = new File("./data/original/Food.csv");
+        operationsCSV.samplinglinesCSV(originalFood, fileTargetFood1, 1000);
+
         // I delete ';' in original file
         operationsCSV.replaceCharactersInFile(fileTargetFood1, fileTargetFood1WithCommaSeparators, ';', ' ');
         operationsCSV.replaceCharactersInFile(fileTargetFood2, fileTargetFood2WithCommaSeparators, ';', ' ');
@@ -353,6 +356,7 @@ public class HandlerFood
     public static void main(String[] args) throws IOException
     {
         HandlerFood handlerFood = new HandlerFood();
+
         //handlerFood.createInputFile();
         handlerFood.createJSON();
     }

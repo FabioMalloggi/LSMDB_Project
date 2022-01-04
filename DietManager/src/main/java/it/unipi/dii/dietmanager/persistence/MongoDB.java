@@ -58,6 +58,16 @@ public class MongoDB{
         }
     }
 
+    public static void createDietManagerIndexes(MongoDB mongoDB){
+        mongoDB.createSimpleIndex(mongoDB.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
+        mongoDB.createSimpleIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
+        mongoDB.createCompoundPartialIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
+                User.COUNTRY, true);// 3rd index (OPZIONE A)
+        mongoDB.createCompoundIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
+        mongoDB.createCompoundIndex(mongoDB.COLLECTION_FOODS, Food.CATEGORY, true,
+                Food.EATEN_TIMES_COUNT, false); // 5th index
+    }
+
     public void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
         openConnection();
         int sortingOrder = isAttributeAscending ? 1:-1;
@@ -423,7 +433,7 @@ public class MongoDB{
 
                 //convert nutrient quantity to standard unit: mg
                 if(currentNutrient.getUnit() == "ug"){
-                    currentNutrient.setQuantity( currentNutrient.getQuantity() * 1000);
+                    currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000);
                     currentNutrient.setUnit("mg");
                 } else if(currentNutrient.getUnit() != "mg"){
                     System.err.println("ERROR: nutrient unit is not recognize");
@@ -539,7 +549,19 @@ public class MongoDB{
         return deleteResult.wasAcknowledged();
     }
 
+    public StandardUser toEatenFoodMongoAllocation(StandardUser user){
+        StandardUser mongoUser = null;
+
+        return mongoUser;
+    }
+    public StandardUser fromEatenFoodMongoAllocation(StandardUser mongoUser){
+        StandardUser user = null;
+
+        return mongoUser;
+    }
+/*
     public boolean addEatenFood(StandardUser standardUser, EatenFood eatenFood){
+
         // add id to EatenFood object
         // update eatenTimesCount field.
         openConnection();
@@ -552,6 +574,8 @@ public class MongoDB{
         closeConnection();
         return updateResult.wasAcknowledged();
     }
+
+ */
 
     public boolean removeEatenFood(StandardUser standardUser, String eatenFoodID){
         openConnection();
@@ -571,14 +595,6 @@ public class MongoDB{
 
     public static void main( String... args ) throws Exception {
         MongoDB mongoDB = new MongoDB( 7687);
-
-        mongoDB.createSimpleIndex(mongoDB.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
-        mongoDB.createSimpleIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
-        mongoDB.createCompoundPartialIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
-                                        User.COUNTRY, true);// 3rd index (OPZIONE A)
-        mongoDB.createCompoundIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
-        mongoDB.createCompoundIndex(mongoDB.COLLECTION_FOODS, Food.CATEGORY, true,
-                                        Food.EATEN_TIMES_COUNT, false); // 5th index
     }
 }
 
