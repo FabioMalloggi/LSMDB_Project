@@ -3,23 +3,39 @@ package it.unipi.dii.utilities;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;*/
 
+import it.unipi.dii.dietmanager.entities.Administrator;
 import it.unipi.dii.dietmanager.entities.Nutritionist;
 import it.unipi.dii.dietmanager.entities.StandardUser;
 import it.unipi.dii.dietmanager.entities.User;
+import it.unipi.dii.dietmanager.persistence.Neo4j;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HandlerUser {
     private static int K = 100;
+    private static final int NUMBER_OF_ADMIN = 3;
+    private static List<User> usersList = new ArrayList<>();
 
     private static boolean isNutritionist(int counter){
         return (counter % K == 0);
     }
 
+    private static List<User> generateAdmin(){
+        List<User> admin = new ArrayList<>();
+        User Usertmp;
+        for (int i = 0; i < NUMBER_OF_ADMIN; i++ ){
+            Usertmp = new Administrator("admin"+i, "Administrator"+i, "M", "admin"+i, 22+i, "Italy");
+            admin.add(Usertmp);
+        }
+        return  admin;
+    }
+
+    /* OLD method used for populate the DBs
     public static void generatorNutritionistJSON() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/nutritionist.csv");
         File fileAthleteJSON = new File("./data/derived/nutritionistJ");
@@ -55,17 +71,18 @@ public class HandlerUser {
             e.printStackTrace();
             System.exit(1);
         }
-    }
+    }*/
 
     public static void generatorUser() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/athleteR2.csv");
-        File fileAthleteJSON = new File("./data/derived/usersJ");
+        File fileAthleteJSON = new File("./data/json/users.json");
         File fileUser = new File("./data/derived/users.csv");
         File fileNutritionist = new File("./data/derived/nutritionist.csv");
         //JSONObject collection = new JSONObject();
         OperationsCSV opCSV = new OperationsCSV();
         BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser;
         String[] tokens;
+        List<User> admin;
         int counter = 1, writeUser = 0, writeNut = 0;
         User userTmp;
 
@@ -99,7 +116,15 @@ public class HandlerUser {
                 line = opCSV.bufReader.readLine();
                 counter++;
                 System.out.println("Counter: "+counter);
+
+                usersList.add(userTmp);
             }
+            //ADMIN generation
+            admin = generateAdmin();
+            for (User user: admin){
+                users.put(user.toJSONObject());
+            }
+
             bufWriterUser.close();
             bufWriterNut.close();
 

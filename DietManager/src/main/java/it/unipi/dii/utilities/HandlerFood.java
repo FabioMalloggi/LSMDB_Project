@@ -359,7 +359,7 @@ public class HandlerFood
     public static void main(String[] args) throws IOException
     {
         HandlerFood handlerFood = new HandlerFood();
-        //handlerFood.createInputFile();
-        handlerFood.createJSON();
+        handlerFood.createInputFile();
+        //handlerFood.createJSON();
     }
 }
