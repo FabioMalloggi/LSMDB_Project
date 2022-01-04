@@ -3,6 +3,9 @@ package it.unipi.dii.utilities;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;*/
 
+import it.unipi.dii.dietmanager.entities.Nutritionist;
+import it.unipi.dii.dietmanager.entities.StandardUser;
+import it.unipi.dii.dietmanager.entities.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +20,54 @@ public class HandlerUser {
         return (counter % K == 0);
     }
 
+    public static void generatorNutritionistJSON() throws JSONException{
+        File fileOriginalAthlete = new File("./data/derived/nutritionist.csv");
+        File fileAthleteJSON = new File("./data/derived/nutritionistJ");
+        OperationsCSV opCSV = new OperationsCSV();
+        BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser; String[] tokens;
+        int counter = 1, writeUser = 0, writeNut = 0;
+        User userTmp;
+        opCSV.initializeR(fileOriginalAthlete);
+        JSONArray users = new JSONArray();
+
+        try {
+            String line = opCSV.bufReader.readLine();
+            line = opCSV.bufReader.readLine(); //first line contains the columns names
+            while (line != null) {
+                tokens = line.split(",");
+
+                userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
+
+                //I generate a new user
+                /*JSONObject user = new JSONObject();
+                user.put("_id", tokens[1]); //new decision
+                user.put("password", tokens[1]);
+                user.put("name", tokens[3]);
+                user.put("sex", tokens[4]);
+                user.put("age", tokens[5]);
+                user.put("country", tokens[6]);
+                user.put("userType", "nutritionist");*/
+
+                users.put(userTmp.toJSONObject());
+                line = opCSV.bufReader.readLine();
+                counter++;
+                System.out.println("Counter: "+counter);
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+        try{
+            fileAthleteJSON.delete();
+            bufWriterJson = new BufferedWriter(new FileWriter(fileAthleteJSON));
+            bufWriterJson.write(users.toString());
+            bufWriterJson.close();
+
+        }catch(IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     public static void generatorUser() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/athleteR2.csv");
         File fileAthleteJSON = new File("./data/derived/usersJ");
@@ -27,6 +78,7 @@ public class HandlerUser {
         BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser;
         String[] tokens;
         int counter = 1, writeUser = 0, writeNut = 0;
+        User userTmp;
 
         opCSV.initializeR(fileOriginalAthlete);
         JSONArray users = new JSONArray();
@@ -58,38 +110,41 @@ public class HandlerUser {
 
                 //user.put("_id", tokens[0]); //old decision
                 //user.put("username", username);
-                user.put("_id", tokens[1]); //new decision
+                /*user.put("_id", tokens[1]); //new decision
                 user.put("password", tokens[1]);
                 user.put("name", tokens[3]);
                 user.put("sex", tokens[4]);
                 user.put("age", tokens[5]);
-                user.put("country", tokens[6]);
-
+                user.put("country", tokens[6]);*/
                 if(isNutritionist(counter)){ //nutritionist
-                    user.put("userType", "nutritionist");
+
+                    userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
+                    //user.put("userType", "nutritionist");
                     bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterNut.newLine();
                     writeNut++;
                 }
 
                 else{ //standardUser
-                    user.put("userType", "standardUser");
-                    JSONArray eatenFoods = new JSONArray();
+                    userTmp = new StandardUser(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
+
+                    //user.put("userType", "standardUser");
+                    //JSONArray eatenFoods = new JSONArray();
                     /*JSONObject eatenFood = new JSONObject();
                     eatenFood.put("eatenFoodID", "");
                     eatenFood.put("foodID", "");
                     eatenFood.put("quantity", "");
                     eatenFood.put("timestamp", "");
                     eatenFoods.put(eatenFood);*/
-                    user.put("eatenFoods", eatenFoods);
+                    //user.put("eatenFoods", eatenFoods);
 
                     //bufWriterUser.write(line);
-                    bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
+                    bufWriterUser.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterUser.newLine();
                     writeUser++;
                 }
 
-                users.put(user);
+                users.put(userTmp.toJSONObject());
                 line = opCSV.bufReader.readLine();
                 counter++;
                 System.out.println("Counter: "+counter);
@@ -119,6 +174,7 @@ public class HandlerUser {
         opCSV.initializeRW(fileInput, fileOutput);
         String line;
         String[] tokens;
+        int counter_total = 0;
         int counter = 0;
         int counterNotDuplicated = 0;
         ArrayList<String> userNamesChecked = new ArrayList<>();
@@ -126,20 +182,25 @@ public class HandlerUser {
         try{
             line = opCSV.bufReader.readLine();
             while(line != null){
+                counter_total++;
                 tokens = line.split(",");
-                if(userNamesChecked.contains(tokens[1])){ //if the analyzed username is already selected
-                    counter++;
-                    //System.out.println("Duplicate user: "+ tokens[1]+", id: "+tokens[0]);
-                }
-                else {
-                    userNamesChecked.add(tokens[1]);
-                    //writing the distinct usernames in a newFile
-                    opCSV.bufWriter.write(line);
-                    opCSV.bufWriter.newLine();
+                if(tokens.length == 7 && tokens[5].matches("\\d+")){
+                    if(userNamesChecked.contains(tokens[1])){ //if the analyzed username is already selected
+                        counter++;
+                        //System.out.println("Duplicate user: "+ tokens[1]+", id: "+tokens[0]);
+                    }
+                    else {
+                        userNamesChecked.add(tokens[1]);
+                        //writing the distinct usernames in a newFile
+                        opCSV.bufWriter.write(line);
+                        opCSV.bufWriter.newLine();
+                        opCSV.bufWriter.flush();
+                        counterNotDuplicated++;
+                    }
 
-                    counterNotDuplicated++;
                 }
                 line  = opCSV.bufReader.readLine();
+                //System.out.println("Coutner totalt: "+counter_total);
             }
         }
         catch(IOException e){
@@ -149,13 +210,26 @@ public class HandlerUser {
         
     }
 
-    public static void main(String[] args) throws  JSONException {
-        generatorUser();
-        //File fileUser = new File("./data/derived/users1.csv");
-        //File newFileUser = new File("./data/derived/users.csv");
+    private static void handling_athlets_CSV(){
+        File fileOriginalAthlete = new File("./data/original/athlete.csv"); //with duplicate numerical ID
+        File fileOTargetAthlete = new File("./data/derived/athleteR.csv"); //with distinct numerical ID
 
-        /*File fileUser = new File("./data/derived/athleteR.csv");
-        File newFileUser = new File("./data/derived/athleteR2.csv");
-        checkIfUsernameIsUnique(fileUser, newFileUser);*/
+        OperationsCSV opCSV = new OperationsCSV();
+
+        opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
+        opCSV.copyfileByOrderedLineWithDistinctValue(1);
+        opCSV.closeRW();
+    }
+
+    public static void main(String[] args) throws  JSONException {
+        //handling_athlets_CSV();
+
+        File fileUser = new File("./data/derived/athleteR.csv");
+        File newFileUser = new File("./data/derived/athleteR2.csv"); //with distinct username and without 'NA' as AGE
+        checkIfUsernameIsUnique(fileUser, newFileUser);
+
+        //generatorUser();
+
+        //generatorNutritionistJSON();
     }
 }
