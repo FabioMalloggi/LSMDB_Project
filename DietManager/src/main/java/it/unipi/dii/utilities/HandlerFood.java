@@ -3,6 +3,7 @@ package it.unipi.dii.utilities;
 import it.unipi.dii.dietmanager.entities.Food;
 import it.unipi.dii.dietmanager.entities.Nutrient;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -223,6 +224,7 @@ public class HandlerFood
                             quantity = quantity * CONVERTION_COEFFICIENT_FROM_IU_TO_UG;
                         }
                         nutrient = new Nutrient(row_nutrient.getName(), unit, quantity);
+                        nutrients = new ArrayList<>();
                         nutrients.add(nutrient);
                     }
                 }
@@ -236,7 +238,7 @@ public class HandlerFood
         return jsonFoods;
     }
 
-/*    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
+    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
     {
         String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
@@ -290,6 +292,7 @@ public class HandlerFood
                     if(nutrientQuantity != 0.0){
                         nutrientName = TARGET_NUTRIENT_NAMES_DB2[i];
                         nutrientUnit = TARGET_NUTRIENT_UNITS_DB2[i];
+                        nutrients = new ArrayList<>();
                         nutrients.add(new Nutrient(nutrientName, nutrientUnit, nutrientQuantity));
                     }
                 }
@@ -299,6 +302,12 @@ public class HandlerFood
                 else
                     food = new Food(foodName, nutrients, 0);
 
+                if(j==915)
+                {
+                    System.out.println("PRINT");
+                }
+
+                JSONObject tmp = food.toJSONObject();
                 jsonFoods.put(food.toJSONObject());
                 line = bufReader.readLine();
             }
@@ -309,8 +318,6 @@ public class HandlerFood
         }
         return jsonFoods;
     }
-*/
-
 
     public void createInputFile(){
         File originalFood = new File("./data/original/Food.csv");
