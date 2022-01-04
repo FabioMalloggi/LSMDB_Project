@@ -18,11 +18,11 @@ public class HandlerUser {
     }
 
     public static void generatorUser() throws JSONException{
-        File fileOriginalAthlete = new File("./data/derived/athleteR.csv");
+        File fileOriginalAthlete = new File("./data/derived/athleteR2.csv");
         File fileAthleteJSON = new File("./data/derived/usersJ");
-        File fileUser = new File("./data/derived/users1.csv");
+        File fileUser = new File("./data/derived/users.csv");
         File fileNutritionist = new File("./data/derived/nutritionist.csv");
-        JSONObject collection = new JSONObject();
+        //JSONObject collection = new JSONObject();
         OperationsCSV opCSV = new OperationsCSV();
         BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser;
         String[] tokens;
@@ -39,6 +39,7 @@ public class HandlerUser {
             while (line != null) {
                 tokens = line.split(",");
 
+                /*
                 for(int j = 0; j < tokens.length; j++){
                     tokens[j] = tokens[j].replace("\"", "");
                 }
@@ -50,23 +51,23 @@ public class HandlerUser {
                 while(i < names.length){
                     username = username+names[i];
                     i++;
-                }
+                }*/
 
                 //I generate a new user
                 JSONObject user = new JSONObject();
 
                 //user.put("_id", tokens[0]); //old decision
                 //user.put("username", username);
-                user.put("_id", username); //new decision
-                user.put("password", username);
-                user.put("name", tokens[1]);
-                user.put("sex", tokens[2]);
-                user.put("age", tokens[3]);
+                user.put("_id", tokens[1]); //new decision
+                user.put("password", tokens[1]);
+                user.put("name", tokens[3]);
+                user.put("sex", tokens[4]);
+                user.put("age", tokens[5]);
                 user.put("country", tokens[6]);
 
                 if(isNutritionist(counter)){ //nutritionist
                     user.put("userType", "nutritionist");
-                    bufWriterNut.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]); //the password is equal to the username
+                    bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterNut.newLine();
                     writeNut++;
                 }
@@ -83,7 +84,7 @@ public class HandlerUser {
                     user.put("eatenFoods", eatenFoods);
 
                     //bufWriterUser.write(line);
-                    bufWriterUser.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]); //the password is equal to the username
+                    bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterUser.newLine();
                     writeUser++;
                 }
@@ -94,7 +95,7 @@ public class HandlerUser {
                 System.out.println("Counter: "+counter);
             }
 
-            collection.put("users", users);
+            //collection.put("users", users);
             bufWriterUser.close();
             bufWriterNut.close();
 
@@ -104,7 +105,7 @@ public class HandlerUser {
         try{
             fileAthleteJSON.delete();
             bufWriterJson = new BufferedWriter(new FileWriter(fileAthleteJSON));
-            bufWriterJson.write(collection.toString());
+            bufWriterJson.write(users.toString());
             bufWriterJson.close();
 
         }catch(IOException e) {
@@ -149,9 +150,12 @@ public class HandlerUser {
     }
 
     public static void main(String[] args) throws  JSONException {
-        //generatorUser();
-        File fileUser = new File("./data/derived/users1.csv");
-        File newFileUser = new File("./data/derived/users.csv");
-        checkIfUsernameIsUnique(fileUser, newFileUser);
+        generatorUser();
+        //File fileUser = new File("./data/derived/users1.csv");
+        //File newFileUser = new File("./data/derived/users.csv");
+
+        /*File fileUser = new File("./data/derived/athleteR.csv");
+        File newFileUser = new File("./data/derived/athleteR2.csv");
+        checkIfUsernameIsUnique(fileUser, newFileUser);*/
     }
 }

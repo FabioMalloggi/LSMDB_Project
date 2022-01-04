@@ -200,7 +200,7 @@ public class CLI {
     public String[] menuInsertNutrient(){
         String[] nutrientValues = new String[17];
         //0
-        System.out.println("==> 0) insert Energy (mg in 100g of food):");
+        System.out.println("==> 0) insert Energy (kcal in 100g of food):");
         System.out.print("> ");
         nutrientValues[0] = scan.nextLine();
         //1

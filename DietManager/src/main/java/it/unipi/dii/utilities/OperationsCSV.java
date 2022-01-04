@@ -78,10 +78,25 @@ public class OperationsCSV {
             String line = bufReader.readLine();
             while (line != null) {
                 System.out.println(line);
-                String[] tokens = line.split(",");
-                tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+                //String[] tokens = line.split(",");
+                //tokens[fieldContainingTarget-1] = tokens[fieldContainingTarget-1].replace("\"", "");
+                String[]tokens = line.split(",");
+
+                for(int j = 0; j < tokens.length; j++){
+                    tokens[j] = tokens[j].replace("\"", "");
+                }
+
+                String[] names = tokens[1].split(" ");
+                String username = "";
+
+                int i = 0;
+                while(i < names.length){
+                    username = username+names[i];
+                    i++;
+                }
                 if(!tokens[fieldContainingTarget-1].equals(targets)) { //if the 2 strings are not equal, write the line in the new file
-                    bufWriter.write(line);
+                    //bufWriter.write(line);
+                    bufWriter.write(tokens[0]+","+username+","+username+","+tokens[1]+","+tokens[2]+","+tokens[3]+","+tokens[6]); //the password is equal to the username
                     bufWriter.newLine();
                     writeCounter++;
                     targets = tokens[fieldContainingTarget-1];
