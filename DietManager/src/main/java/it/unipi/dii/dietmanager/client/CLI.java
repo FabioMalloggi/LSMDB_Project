@@ -127,7 +127,7 @@ public class CLI {
         return helpType;*/
     }
 
-    public void helpFood (String typeOfuser /*better if passed an object User*/ ){
+    public void helpFood (User user){
         String choose;
         System.out.println("====> help food\n" +
                 "find -f \"foodName\"\t\t-> search food by name\n" +
@@ -136,7 +136,7 @@ public class CLI {
                 "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
                 "rm -ef \t\"eatenFoodID\"\t\t-> remove eaten food from your eaten foods list\n");
 
-        if(typeOfuser.equals("Administrator")){ //instanceof su user
+        if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog " +
                     "rmF -f \"foodName\"\t-> remove food from catalog");
@@ -149,7 +149,7 @@ public class CLI {
 
     }
 
-    public void helpDiet(String typeOfuser /*better if passed an object User*/ ) {
+    public void helpDiet(User user) {
         String choose;
         System.out.println("====> help diet\n" +
                 "find -d -id \"dietID\"\t-> search diet by ID\n" +
@@ -167,7 +167,7 @@ public class CLI {
                 "find -d -c\t\t\t\t-> lookup your current diet\n" +
                 "find -npn\t\t\t\t-> lookup most suggested nutrient for each nutritionist");
 
-        if(typeOfuser.equals("Nutritionist")){
+        if(user instanceof Nutritionist){
             System.out.println("==> commands for nutritionist\n" +
                     "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
                     "rm -d \"dietID\"\t\t\t-> remove your diet");
@@ -179,14 +179,14 @@ public class CLI {
         return choose;*/
     }
 
-    public void helpUser(String typeOfuser /*better if passed an object User*/ ) {
+    public void helpUser(User user ) {
         String choose;
         System.out.println("==> help user\n" +
                 "find -u -u \"username\"\t\t\t-> search user by username\n" +
                 "find -u -c \"country\"\t\t\t-> search user by country\n" +
                 "find -u -mpn\t\t\t\t-> lookup most popular nutritionist");
 
-        if(typeOfuser.equals("Administrator")){
+        if(user instanceof Administrator){
             System.out.println("===> commands for administrators \n" +
                     "rm -u \"username\"\t\t\t-> remove user by username");
         }

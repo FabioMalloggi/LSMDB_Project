@@ -326,7 +326,7 @@ public class LogicManager {
 
     public boolean addFoodToEatenFoods(EatenFood ef){
         boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
-        //task = MongoDB.addFoodToEatenFoods(name, quantity, timestamp, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
+        //task = MongoDB.addFoodToEatenFoods(ef, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
         if(task)
             ((StandardUser)currentUser).getEatenFoods().add(ef);
         return  task;

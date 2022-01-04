@@ -201,13 +201,13 @@ public class DietManager {
 
                 //possible commands for help food / help diet / help nutritionist
                 else if(input.equals("help food")) {
-                    cli.helpFood("Administrator");
+                    cli.helpFood(logicManager.currentUser);
                 }
                 else if(input.equals("help diet")) {
-                    cli.helpDiet("Nutritionist");
+                    cli.helpDiet(logicManager.currentUser);
                 }
                 else if(input.equals("help user")) {
-                    cli.helpUser("User");
+                    cli.helpUser(logicManager.currentUser);
                 }
 
                 //helpFood
