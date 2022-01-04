@@ -2,6 +2,7 @@ package it.unipi.dii.utilities;
 
 import it.unipi.dii.dietmanager.entities.*;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class HandlerDiet {
 
     private List<String> dietsNames = new ArrayList<>();
     private int dietsNamesNumber = 0;
-    List<Nutritionist> nutritionists = new ArrayList<>();
+    List<String> nutritionists = new ArrayList<>();
     private int nutritionistNumber = 0;
     private Random random = new Random();
     private List<Diet> diets = new ArrayList<>();
@@ -103,7 +104,7 @@ public class HandlerDiet {
 
             while(line != null){
                 tokens = line.split(",");
-                nutritionists.add(new Nutritionist(tokens[1].replace("\"",""),"", "", "", 0, ""));
+                nutritionists.add(tokens[1].replace("\"",""));
                 nutritionistNumber++;
                 line = readerNutritionist.readLine();
             }
@@ -140,13 +141,13 @@ public class HandlerDiet {
                 nutrientList.add(newNutrient);
             }
             // extracting one Random Nutritionist from List:
-            Nutritionist dietAuthor = nutritionists.get(random.nextInt(
+            String dietAuthor = nutritionists.get(random.nextInt(
                     nutritionistNumber < DIETS_NUMBER/2 ? nutrientNumber : DIETS_NUMBER/2 ));
                                                         // DIETS_NUMBER/2 => each nutritionist in average has made 2 diets.
                                                         // nutritionistNumber => in case there are lower than DIETS_NUMBER/2 nutritionist.
 
 
-            diets.add(new Diet(id,name, nutrientList,dietAuthor.getUsername()));
+            diets.add(new Diet(id,name, nutrientList,dietAuthor));
             nutrientList.clear();
         }
     }
@@ -165,8 +166,8 @@ public class HandlerDiet {
     }
 
     public void printNutritionists(){
-        for(Nutritionist nutritionist: nutritionists){
-            System.out.println(nutritionist.toJSONObject().toString());
+        for(String nutritionist: nutritionists){
+            System.out.println(nutritionist);
         }
     }
 

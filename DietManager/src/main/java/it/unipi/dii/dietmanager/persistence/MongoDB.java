@@ -16,9 +16,9 @@ import it.unipi.dii.dietmanager.entities.*;
 import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Sorts.descending;
 
 public class MongoDB{
 
@@ -35,6 +35,27 @@ public class MongoDB{
     {
         this.localhostPort = localhostPort;
 
+    }
+
+    public boolean openConnection()
+    {
+        ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
+        mongoClient = MongoClients.create(connectionString);
+        database = mongoClient.getDatabase("dietManagerDB");
+        database.withWriteConcern(WriteConcern.ACKNOWLEDGED);   // Write Concern to wait for acknowledgement according to Server configuration.
+        // Needed for wasAcknowledged() methods.
+        // other options are possible.
+        database.withReadConcern(ReadConcern.DEFAULT);          // Use the servers default read concern.
+        return true;
+    }
+
+    public void closeConnection()
+    {
+        try{
+            mongoClient.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
@@ -82,27 +103,6 @@ public class MongoDB{
         closeConnection();
     }
 
-    public boolean openConnection()
-    {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
-        mongoClient = MongoClients.create(connectionString);
-        database = mongoClient.getDatabase("dietManagerDB");
-        database.withWriteConcern(WriteConcern.ACKNOWLEDGED);   // Write Concern to wait for acknowledgement according to Server configuration.
-                                                                // Needed for wasAcknowledged() methods.
-                                                                // other options are possible.
-        database.withReadConcern(ReadConcern.DEFAULT);          // Use the servers default read concern.
-        return true;
-    }
-
-    public void closeConnection()
-    {
-        try{
-            mongoClient.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
     /*************************** Users related methods **********************************/
 
     private User userFromJSONObject(JSONObject jsonUser){
@@ -139,31 +139,6 @@ public class MongoDB{
         return userFromDocument(userDocument);
     }
 
-    public boolean addUser(User user){
-        openConnection();
-        MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        InsertOneResult insertOneResult = usersCollection.insertOne(userToDocument(user));
-        closeConnection();
-        return insertOneResult.wasAcknowledged();
-    }
-
-    public boolean removeUser(String username){
-        openConnection();
-        User userToRemove = lookUpUserByUsername(username);
-        if(userToRemove == null)
-            return false;
-        MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        DeleteResult deleteResult = usersCollection.deleteOne(eq(User.USERNAME, username));
-        boolean isSuccessful = deleteResult.wasAcknowledged();
-
-        // if user removed was a Nutritionist, all his diets are deleted altogether.
-        if(isSuccessful && userToRemove instanceof Nutritionist){
-            isSuccessful = removeDietsByNutritionist(username);
-        }
-        closeConnection();
-        return isSuccessful;
-    }
-
     public List<Nutritionist> lookUpNutritionistsByCountry(String country){
         openConnection();
         List<Nutritionist> nutritionists = new ArrayList<>();
@@ -189,6 +164,38 @@ public class MongoDB{
         }
         closeConnection();
         return users;
+    }
+
+    public boolean addUser(User user){
+        openConnection();
+        MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
+        InsertOneResult insertOneResult = usersCollection.insertOne(userToDocument(user));
+        closeConnection();
+        return insertOneResult.wasAcknowledged();
+    }
+
+    public boolean removeUser(String username){
+        openConnection();
+        boolean isSuccessful = true;
+        User userToRemove = lookUpUserByUsername(username); // we need to know if the user is a nutritionist
+
+        if(userToRemove != null) {
+            // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
+            if(userToRemove instanceof Nutritionist){
+                isSuccessful = removeDietsByNutritionist(username);
+            }
+
+            // deleting user given his username
+            if(isSuccessful) {
+                MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
+                DeleteResult deleteResult = usersCollection.deleteOne(eq(User.USERNAME, username));
+                isSuccessful = deleteResult.wasAcknowledged();
+            }
+        } else {
+            isSuccessful = false;
+        }
+        closeConnection();
+        return isSuccessful;
     }
 
     /************************************************************************************/
@@ -217,7 +224,8 @@ public class MongoDB{
         return dietFromDocument(dietDocument);
     }
 
-    public List<Diet> lookUpDietByName(String subname){    // RETURN ALL DIETS whose name include substring seached.
+    // return all diets whose name include substring searched.
+    public List<Diet> lookUpDietByName(String subname){
         openConnection();
         String regex = "\\.\\*"+subname+"\\.\\*";
         List<Diet> diets = new ArrayList<>();
@@ -256,7 +264,7 @@ public class MongoDB{
         return updateResult.wasAcknowledged();
     }
 
-    // it can be called either 'unfollowDiet' or 'stopDiet'
+    // used for both 'unfollowDiet' and 'stopDiet'
     public boolean unfollowDiet(StandardUser standardUser){
         openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
@@ -278,6 +286,8 @@ public class MongoDB{
     }
 
     public boolean addDiet(Diet diet){
+        if(diet.getId() != null)
+            return false;
         openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         Document dietDocument = dietToDocument(diet);
@@ -289,29 +299,37 @@ public class MongoDB{
     }
 
     public boolean removeDiet(String dietID){
+        return removeDiet(Arrays.asList(dietID));
+    }
+
+    public boolean removeDiet(List<String> dietIDs){
         openConnection();
         // deleting 'diet' document from 'diets' collection
-        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
-        DeleteResult deleteDietResult = dietCollection.deleteOne(eq(Diet.ID, dietID));
-        boolean isSuccessful = deleteDietResult.wasAcknowledged();
+        boolean isSuccessful;
 
-        // deleting 'currentDiet' field from each 'user' document which has as 'currentDiet' value the target diet to remove
+        // deleting 'currentDiet' field and consequently 'EatenFoods' field from each 'user' document whose current diet value
+        // correspond to one of the diets to be removed
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+
+        Bson userFilter = Filters.in( StandardUser.CURRENT_DIET, dietIDs );
+        Bson deleteCurrentDietField = Updates.unset(StandardUser.CURRENT_DIET);
+        Bson deleteEatenFoodsField = Updates.unset(StandardUser.EATENFOODS);
+
+        UpdateManyModel<Document> updateRemoveCurrentDietDocument = new UpdateManyModel<>(
+                userFilter, deleteCurrentDietField);
+        UpdateManyModel<Document> updateRemoveEatenFoodsDocument = new UpdateManyModel<>(
+                userFilter, deleteEatenFoodsField);
+
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        bulkOperations.addAll(Arrays.asList(updateRemoveCurrentDietDocument,updateRemoveEatenFoodsDocument));
+        BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
+        isSuccessful = bulkWriteResult.wasAcknowledged();
+
+        // if the previous operation completed successfully, all diets are removed from 'diets' collection
         if(isSuccessful){
-            MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
-
-            Bson userFilter = Filters.eq( StandardUser.CURRENT_DIET, dietID );
-            Bson deleteCurrentDietField = Updates.unset(StandardUser.CURRENT_DIET);
-            Bson deleteEatenFoodsField = Updates.unset(StandardUser.EATENFOODS);
-
-            UpdateManyModel<Document> updateRemoveCurrentDietDocument = new UpdateManyModel<>(
-                    userFilter, deleteCurrentDietField);
-            UpdateManyModel<Document> updateRemoveEatenFoodsDocument = new UpdateManyModel<>(
-                    userFilter, deleteEatenFoodsField);
-
-            List<WriteModel<Document>> bulkOperations = new ArrayList<>();
-            bulkOperations.addAll(Arrays.asList(updateRemoveCurrentDietDocument,updateRemoveEatenFoodsDocument));
-            BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
-            isSuccessful = bulkWriteResult.wasAcknowledged();
+            MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+            DeleteResult deleteDietsResult = dietCollection.deleteMany(in(Diet.ID, dietIDs));
+            isSuccessful = deleteDietsResult.wasAcknowledged();
         }
         closeConnection();
         return isSuccessful;
@@ -319,62 +337,133 @@ public class MongoDB{
 
     private boolean removeDietsByNutritionist(String username){
         List<Diet> dietsToRemove = lookUpDietByNutritionist(username);
-        boolean isSuccessful = true, isCurrentSuccessful;
-        for(Diet diet: dietsToRemove){
-            isCurrentSuccessful = removeDiet(diet.getId());
-            if(isCurrentSuccessful == false)
-                isSuccessful = false;
-        }
-        return isSuccessful;
+        List<String> dietsToRemoveIDs = new ArrayList<>();
+        for(Diet diet: dietsToRemove)
+            dietsToRemoveIDs.add(diet.getId());
+        return removeDiet(dietsToRemoveIDs);
     }
 
+    private HashMap<String, Integer> lookUpDietsCountForEachNutritionist(){
+        openConnection();
+        MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+        HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
+
+        Bson groupByNutritionist = group(
+                Diet.NUTRITIONIST,
+                (List<BsonField>) count("numDiets"));
+
+        Document currentDocument;
+        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
+                groupByNutritionist)).iterator()){
+            while(cursor.hasNext()){
+                currentDocument = cursor.next();
+                nutritionistDietsCountMap.put(currentDocument.getString(Diet.NUTRITIONIST), currentDocument.getInteger("numDiets"));
+            }
+        }
+        closeConnection();
+        return nutritionistDietsCountMap;
+    }
 
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
         openConnection();
 
-        // retrieve documents representing for each combination of Nutritionist-Nutrient, the average quantity of the nutrient
-        // that the nutritionist has recommended in its diets.
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
+        HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
         HashMap<String, Nutrient> nutritionistNutrientMap = new HashMap<>();
 
-        Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
-        Bson projectionFields = project(
-                fields(include(Diet.NUTRITIONIST,Nutrient.QUANTITY, Nutrient.UNIT),computed("nutrientName",Diet.NUTRIENTS)));
-        Bson dietsMatchOutEnergyNutrient = match(
-                Filters.eq("nutrientName", "Energy"));
-        Bson groupByNutrientAndNutritionist = group(
-                new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST).append(Diet.NUTRIENTS,"$"+Diet.NUTRIENTS).append(Nutrient.UNIT,"$"+Nutrient.UNIT),
-                Accumulators.avg("averageQuantity", "$"+Nutrient.QUANTITY));
-        closeConnection();
+        // first we need to know how many diets each nutritionist has published
+        nutritionistDietsCountMap = lookUpDietsCountForEachNutritionist();
 
-        // analyze for each nutritionist which nutrient he has recommended the most.
-        Document currentDocument;
-        List<String> nutritionists = new ArrayList<>();
-        List<String> nutrients = new ArrayList<>();
-        List<String> units = new ArrayList<>();
-        List<Double> quantities = new ArrayList<>();
-        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(dietsUnwindNutrients,
-                                                projectionFields,
-                                                dietsMatchOutEnergyNutrient,
-                                                groupByNutrientAndNutritionist)).iterator()){
-            while(cursor.hasNext()){
-                currentDocument = cursor.next();
-                nutritionists.add(currentDocument.getString(Diet.NUTRITIONIST));
-                nutrients.add(currentDocument.getString("nutrientName"));
-                units.add(currentDocument.getString(Nutrient.UNIT));
-                quantities.add(currentDocument.getDouble(Nutrient.QUANTITY));
+        if( ! nutritionistDietsCountMap.isEmpty()){
+            // than we compute the most suggested nutrient each nutritionist proposed in his diets.
+
+            Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
+            Bson projectionFields = project(
+                    fields(include(Diet.NUTRITIONIST, Nutrient.QUANTITY, Nutrient.UNIT),computed("nutrientName",Diet.NUTRIENTS)));
+            Bson dietsMatchOutEnergyNutrient = match(
+                    Filters.not(eq("nutrientName", "Energy")));
+            Bson groupByNutrientAndNutritionist = group(
+                    new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST).append("nutrientName","$nutrientName").append(Nutrient.UNIT,"$"+Nutrient.UNIT),
+                    Accumulators.sum("totalQuantity", "$"+Nutrient.QUANTITY));
+
+            List<String> nutritionists = new ArrayList<>();
+            List<Nutrient> nutrients = new ArrayList<>();
+
+            // retrieve documents representing for each combination of Nutritionist-Nutrient
+            // (unit is the same for each of their combination),
+            // the average quantity of the nutrient that the nutritionist has recommended in its diets.
+            try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
+                    dietsUnwindNutrients,
+                    projectionFields,
+                    dietsMatchOutEnergyNutrient,
+                    groupByNutrientAndNutritionist)).iterator()){
+
+                Document currentDocument;
+                while(cursor.hasNext()){
+                    currentDocument = cursor.next();
+
+                    nutritionists.add(currentDocument.getString(Diet.NUTRITIONIST));
+                    nutrients.add(new Nutrient(
+                            currentDocument.getString("nutrientName"),
+                            currentDocument.getString(Nutrient.UNIT),
+                            currentDocument.getDouble("totalQuantity")
+                    ));
+                }
+            }
+            // end of connection: next steps are performed in local
+            closeConnection();
+
+
+            String lastAnalyzedNutritionist = "", currentNutritionist;
+            Nutrient lastMostNutrient = null, currentNutrient;
+
+            for(int i=0; i<nutrients.size(); i++){
+                currentNutritionist = nutritionists.get(i);
+                currentNutrient = nutrients.get(i);
+
+                //convert nutrient quantity to standard unit: mg
+                if(currentNutrient.getUnit() == "ug"){
+                    currentNutrient.setQuantity( currentNutrient.getQuantity() * 1000);
+                    currentNutrient.setUnit("mg");
+                } else if(currentNutrient.getUnit() != "mg"){
+                    System.err.println("ERROR: nutrient unit is not recognize");
+                }
+
+                // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
+                // by dividing it for the number of diets the currentNutritionist has published.
+                currentNutrient.setQuantity( currentNutrient.getQuantity() /
+                                            nutritionistDietsCountMap.get(currentNutritionist) );
+
+                if(i==0){
+                    lastAnalyzedNutritionist = currentNutritionist;
+                    lastMostNutrient = currentNutrient;
+
+                }else if(i!=0 && currentNutritionist == lastAnalyzedNutritionist){
+                    if(currentNutrient.getQuantity() > lastMostNutrient.getQuantity()) {
+                        lastMostNutrient = currentNutrient;
+                    }
+                    // if last 'record' to be analyzed:
+                    if(i == nutrients.size()-1){
+                        nutritionistNutrientMap.put(lastAnalyzedNutritionist,lastMostNutrient);
+                    }
+                }else if(i!=0 && currentNutritionist != lastAnalyzedNutritionist){
+                    // add lastAnalyzedNutritionist to return list
+                    nutritionistNutrientMap.put(lastAnalyzedNutritionist,lastMostNutrient);
+                    // start analyzing new nutritionist
+                    lastAnalyzedNutritionist = currentNutritionist;
+                    lastMostNutrient = currentNutrient;
+
+                    // if last 'record' to be analyzed:
+                    if(i == nutrients.size()-1){
+                        nutritionistNutrientMap.put(currentNutritionist,currentNutrient);
+                    }
+                }
             }
         }
-
         return nutritionistNutrientMap;
 
 
     }
-
-
-
-
-
 
     /************************************************************************************/
     /*************************** Foods related methods **********************************/
@@ -420,19 +509,18 @@ public class MongoDB{
 
     public Food lookUpMostEatenFoodByCategory(String category){
         openConnection();
-        Food currentFood, targetFood = null;
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
 
-        try(MongoCursor<Document> cursor = foodCollection.find(
-                eq(Food.CATEGORY, category)).iterator()){
-            while(cursor.hasNext()){
-                currentFood = foodFromDocument(cursor.next());
-                if(targetFood == null || currentFood.getEatenTimesCount() > targetFood.getEatenTimesCount())
-                    targetFood = currentFood;
-            }
-        }
+        Bson matchFoodsByCategory = match(Filters.eq(Food.CATEGORY, category));
+        Bson sortFoodsByEatenTimesCount = sort(descending(Food.EATEN_TIMES_COUNT));
+
+        Document maxEatenTimesFoodDocument = foodCollection.aggregate(Arrays.asList(
+                matchFoodsByCategory,
+                sortFoodsByEatenTimesCount)).first();
+
+        Food maxEatenTimesFood = foodFromDocument(maxEatenTimesFoodDocument);
         closeConnection();
-        return targetFood;
+        return maxEatenTimesFood;
     }
 
     public boolean addFood(Food food){

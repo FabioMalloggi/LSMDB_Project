@@ -171,12 +171,12 @@ public class EntitiesTester {
 
 
     public static void main(String[] args){
-        //te.setINDEX_ANALIZED(5);
+        te.setINDEX_ANALIZED(5);
         te.populate();
         //te.nutrientTester();
         //te.foodTester();
         //te.eatenFoodTester();
-        //te.dietTester();
+        te.dietTester();
         //te.standardUserCompleteTester();
         //te.standardUserPartialTester();
         //te.nutritionistTester();
