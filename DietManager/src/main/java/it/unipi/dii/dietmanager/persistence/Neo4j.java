@@ -19,15 +19,8 @@ public class Neo4j implements AutoCloseable
         uri = "neo4j://localhost:7687";
         user = "neo4j";
         password = "root";
-    }
-
-    private void openConnection(){
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ),
                 Config.builder().withLogging(new JULogging(Level.WARNING)).build());
-    }
-
-    public void closeConnection() throws Exception{
-        close();
     }
 
     @Override
@@ -36,7 +29,6 @@ public class Neo4j implements AutoCloseable
     }
 
     private boolean userAlreadyExists(String username){
-        openConnection();
         try ( Session session = driver.session() )
         {
             // I perform the query to understand if this user already exists
@@ -49,7 +41,6 @@ public class Neo4j implements AutoCloseable
                 return false;
             });
 
-            closeConnection();
             return userAlreadyExists;
         }catch(Exception e){
             e.printStackTrace();
@@ -60,7 +51,6 @@ public class Neo4j implements AutoCloseable
     }
 
     private boolean dietAlreadyExists(String dietID){
-        openConnection();
         try ( Session session = driver.session() )
         {
             // I perform the query to understand if this user already exists
@@ -73,7 +63,6 @@ public class Neo4j implements AutoCloseable
                 return false;
             });
 
-            closeConnection();
             return dietAlreadyExists;
         }catch(Exception e){
             e.printStackTrace();
@@ -83,7 +72,6 @@ public class Neo4j implements AutoCloseable
     }
 
     private boolean userAlreadyFollowedAnyDiet(StandardUser user){
-        openConnection();
         try ( Session session = driver.session() )
         {
             // I perform query to understand if this user already followed this diet
@@ -96,7 +84,6 @@ public class Neo4j implements AutoCloseable
                     return true;
                 return false;
             });
-            closeConnection();
             return userAlreadyFollowedAnyDiet;
         }catch(Exception e){
             e.printStackTrace();
@@ -107,8 +94,6 @@ public class Neo4j implements AutoCloseable
 
     public boolean addUser(User user)
     {
-        openConnection();
-
         try ( Session session = driver.session() )
         {
             if(user instanceof StandardUser)
@@ -121,7 +106,6 @@ public class Neo4j implements AutoCloseable
                     tx.run( "MERGE (:Nutritionist {username: $username})", parameters( "username", user.getUsername()));
                     return null;
                 });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -132,8 +116,6 @@ public class Neo4j implements AutoCloseable
 
     public boolean addDiet(Diet diet)
     {
-        openConnection();
-
         try ( Session session = driver.session() )
         {
             // I create the Diet node
@@ -150,7 +132,6 @@ public class Neo4j implements AutoCloseable
                         parameters("username", diet.getNutritionist(), "id", diet.getId()));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -160,7 +141,6 @@ public class Neo4j implements AutoCloseable
     }
 
     private boolean userAlreadyFollowedDiet(StandardUser user, Diet diet){
-        openConnection();
         try ( Session session = driver.session() )
         {
             // I perform query to understand if this user already followed this diet
@@ -173,7 +153,6 @@ public class Neo4j implements AutoCloseable
                     return true;
                 return false;
             });
-            closeConnection();
             return userAlreadyFollowedDiet;
         }catch(Exception e){
             e.printStackTrace();
@@ -186,7 +165,6 @@ public class Neo4j implements AutoCloseable
     // will be forgotten
     public boolean followDiet(StandardUser user, String dietID)
     {
-        openConnection();
         System.out.print(user.getUsername() + ", " + dietID + ": ");
         try ( Session session = driver.session() )
         {
@@ -197,7 +175,6 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", user.getUsername(), "id", dietID));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -208,7 +185,6 @@ public class Neo4j implements AutoCloseable
 
     public boolean stopDiet(StandardUser user, boolean isSucceeded){
         Diet diet = user.getCurrentDiet();
-        openConnection();
 
         System.out.print(user.getUsername() + ", " + diet.getId() + ", " + isSucceeded + ": ");
         try ( Session session = driver.session() )
@@ -226,7 +202,6 @@ public class Neo4j implements AutoCloseable
                                     "failedCountIncrement", failedCountIncrement, "succeededCountIncrement", succeededCountIncrement));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -237,7 +212,6 @@ public class Neo4j implements AutoCloseable
 
     public boolean unfollowDiet(StandardUser user){
         Diet diet = user.getCurrentDiet();
-        openConnection();
 
         try ( Session session = driver.session() )
         {
@@ -248,7 +222,6 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", user.getUsername(), "id", diet.getId()));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -258,8 +231,6 @@ public class Neo4j implements AutoCloseable
     }
 
     public boolean removeDiet(String dietID){
-        openConnection();
-
         try ( Session session = driver.session() )
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
@@ -267,7 +238,6 @@ public class Neo4j implements AutoCloseable
                         parameters( "id", dietID));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -277,7 +247,6 @@ public class Neo4j implements AutoCloseable
     }
 
     public boolean removeUser(String username){
-        openConnection();
         try ( Session session = driver.session() )
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
@@ -304,7 +273,6 @@ public class Neo4j implements AutoCloseable
                         parameters( "username", username));
                 return null;
             });
-            closeConnection();
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -315,7 +283,6 @@ public class Neo4j implements AutoCloseable
 
     public String lookUpMostFollowedDiet(){
         String mostFollowedDietID = null;
-        openConnection();
         try ( Session session = driver.session() )
         {
             mostFollowedDietID = session.readTransaction((TransactionWork<String>) tx -> {
@@ -324,7 +291,6 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("ID").asString();
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -334,7 +300,6 @@ public class Neo4j implements AutoCloseable
 
     public String lookUpMostFollowedDietByNutritionist(String username){
         String mostFollowedDietID = null;
-        openConnection();
         try ( Session session = driver.session() )
         {
             mostFollowedDietID = session.readTransaction((TransactionWork<String>) tx -> {
@@ -346,7 +311,6 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("ID").asString();
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -356,7 +320,6 @@ public class Neo4j implements AutoCloseable
 
     public String lookUpMostSucceededDiet(){
         String mostSucceededDietID = null;
-        openConnection();
         try ( Session session = driver.session() )
         {
             mostSucceededDietID = session.readTransaction((TransactionWork<String>) tx -> {
@@ -365,7 +328,6 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("ID").asString();
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -375,7 +337,6 @@ public class Neo4j implements AutoCloseable
 
     public String lookUpMostPopularDiet(){
         String mostPopularDietID = null;
-        openConnection();
         try ( Session session = driver.session() )
         {
             mostPopularDietID = session.readTransaction((TransactionWork<String>) tx -> {
@@ -385,7 +346,6 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("ID").asString();
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -395,7 +355,6 @@ public class Neo4j implements AutoCloseable
 
     public String lookUpMostPopularNutritionist(){
         String mostPopularNutritionistUsername = null;
-        openConnection();
         try ( Session session = driver.session() )
         {
             mostPopularNutritionistUsername = session.readTransaction((TransactionWork<String>) tx -> {
@@ -406,7 +365,6 @@ public class Neo4j implements AutoCloseable
                     return result.next().get("username").asString();
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -419,7 +377,6 @@ public class Neo4j implements AutoCloseable
         //if(userAlreadyFollowedAnyDiet(user))
         //    return null;
 
-        openConnection();
         String mostRecommendedDietID = null;
         try ( Session session = driver.session() )
         {
@@ -436,7 +393,6 @@ public class Neo4j implements AutoCloseable
                 // of the target user don't have completed diets, then I return the most succeeded diet (in general)
                 return lookUpMostSucceededDiet();
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -445,14 +401,12 @@ public class Neo4j implements AutoCloseable
     }
 
     public void dropAll(){
-        openConnection();
         try ( Session session = driver.session() )
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (n) DETACH DELETE n");
                 return null;
             });
-            closeConnection();
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
