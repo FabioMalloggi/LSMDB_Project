@@ -224,11 +224,12 @@ public class HandlerUser {
     public static void main(String[] args) throws  JSONException {
         //handling_athlets_CSV();
 
+        /*
         File fileUser = new File("./data/derived/athleteR.csv");
         File newFileUser = new File("./data/derived/athleteR2.csv"); //with distinct username and without 'NA' as AGE
-        checkIfUsernameIsUnique(fileUser, newFileUser);
+        checkIfUsernameIsUnique(fileUser, newFileUser);*/
 
-        //generatorUser();
+        generatorUser();
 
         //generatorNutritionistJSON();
     }
