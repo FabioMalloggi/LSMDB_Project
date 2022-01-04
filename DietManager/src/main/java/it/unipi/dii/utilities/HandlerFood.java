@@ -52,8 +52,6 @@ public class HandlerFood
         operationsCSV = new OperationsCSV();
     }
 
-
-
     public String getAttributeValueFromFile(File fileInput, String id, int attributePosition)
     {
         try{
@@ -73,17 +71,14 @@ public class HandlerFood
                     bufReader.close();
                     return attributes[attributePosition];
                 }
-
                 line = bufReader.readLine();
             }
-
             bufReader.close();
         }
         catch(IOException e){
             e.printStackTrace();
             System.exit(1);
         }
-
         // error case
         return null;
     }
@@ -241,7 +236,7 @@ public class HandlerFood
         return jsonFoods;
     }
 
-    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
+/*    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
     {
         String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
@@ -262,12 +257,8 @@ public class HandlerFood
 
             while(line != null){
                 attributes = line.split(";");
-
                 System.out.println(++j);
-                if(j >= 869)
-                {
-                    System.out.println(line);
-                }
+
                 // if a line contains at least 3 times the character '"', then I drop the line
                 if(line.length() - line.replace("\"", "").length() >= 3)
                 {
@@ -318,6 +309,8 @@ public class HandlerFood
         }
         return jsonFoods;
     }
+*/
+
 
     public void createInputFile(){
         // I delete ';' in original file
@@ -336,12 +329,13 @@ public class HandlerFood
 
     public void createJSON()
     {
-        JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
-                                                            fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
+        //JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+        //                                                    fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
         System.out.println("FINITO FILE 1");
+        JSONArray jsonFoods = new JSONArray();
         JSONArray jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
-        System.out.println(jsonFile.toString());
+        //System.out.println(jsonFile.toString());
         fileJSONFoods.delete();
 
         try {

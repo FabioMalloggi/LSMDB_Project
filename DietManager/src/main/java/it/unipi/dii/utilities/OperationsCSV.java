@@ -7,7 +7,6 @@ import java.util.List;
 public class OperationsCSV {
     BufferedReader bufReader;
     BufferedWriter bufWriter;
-    private final int per100gRows = 3614000;
 
     public void initializeRW(File fileInput, File fileOutput){
         fileOutput.delete();
