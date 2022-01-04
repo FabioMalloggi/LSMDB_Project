@@ -28,7 +28,7 @@ public class Neo4j implements AutoCloseable
         driver.close();
     }
 
-    private boolean userAlreadyExists(String username){
+    public boolean userAlreadyExists(String username){
         try ( Session session = driver.session() )
         {
             // I perform the query to understand if this user already exists
@@ -50,7 +50,7 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
-    private boolean dietAlreadyExists(String dietID){
+    public boolean dietAlreadyExists(String dietID){
         try ( Session session = driver.session() )
         {
             // I perform the query to understand if this user already exists

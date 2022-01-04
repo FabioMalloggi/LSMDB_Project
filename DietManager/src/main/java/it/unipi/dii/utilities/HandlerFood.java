@@ -1,10 +1,12 @@
 package it.unipi.dii.utilities;
 
+import it.unipi.dii.dietmanager.entities.Food;
 import it.unipi.dii.dietmanager.entities.Nutrient;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HandlerFood
 {
@@ -133,15 +135,15 @@ public class HandlerFood
         Boolean toDrop = false;
         double quantity;
         String unit;
-        String category;
         boolean firstInsertion = true;
 
         JSONArray jsonFoods = new JSONArray();
         String line;
         String[] attributes;
-        JSONObject jsonNutrient;
-        JSONObject jsonFood;
-        JSONArray jsonNutrients;
+        Nutrient nutrient;
+        List<Nutrient> nutrients = new ArrayList<>();
+        Food food;
+        String foodName = null, foodCategory = null;
 
         // I get repeated food names array
         String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
@@ -149,9 +151,6 @@ public class HandlerFood
         try
         {
             BufferedReader bufReader = new BufferedReader(new FileReader(fileInputTargetNutrientTargetFood));
-
-            jsonFood = new JSONObject();
-            jsonNutrients = new JSONArray();
 
             line = bufReader.readLine();
             last_id = "";
@@ -176,14 +175,11 @@ public class HandlerFood
 
                 // I remove the character ' " ' from the attributes value
                 for(int i=0; i<attributes.length; i++)
-                {
                     attributes[i] = attributes[i].replace("\"", "");
-                }
 
                 // for each nutrient I get the associated nutrient object
                 row_nutrient = getNutrient(fileInputTargetNutrients,
                                             attributes[NUTRIENT_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
-
 
                 // I check if the food ID of row that I'm scanning is already present
                 if(attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD].equals(last_id))
@@ -191,67 +187,52 @@ public class HandlerFood
                     quantity = Double.parseDouble(attributes[QUANTITY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
                     // if "quantity" is 0 I don't add the nutrient into the JSON document
                     if(quantity != 0.0){
-                        jsonNutrient = new JSONObject();
-                        jsonNutrient.put("name", row_nutrient.getName());
-
                         unit = row_nutrient.getUnit();
                         // if unit is "IU" I have to convert the quantity in such a way to obtain unit "UG"
                         if(unit.equals("IU")){
                             unit = "UG";
                             quantity = quantity * CONVERTION_COEFFICIENT_FROM_IU_TO_UG;
                         }
-
-                        jsonNutrient.put("unit", unit);
-                        jsonNutrient.put("quantity", quantity);
-                        jsonNutrients.put(jsonNutrient);
+                        nutrient = new Nutrient(row_nutrient.getName(), unit, quantity);
+                        nutrients.add(nutrient);
                     }
                 }
                 else
                 {
                     if(!firstInsertion){
+                        // if category is empty I don't add "category" element into JSON document
+                        if(!foodCategory.isEmpty())
+                            food = new Food(foodName, foodCategory, nutrients, 0);
+                        else
+                            food = new Food(foodName, nutrients, 0);
+
                         // I insert the nutrients array of the last food in the associated food object
-                        jsonFood.put("nutrients", jsonNutrients);
-                        jsonFoods.put(jsonFood);
+                        jsonFoods.put(food.toJSONObject());
                     }
                     firstInsertion = false;
                     last_id = attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD];
 
                     // food ID is not already present, hence I create new food object
-                    jsonFood = new JSONObject();
-                    jsonFood.put("_id", getAttributeValueFromFile(fileInputTargetFood,
-                                attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD], FOOD_NAME_POSITION_IN_TARGET_FOOD));
-
-                    category = getAttributeValueFromFile(fileInputTargetFood,
+                    foodName = getAttributeValueFromFile(fileInputTargetFood,
+                            attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD], FOOD_NAME_POSITION_IN_TARGET_FOOD);
+                    foodCategory = getAttributeValueFromFile(fileInputTargetFood,
                             attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD], FOOD_CATEGORY_POSITION_IN_TARGET_FOOD);
-                    // if category is empty I don't add "category" element into JSON document
-                    if(!category.isEmpty())
-                        jsonFood.put("category", category);
-
-                    jsonNutrients = new JSONArray();
 
                     quantity = Double.parseDouble(attributes[QUANTITY_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD]);
                     // if "quantity" is 0 I don't add the nutrient into the JSON document
                     if(quantity != 0.0){
-                        // I add first element to nutrients array
-                        jsonNutrient = new JSONObject();
-                        jsonNutrient.put("name", row_nutrient.getName());
-
                         unit = row_nutrient.getUnit();
                         // if unit is "IU" I have to convert the quantity in such a way to obtain unit "UG"
                         if(unit.equals("IU")){
                             unit = "UG";
                             quantity = quantity * CONVERTION_COEFFICIENT_FROM_IU_TO_UG;
                         }
-
-                        jsonNutrient.put("unit", unit);
-                        jsonNutrient.put("quantity", quantity);
-                        jsonNutrients.put(jsonNutrient);
+                        nutrient = new Nutrient(row_nutrient.getName(), unit, quantity);
+                        nutrients.add(nutrient);
                     }
                 }
-
                 line = bufReader.readLine();
             }
-
             bufReader.close();
         }catch(Exception e) {
             e.printStackTrace();
@@ -260,17 +241,18 @@ public class HandlerFood
         return jsonFoods;
     }
 
-    public JSONObject insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
+    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
     {
-        JSONObject jsonFile = new JSONObject();
         String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
         try {
             BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
-            JSONArray jsonNutrients;
-            JSONObject jsonNutrient;
-            JSONObject jsonFood;
             String[] attributes;
+            String foodName, foodCategory, nutrientName, nutrientUnit;
+            double nutrientQuantity;
+            List<Nutrient> nutrients = new ArrayList<>();
+            Food food;
+            int j=0;
 
             String line = bufReader.readLine();
             boolean toDrop = false;
@@ -281,13 +263,17 @@ public class HandlerFood
             while(line != null){
                 attributes = line.split(";");
 
+                System.out.println(++j);
+                if(j >= 869)
+                {
+                    System.out.println(line);
+                }
                 // if a line contains at least 3 times the character '"', then I drop the line
                 if(line.length() - line.replace("\"", "").length() >= 3)
                 {
                     line = bufReader.readLine();
                     continue;
                 }
-
                 // I check if I have to drop the line
                 for(int i=0; i<repeatedFoodNames.length; i++){
                     if(repeatedFoodNames[i].equals(attributes[FOOD_ID_POSITION_IN_FOOD_DB2])){
@@ -295,51 +281,42 @@ public class HandlerFood
                         break;
                     }
                 }
-
                 if(toDrop){
                     toDrop = false;
                     line = bufReader.readLine();
                     continue;
                 }
 
-
                 // I remove the character ' " ' from the attributes value
                 for(int i=0; i<attributes.length; i++)
-                {
                     attributes[i] = attributes[i].replace("\"", "");
-                }
 
-                jsonFood = new JSONObject();
-                jsonFood.put("_id", attributes[FOOD_NAME_POSITION_IN_FOOD_DB2]);
-
-                // if category is empty I don't add "category" element into JSON document
-                if(!attributes[FOOD_CATEGORY_POSITION_IN_FOOD_DB2].isEmpty())
-                    jsonFood.put("category", attributes[FOOD_CATEGORY_POSITION_IN_FOOD_DB2]);
-
-                jsonNutrients = new JSONArray();
+                foodName = attributes[FOOD_NAME_POSITION_IN_FOOD_DB2];
+                foodCategory = attributes[FOOD_CATEGORY_POSITION_IN_FOOD_DB2];
 
                 for(int i=0; i<TARGET_NUTRIENT_INDEXES_DB2.length; i++){
-                    jsonNutrient = new JSONObject();
-
-                    if(Double.parseDouble(attributes[TARGET_NUTRIENT_INDEXES_DB2[i]]) != 0.0){
-                        jsonNutrient = new JSONObject();
-                        jsonNutrient.put("name", TARGET_NUTRIENT_NAMES_DB2[i]);
-                        jsonNutrient.put("unit", TARGET_NUTRIENT_UNITS_DB2[i]);
-                        jsonNutrient.put("quantity", Double.parseDouble(attributes[TARGET_NUTRIENT_INDEXES_DB2[i]]));
-
-                        jsonNutrients.put(jsonNutrient);
+                    nutrientQuantity = Double.parseDouble(attributes[TARGET_NUTRIENT_INDEXES_DB2[i]]);
+                    if(nutrientQuantity != 0.0){
+                        nutrientName = TARGET_NUTRIENT_NAMES_DB2[i];
+                        nutrientUnit = TARGET_NUTRIENT_UNITS_DB2[i];
+                        nutrients.add(new Nutrient(nutrientName, nutrientUnit, nutrientQuantity));
                     }
                 }
-                jsonFood.put("nutrients", jsonNutrients);
-                jsonFoods.put(jsonFood);
+                // if category is empty I don't add "category" element into JSON document
+                if(!foodCategory.isEmpty())
+                    food = new Food(foodName, foodCategory, nutrients, 0);
+                else
+                    food = new Food(foodName, nutrients, 0);
+
+                jsonFoods.put(food.toJSONObject());
                 line = bufReader.readLine();
             }
-            jsonFile.put("foods", jsonFoods);
+            bufReader.close();
         }catch(Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-        return jsonFile;
+        return jsonFoods;
     }
 
     public void createInputFile(){
@@ -361,7 +338,8 @@ public class HandlerFood
     {
         JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
                                                             fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
-        JSONObject jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
+        System.out.println("FINITO FILE 1");
+        JSONArray jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
         System.out.println(jsonFile.toString());
         fileJSONFoods.delete();

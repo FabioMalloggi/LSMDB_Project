@@ -26,6 +26,12 @@ public class Food
         this.eatenTimesCount = eatenTimesCount;
     }
 
+    public Food(String name, List<Nutrient> nutrients, int eatenTimesCount){
+        this.name = name;
+        this.nutrients = nutrients;
+        this.eatenTimesCount = eatenTimesCount;
+    }
+
     public String getName() { return name; }
     public String getCategory(){ return category; }
     public List<Nutrient> getNutrients() { return nutrients; }
