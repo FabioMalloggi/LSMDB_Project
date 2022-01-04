@@ -539,7 +539,15 @@ public class MongoDB{
         return deleteResult.wasAcknowledged();
     }
 
-    public boolean addEatenFood(StandardUser standardUser, EatenFood eatenFood){
+    public StandardUser mongo(StandardUser user){
+        StandardUser mongoUser = null;
+
+
+        return mongoUser;
+    }
+/*
+    public boolean addEatenFood(StandardUser standardUser){
+
         // add id to EatenFood object
         // update eatenTimesCount field.
         openConnection();
@@ -552,6 +560,8 @@ public class MongoDB{
         closeConnection();
         return updateResult.wasAcknowledged();
     }
+
+ */
 
     public boolean removeEatenFood(StandardUser standardUser, String eatenFoodID){
         openConnection();
