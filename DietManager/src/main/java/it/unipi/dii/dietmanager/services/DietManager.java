@@ -28,8 +28,10 @@ public class DietManager {
 
         //generating the list of nutrients
         for (int i = 0; i < doubleValues.length; i++){
-            tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
-            newList.add(tmp);
+            if(doubleValues[i] > 0) {
+                tmp = new Nutrient(nutrients_names[i], nutrients_units[i], doubleValues[i]);
+                newList.add(tmp);
+            }
         }
         foodCreated = new Food(name, "", newList, 0);
         return foodCreated;
@@ -46,8 +48,10 @@ public class DietManager {
 
         //generating the list of nutrients
         for (int i = 0; i < doubleValues.length; i++){
-            tmp = new Nutrient(nutrients_names[i], nutrientsValues[i], doubleValues[i]);
-            newList.add(tmp);
+            if(doubleValues[i] > 0) {
+                tmp = new Nutrient(nutrients_names[i], nutrients_units[i], doubleValues[i]);
+                newList.add(tmp);
+            }
         }
 
         //OLD VERSION dietCreated = new Diet(name, newList, creator);
@@ -291,13 +295,18 @@ public class DietManager {
                 }
 
                 //commands for Administrator (Food)
-                else if(tokens[0].equals("add") && tokens[1].equals("-f") && tokens.length == 3 && (logicManager.currentUser instanceof Administrator)){
-                    String[] chooseNutrients;
+                else if(tokens[0].equals("add") && tokens[1].equals("-f") && tokens.length >= 3 && (logicManager.currentUser instanceof Administrator)){
+                    String[] chooseNutrients; String foodName;
                     Food newFood;
                     checkOperation = false;
                     cli.generalPrint("-> add food to catalog"); //System.out.println("-> add food to catalog");
                     chooseNutrients = cli.menuInsertNutrient(); //work
 
+
+                    foodName = tokens[2];
+                    for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                        foodName += " "+tokens[i];
+                    }
 
                     //to test  //work
                     String result = "";
@@ -312,10 +321,10 @@ public class DietManager {
 
                     if(checkOperation){
 
-                        cli.generalPrint(tokens[2]+" correctly inserted into catalog"); //System.out.println(tokens[2]+" correctly inserted into catalog");
+                        cli.generalPrint(foodName+" correctly inserted into catalog"); //System.out.println(tokens[2]+" correctly inserted into catalog");
                     }
                     else {
-                        System.err.println(tokens[2]+" not inserted into catalog");
+                        System.err.println(foodName+" not inserted into catalog");
                     }
 
                 }
@@ -512,11 +521,16 @@ public class DietManager {
                 }
 
                 //commands for Nutritionist (Diet)
-                else if(tokens[0].equals("add") && tokens[1].equals("-d") && tokens.length == 3 && (logicManager.currentUser instanceof Nutritionist)){
-                    String[] chooseNutrients;
+                else if(tokens[0].equals("add") && tokens[1].equals("-d") && tokens.length >= 3 && (logicManager.currentUser instanceof Nutritionist)){
+                    String[] chooseNutrients; String dietName;
                     Diet newDiet;
                     cli.generalPrint("-> add diet: "+tokens[2]); //System.out.println("-> add diet: "+tokens[2]);
                     chooseNutrients = cli.menuInsertNutrient(); //work
+
+                    dietName = tokens[2];
+                    for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                        dietName += " "+tokens[i];
+                    }
 
                     //to test menuNut //work
                     String result = "";
@@ -535,10 +549,10 @@ public class DietManager {
                     checkOperation = logicManager.addDiet(newDiet);
 
                     if(checkOperation){
-                        cli.generalPrint(tokens[2]+" diet correctly inserted."); //System.out.println(tokens[2]+" diet correctly inserted.");
+                        cli.generalPrint(dietName+" diet correctly inserted."); //System.out.println(tokens[2]+" diet correctly inserted.");
                     }
                     else {
-                        System.err.println(tokens[2]+" diet not inserted.");
+                        System.err.println(dietName+" diet not inserted.");
                     }
                 }
 
