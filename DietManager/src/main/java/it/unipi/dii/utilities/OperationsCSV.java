@@ -7,7 +7,6 @@ import java.util.List;
 public class OperationsCSV {
     BufferedReader bufReader;
     BufferedWriter bufWriter;
-    private final int per100gRows = 3614000;
 
     public void initializeRW(File fileInput, File fileOutput){
         fileOutput.delete();
@@ -140,13 +139,14 @@ public class OperationsCSV {
         return writeCounter;
     }
 
-    public int copyFileByLineContainingTargets(List<String> targets, int fieldContainingTarget){
+    public int copyFileByLineContainingTargets(File fileInput, File fileOutput, List<String> targets, int fieldContainingTarget){
+        initializeRW(fileInput,fileOutput);
         int writeCounter = 0;
         float readCounter = 0;
         try{
             String line = bufReader.readLine();
             while (line != null) {
-                System.out.println(line);
+                //System.out.println(line);
                 if(containTarget(line, targets, fieldContainingTarget)) {
                     bufWriter.write(line);
                     bufWriter.newLine();
@@ -158,6 +158,7 @@ public class OperationsCSV {
         }catch(IOException e) {
             e.printStackTrace();
         }
+        closeRW();
         return writeCounter;
     }
 
@@ -300,7 +301,7 @@ public class OperationsCSV {
         return attributeRepetitionsCounter;
     }
 
-    public List<String> extractDistinctAttributeList(int fieldContainingTarget){
+    public List<String> extractDistinctAttributeList(File fileInput, int fieldContainingTarget){
         List<String> distinctAttributeList = new ArrayList<>();
         float readCounter = 0;
         String attributeValue;
@@ -324,12 +325,13 @@ public class OperationsCSV {
         {
             e.printStackTrace();
         }
-
+        closeR();
         return distinctAttributeList;
     }
 
 
-    public int samplinglinesCSV(int copyLineEveryNLines){
+    public int samplinglinesCSV(File fileInput, File fileOutput, int copyLineEveryNLines){
+        initializeRW(fileInput, fileOutput);
         int readCounter = 0, writeCounter = 0;
         try {
             String line = bufReader.readLine();
@@ -345,6 +347,7 @@ public class OperationsCSV {
         }catch(IOException e) {
             e.printStackTrace();
         }
+        closeRW();
         return writeCounter;
     }
 
