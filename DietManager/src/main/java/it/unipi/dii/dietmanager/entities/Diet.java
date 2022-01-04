@@ -21,22 +21,25 @@ public class Diet {
         this.id = id;
     }
 
+    public Diet(Diet diet){
+        this(   diet.id,
+                diet.name,
+                new ArrayList<>(diet.nutrients),
+                diet.nutritionist);
+    }
+
+    public Diet(String id, String name, String nutritionist) {
+        this( id, name, null, nutritionist);
+    }
+
+    public Diet(String name, List<Nutrient> nutrients, String nutritionist) {
+        this(null, name, nutrients, nutritionist);
+    }
+
     public Diet(String id, String name, List<Nutrient> nutrientList, String nutritionist) {
         this.id = id;
         this.name = name;
         this.nutrients.addAll(nutrientList);
-        this.nutritionist = nutritionist;
-    }
-
-    public Diet(String id, String name, String nutritionist) {
-        this.id = id;
-        this.name = name;
-        this.nutritionist = nutritionist;
-    }
-
-    public Diet(String name, List<Nutrient> nutrients, String nutritionist) {
-        this.name = name;
-        this.nutrients = nutrients;
         this.nutritionist = nutritionist;
     }
 
