@@ -256,16 +256,19 @@ public class DietManager {
                         }
                     }
                 }
-                else if(tokens[0].equals("add") && tokens[1].equals("-ef") && tokens.length == 3 && (logicManager.currentUser instanceof StandardUser)){
-
+                else if(tokens[0].equals("add") && tokens[1].equals("-ef") && tokens.length >= 3 && (logicManager.currentUser instanceof StandardUser)){
+                    String foodName;
                     cli.generalPrint("-> add food to your eaten foods list"); //System.out.println("-> add food to your eaten foods list");
 
                     /** CHIEDERE LA QUANTITA (in grammi)***/
                     input2 = cli.quantityOfEatenFood();
                     checkOperation = false;
-                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    EatenFood ef = new EatenFood(tokens[2], Integer.parseInt(input2), timestamp);
-                    checkOperation = logicManager.addFoodToEatenFoods(ef);
+
+                    foodName = tokens[2];
+                    for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                        foodName += " "+tokens[i];
+                    }
+                    checkOperation = logicManager.addFoodToEatenFoods(foodName, Integer.parseInt(input2));
 
                     if(checkOperation){
 
@@ -608,6 +611,9 @@ public class DietManager {
 
 
                 else if(input.equals("exit")){
+                    if(logicManager.currentUser instanceof StandardUser){
+                        logicManager.addEatenFoodToMongo();
+                    }
                     isLogged = false;
                     step1 = false;
                 }
