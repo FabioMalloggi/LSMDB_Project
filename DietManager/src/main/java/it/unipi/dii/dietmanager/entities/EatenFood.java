@@ -14,10 +14,8 @@ public class EatenFood {
     public static final String QUANTITY = "quantity";
     public static final String TIMESTAMP = "timestamp";
 
-    public static final int EATEN_FOOD_FOOD_NAME_STRING_LENGTH = 50; // needed to standardize length
-    public static final int EATEN_FOOD_ID_STRING_LENGTH = 20;
+    public static final int EATEN_FOOD_FOOD_NAME_STRING_LENGTH = 100; // needed to standardize length
     private static final String foodNameFieldFormat = "%1$" + EATEN_FOOD_FOOD_NAME_STRING_LENGTH + "s";
-    private static final String idFieldFormat = ("%1$" + EATEN_FOOD_ID_STRING_LENGTH + "s");
 
     private String id;
     private String foodName;
@@ -26,7 +24,7 @@ public class EatenFood {
 
     // needed for inserting empty eatenFoods into mongoDB in order to reduce re-allocations of documents.
     public EatenFood(){
-        this(   generateEatenFoodNullID(),
+        this(   generateEatenFoodFormatID(0),
                 String.format(foodNameFieldFormat,""), -1, new Timestamp(0));
     }
 
@@ -45,10 +43,7 @@ public class EatenFood {
     }
 
     public static String generateEatenFoodFormatID(long newID){
-        return String.format(idFieldFormat,newID).replace(' ','0');
-    }
-    public static String generateEatenFoodNullID(){
-        return generateEatenFoodFormatID(0);
+        return Long.toString(newID);
     }
 
     public String getId() { return id;}

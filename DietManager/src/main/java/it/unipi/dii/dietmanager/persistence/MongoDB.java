@@ -71,7 +71,7 @@ public class MongoDB{
                 Food.EATEN_TIMES_COUNT, false); // 5th index
     }
 
-    public void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
+    private void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
         openConnection();
         int sortingOrder = isAttributeAscending ? 1:-1;
         //Retrieving the collection on which you want to create the index
@@ -87,7 +87,7 @@ public class MongoDB{
         closeConnection();
     }
 
-    public void createCompoundIndex(String collectionName, String firstAttributeName, boolean isFirstAttributeAscending,
+    private void createCompoundIndex(String collectionName, String firstAttributeName, boolean isFirstAttributeAscending,
                                     String secondAttributeName, boolean isSecondAttributeAscending){
         openConnection();
         int firstAttributeSortingOrder = isFirstAttributeAscending ? 1:-1;
@@ -105,7 +105,7 @@ public class MongoDB{
         closeConnection();
     }
 
-    public void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
+    private void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
                                            String secondAttributeName, boolean isSecondAttributeAscending){
         openConnection();
         int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
@@ -441,10 +441,10 @@ public class MongoDB{
                 currentNutrient = nutrients.get(i);
 
                 //convert nutrient quantity to standard unit: mg
-                if(currentNutrient.getUnit() == "ug"){
+                if(currentNutrient.getUnit().equals("UG")){
                     currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000);
-                    currentNutrient.setUnit("mg");
-                } else if(currentNutrient.getUnit() != "mg"){
+                    currentNutrient.setUnit("MG");
+                } else if( ! currentNutrient.getUnit().equals("MG")){
                     System.err.println("ERROR: nutrient unit is not recognize");
                 }
 
@@ -511,7 +511,6 @@ public class MongoDB{
     }
 
     private Document eatenFoodListToDocument(List<EatenFood> eatenFoods){
-        JSONArray jsonEatenFoods = new JSONArray();
         return Document.parse(EatenFood.toJSONArray(eatenFoods).toString());
     }
 
@@ -563,17 +562,20 @@ public class MongoDB{
         return deleteResult.wasAcknowledged();
     }
 
-    public StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
+    private StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
         StandardUser mongoUser = new StandardUser(user);
-        int eatenFoodsCount = user.getEatenFoods().size();
+        int eatenFoodsCount = 0;
+        if(user.getEatenFoods() != null)
+            eatenFoodsCount = user.getEatenFoods().size(); // 100
 
         // padding of empty eatenFoods into the user according to the defined constant.
-        for(int i=0; i < eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
-            mongoUser.getEatenFoods().add( new EatenFood() );
+        for(int i=0; i < EATEN_FOOD_SLOT_SIZE - eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
+            mongoUser.getEatenFoods().add(new EatenFood());
         }
         return mongoUser;
     }
-    public StandardUser userFromEatenFoodUserMongoAllocation(StandardUser mongoUser){
+
+    private StandardUser userFromEatenFoodUserMongoAllocation(StandardUser mongoUser){
         StandardUser user = new StandardUser(mongoUser);
         // remove padding of eatenFoods from user eatenFood list
         int index;
@@ -583,12 +585,15 @@ public class MongoDB{
         return user;
     }
 
+    public boolean incrementEatenTimesCount(String foodName){
+        // update eatenTimesCount field.
+        // DA FARE
+        return true;
+    }
+
     public boolean updateEatenFood(StandardUser standardUser){
 
         // add id to EatenFood object: DONE IN ENTITY STANDARD USER -> LOGIC MANAGER
-
-        // update eatenTimesCount field.
-        // DA FAREEEEEEEEEEEEEEEEEEEEEEEEe
 
         StandardUser mongoUser = userToUserEatenFoodMongoAllocation(standardUser);
 

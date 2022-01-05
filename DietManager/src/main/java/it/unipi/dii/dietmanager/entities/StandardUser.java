@@ -70,7 +70,6 @@ public class StandardUser extends User {
     }
 
     public void addEatenFood( String foodName, int quantity ){
-
         EatenFood eatenFood = new EatenFood(
                 computeNewEatenFoodID(),
                 foodName,
