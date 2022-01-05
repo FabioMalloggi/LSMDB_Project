@@ -5,7 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,10 @@ public class StandardUser extends User {
                 standardUser.getAge(),
                 standardUser.getCountry());
         this.eatenFoods = new ArrayList<>(standardUser.getEatenFoods());
-        this.currentDiet = new Diet(standardUser.getCurrentDiet());
+        if(standardUser.getCurrentDiet() != null)
+            this.currentDiet = new Diet(standardUser.getCurrentDiet());
+        else
+            this.currentDiet = null;
     }
 
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {

@@ -22,7 +22,7 @@ public class LogicManager {
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
     private final int MAX_FAIL_NUTRIENT = 2;
-    private final int MONGO_DB_PORT = 2222;
+    private final int MONGO_DB_PORT = 27017;
     private Neo4j Neo4J;
     private MongoDB MongoDB;
 
@@ -211,7 +211,7 @@ public class LogicManager {
         if(mongoDB){
             neo4J = Neo4J.addUser(user);
             if(!neo4J){
-                System.out.println("Errore cross-consistency");
+                System.out.println("Error cross-consistency");
                 //to do something.. //REMOVE DA MONGO
                 MongoDB.removeUser(user.getUsername());
                 return false;
@@ -231,7 +231,7 @@ public class LogicManager {
         Diet diet = null;
         diet = lookUpDietByID(id);
         if(diet != null && ((StandardUser)currentUser).getCurrentDiet() == null ){ //check
-            //mongoDB = MongoDB.followDiet(id, currentUser);
+            mongoDB = MongoDB.followDiet((StandardUser)currentUser, id);
             if(mongoDB){
                 neo4J = Neo4J.followDiet((StandardUser) currentUser, id);
                 if(!neo4J){
@@ -359,12 +359,12 @@ public class LogicManager {
         boolean mongoDB = false;
         boolean neo4J = false;
 
-        //mongoDB = MongoDB.addDiet(diet); it will return the ID of the new Diet added
+        mongoDB = MongoDB.addDiet(diet); //it will return the ID of the new Diet added
         if(mongoDB){
-            //neo4J = Neo4J.addDiet(diet);
+            neo4J = Neo4J.addDiet(diet);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
-                //MongoDB.removeDiet(diet.getID());
+                MongoDB.removeDiet(diet.getId());
                 return false;
             }
             else{

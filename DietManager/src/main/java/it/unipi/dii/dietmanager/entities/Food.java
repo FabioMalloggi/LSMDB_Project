@@ -46,7 +46,7 @@ public class Food
         JSONObject jsonFood = new JSONObject();
         try {
             jsonFood.put(Food.NAME, name);                          // inserting name
-            if(!category.isEmpty())
+            if(category != null && !category.isEmpty())
                 jsonFood.put(Food.CATEGORY, category);              // inserting category
             jsonFood.put(Food.EATEN_TIMES_COUNT, eatenTimesCount);  // inserting eatenTimesCount
 
@@ -72,14 +72,19 @@ public class Food
         List<Nutrient> nutrients = new ArrayList<>();
         try{
             name = jsonFood.getString(Food.NAME);                           // retrieving name
-            category = jsonFood.getString(Food.CATEGORY);                   // retrieving category
             eatenTimesCount = jsonFood.getInt(Food.EATEN_TIMES_COUNT);      // retrieving eatenTimesCount
             JSONArray jsonNutrients = jsonFood.getJSONArray(Food.NUTRIENTS);
 
             for (int i = 0; i < jsonNutrients.length(); i++){
                 nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
             }
-            newFood = new Food( name, category, nutrients, eatenTimesCount);
+            if(!jsonFood.isNull(Food.CATEGORY))
+            {
+                category = jsonFood.getString(Food.CATEGORY);                   // retrieving category
+                newFood = new Food( name, category, nutrients, eatenTimesCount);
+            }
+            else
+                newFood = new Food( name, null, nutrients, eatenTimesCount);
         }catch (JSONException e){
             e.printStackTrace();
         }

@@ -2,7 +2,6 @@ package it.unipi.dii.utilities;
 
 import it.unipi.dii.dietmanager.entities.Food;
 import it.unipi.dii.dietmanager.entities.Nutrient;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -123,7 +122,7 @@ public class HandlerFood
         return null;
     }
 
-    public JSONArray createJSONFoodsFromFile1(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients, File fileInputAttributesToDrop,
+    public List<JSONObject> createJSONFoodsFromFile1(File fileInputTargetNutrientTargetFood, File fileInputTargetNutrients, File fileInputAttributesToDrop,
                                           File fileInputTargetFood)
     {
         String last_id;
@@ -133,7 +132,7 @@ public class HandlerFood
         String unit;
         boolean firstInsertion = true;
 
-        JSONArray jsonFoods = new JSONArray();
+        List<JSONObject> jsonFoods = new ArrayList<>();
         String line;
         String[] attributes;
         Nutrient nutrient;
@@ -203,7 +202,7 @@ public class HandlerFood
                             food = new Food(foodName, nutrients, 0);
 
                         // I insert the nutrients array of the last food in the associated food object
-                        jsonFoods.put(food.toJSONObject());
+                        jsonFoods.add(food.toJSONObject());
                     }
                     firstInsertion = false;
                     last_id = attributes[FOOD_ID_POSITION_IN_TARGET_NUTRIENTS_TARGET_FOOD];
@@ -238,7 +237,7 @@ public class HandlerFood
         return jsonFoods;
     }
 
-    public JSONArray insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, JSONArray jsonFoods)
+    public List<JSONObject> insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, List<JSONObject> jsonFoods)
     {
         String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
@@ -302,13 +301,7 @@ public class HandlerFood
                 else
                     food = new Food(foodName, nutrients, 0);
 
-                if(j==915)
-                {
-                    System.out.println("PRINT");
-                }
-
-                JSONObject tmp = food.toJSONObject();
-                jsonFoods.put(food.toJSONObject());
+                jsonFoods.add(food.toJSONObject());
                 line = bufReader.readLine();
             }
             bufReader.close();
@@ -339,11 +332,10 @@ public class HandlerFood
 
     public void createJSON()
     {
-        //JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
-        //                                                    fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
+        List<JSONObject> jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+                                                            fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
         System.out.println("FINITO FILE 1");
-        JSONArray jsonFoods = new JSONArray();
-        JSONArray jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
+        List<JSONObject> jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
         //System.out.println(jsonFile.toString());
         fileJSONFoods.delete();
@@ -351,7 +343,11 @@ public class HandlerFood
         try {
             BufferedWriter bufWriter = new BufferedWriter(new FileWriter(fileJSONFoods));
 
-            bufWriter.write(jsonFile.toString());
+            for(int i=0; i<jsonFile.size(); i++){
+                bufWriter.write(jsonFile.get(i).toString());
+                bufWriter.newLine();
+            }
+
             bufWriter.close();
         }
         catch(IOException e) {

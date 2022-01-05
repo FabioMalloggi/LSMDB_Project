@@ -1,12 +1,13 @@
 package it.unipi.dii.dietmanager.persistence;
 
 import it.unipi.dii.dietmanager.entities.Diet;
-import it.unipi.dii.dietmanager.entities.Nutritionist;
 import it.unipi.dii.dietmanager.entities.StandardUser;
 import it.unipi.dii.dietmanager.entities.User;
 import org.neo4j.driver.*;
 import org.neo4j.driver.internal.logging.JULogging;
+
 import java.util.logging.Level;
+
 import static org.neo4j.driver.Values.parameters;
 
 public class Neo4j implements AutoCloseable
@@ -418,7 +419,7 @@ public class Neo4j implements AutoCloseable
     {
         try ( Neo4j neo4j = new Neo4j() )
         {
-            neo4j.dropAll();
+            neo4j.dropAll();/*
             StandardUser user1 = new StandardUser("user1","", "", "", 0, "");
             StandardUser user2 = new StandardUser("user2","", "", "", 0, "");
             StandardUser user3 = new StandardUser("user3","", "", "", 0, "");
@@ -549,6 +550,7 @@ public class Neo4j implements AutoCloseable
             System.out.println(neo4j.lookUpRecommendedDiet(user11));
             System.out.println(neo4j.lookUpMostFollowedDietByNutritionist(nutritionist1.getUsername()));
             System.out.println(neo4j.lookUpMostPopularNutritionist());
+            */
         }
     }
 }
