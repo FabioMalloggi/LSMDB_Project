@@ -383,14 +383,14 @@ public class LogicManager {
         boolean mongoDB = false, neo4J = false;
         Diet dietToRemove;
         dietToRemove = lookUpDietByID(id);
-        //mongoDB = MongoDB.removeDiet(ID); --> questa funzione di mongoDB
+        mongoDB = MongoDB.removeDiet(id);
         if(mongoDB){
-            //neo4J = Neo4J.removeDiet(ID);
+            neo4J = Neo4J.removeDiet(id);
             if(!neo4J){
                 System.out.println("Errore cross-consistency");
                 //to do something..
 
-                //MongoDB.addDiet(dietToRemove);
+                MongoDB.addDiet(dietToRemove);
                 return false;
             }
             else {
@@ -431,24 +431,11 @@ public class LogicManager {
     }
 
     public boolean addFood(Food food){
-        boolean task = false;
-        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
-            return false;
-        }
-        //task = MongoDB.addFood(food);
-
-        return  task;
+        return MongoDB.addFood(food);
     }
 
     public boolean removeFood(String foodID){
-        boolean task = false;
-
-        if(currentUser instanceof StandardUser || currentUser instanceof Nutritionist){ //only administrator
-            return false;
-        }
-        //task = MongoDB.removeFood(foodID);
-
-        return  task;
+        return MongoDB.removeFood(foodID);
     }
 
     private int nutrientIndex(List<Nutrient> lista, String nutrientName){

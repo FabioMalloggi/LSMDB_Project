@@ -360,7 +360,7 @@ public class HandlerFood
     {
         HandlerFood handlerFood = new HandlerFood();
 
-        //handlerFood.createInputFile();
+        handlerFood.createInputFile();
         handlerFood.createJSON();
     }
 }

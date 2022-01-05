@@ -1,6 +1,7 @@
 package it.unipi.dii.dietmanager.startingpopulator;
 
 import it.unipi.dii.dietmanager.entities.*;
+import it.unipi.dii.dietmanager.persistence.MongoDB;
 import it.unipi.dii.dietmanager.persistence.Neo4j;
 import it.unipi.dii.dietmanager.services.LogicManager;
 import org.json.JSONObject;
@@ -16,7 +17,7 @@ public class StartingPopulator {
     File fileJSONDiets = new File("./data/json/diet.json");
     File fileJSONUsers = new File("./data/json/users.json");
     File fileJSONFoods = new File("./data/json/foods.json");
-    private final int MONGODB_PORT = 2222;
+    private final int MONGODB_PORT = 27017;
     private final int FOLLOW_RANDOM = 10;
     private final int MAX_TYPE_OF_RELATIONSHIPS = 2; //current following or stopped
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
@@ -147,7 +148,7 @@ public class StartingPopulator {
                         generationEatenFoodForSU(fileJSONFoods); //generation eatenFood for the current S.U
 
                         indexDietTarget = random(jsonNodesDiets.size());
-                        jsonNodeDiet = (JSONObject) jsonNodesDiets.get(indexDietTarget);
+                        jsonNodeDiet = jsonNodesDiets.get(indexDietTarget);
                         idDietTarget = jsonNodeDiet.getString(Diet.ID);
                         typeOfRelationships = typeOfRelationships();
 
@@ -172,19 +173,20 @@ public class StartingPopulator {
     }
 
     public void populateDBs(){
-        insertObjects(fileJSONDiets, Diet.class.getName());
-        insertObjects(fileJSONFoods, Food.class.getName());
+        resetDBs();
+        //insertObjects(fileJSONDiets, Diet.class.getName());
+        //insertObjects(fileJSONFoods, Food.class.getName());
         insertObjects(fileJSONUsers, User.class.getName());
     }
 
     public void resetDBs(){
         new Neo4j().dropAll();
-
+        new MongoDB(MONGODB_PORT).dropDietManagerDatabase();
     }
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
         startingPopulator.populateDBs();
-        startingPopulator.generationFollowRelationshipsUsersDiets();
+        //startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }
