@@ -90,8 +90,12 @@ public class HandlerUser {
         JSONArray users = new JSONArray();
 
         try {
+            fileAthleteJSON.delete();
             bufWriterNut = new BufferedWriter(new FileWriter(fileNutritionist));
             bufWriterUser = new BufferedWriter(new FileWriter(fileUser));
+            bufWriterJson = new BufferedWriter(new FileWriter(fileAthleteJSON));
+
+
             String line = opCSV.bufReader.readLine();
             line = opCSV.bufReader.readLine(); //first line contains the columns names
             while (line != null) {
@@ -112,7 +116,9 @@ public class HandlerUser {
                     writeUser++;
                 }
 
-                users.put(userTmp.toJSONObject());
+                bufWriterJson.write(userTmp.toJSONObject().toString());
+                bufWriterJson.newLine();
+                users.put(userTmp.toJSONObject()); //NOT MORE USEFUL
                 line = opCSV.bufReader.readLine();
                 counter++;
                 System.out.println("Counter: "+counter);
@@ -122,24 +128,17 @@ public class HandlerUser {
             //ADMIN generation
             admin = generateAdmin();
             for (User user: admin){
-                users.put(user.toJSONObject());
+                bufWriterJson.write(user.toJSONObject().toString());
+                bufWriterJson.newLine();
+                users.put(user.toJSONObject()); //NOT MORE USEFUL
             }
 
+            bufWriterJson.close();
             bufWriterUser.close();
             bufWriterNut.close();
 
         }catch(IOException e) {
             e.printStackTrace();
-        }
-        try{
-            fileAthleteJSON.delete();
-            bufWriterJson = new BufferedWriter(new FileWriter(fileAthleteJSON));
-            bufWriterJson.write(users.toString());
-            bufWriterJson.close();
-
-        }catch(IOException e) {
-            e.printStackTrace();
-            System.exit(1);
         }
     }
     
