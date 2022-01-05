@@ -155,11 +155,12 @@ public class HandlerDiet {
     public void printDietsToFile(){
         fileDietsjson.delete();
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileDietsjson))){
-            JSONArray jsondietsArray = new JSONArray();
+
             for(Diet diet: diets){
-                jsondietsArray.put(diet.toJSONObject());
+                writer.write(diet.toJSONObject().toString());
+                writer.newLine();
             }
-            writer.write(jsondietsArray.toString());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,11 +175,14 @@ public class HandlerDiet {
 
     public static void main(String[] args) {
         HandlerDiet handlerDiet = new HandlerDiet(2000);
-        //handlerDiet.dietCreator();
-        //handlerDiet.printNutritionists();
-        //handlerDiet.printDietsToFile();
+        handlerDiet.dietCreator();
+        // handlerDiet.printNutritionists();
+        handlerDiet.printDietsToFile();
+        /*
         for(String max: handlerDiet.extractTargetNutrientfromMax())
             System.out.println(max);
+
+         */
     }
 
 }

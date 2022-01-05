@@ -61,6 +61,12 @@ public class MongoDB{
         }
     }
 
+    public void dropDietManagerDatabase(){
+        openConnection();
+        database.drop();
+        closeConnection();
+    }
+
     public static void createDietManagerIndexes(MongoDB mongoDB){
         mongoDB.createSimpleIndex(mongoDB.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
         mongoDB.createSimpleIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
