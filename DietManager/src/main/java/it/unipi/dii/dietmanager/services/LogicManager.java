@@ -324,26 +324,31 @@ public class LogicManager {
         else return false;
     }
 
-    public boolean addFoodToEatenFoods(EatenFood ef){
+    public boolean addFoodToEatenFoods(String foodName, int quantity){
         boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
-        //task = MongoDB.addFoodToEatenFoods(ef, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
+        /*task = MongoDB.addFoodToEatenFoods(ef, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
         if(task)
             ((StandardUser)currentUser).getEatenFoods().add(ef);
+            OLD versione
+            */
+        ((StandardUser)currentUser).addEatenFood(foodName, quantity);
+        //MongoDB.incrementEatenTimesCount(ef.getFoodName());
         return  task;
+    }
+
+    public boolean addEatenFoodToMongo(){ //it must be called only when a SU is logging-out
+        return MongoDB.updateEatenFood((StandardUser) currentUser); //this Mongo method will be called during the exit, so that the removeEatenFood does not need to call the mongoDB removeEatenFood
     }
 
 
     public boolean removeEatenFood(String id){
         boolean task = false; int indexTarget = -1;
-        //task = MongoDB.removeEatenFood(id, (StandardUser) currentUser);
-        if(task){
-            int i;
-            for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
-                if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
-                    indexTarget = i;
-                }
-
+        int i;
+        for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
+            if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
+                indexTarget = i;
             }
+
         }
         //if(indexTarget < 0) // ***CONVIENE FARE un controllo sul indexTarget ? nel caso ci sia un problema di incosistenza nella lsita di cibi?? penso di no
             ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
@@ -468,6 +473,8 @@ public class LogicManager {
 
         //1) i retrive the eatenFood list of the current user
 
+        if( ((StandardUser) currentUser).getEatenFoods() == null || ((StandardUser) currentUser).getEatenFoods().isEmpty())
+            return true;
         //eatenFoodsList = lookUpStandardUserEatenFoods(); //trivial i have already the eaten food list (it is modified each time the user add a food to EFL)
         /**
          * the EatenFood has only the ID of the food, with no values of each nutrients.
