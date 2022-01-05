@@ -26,6 +26,10 @@ public class StandardUser extends User {
         this.currentDiet = currentDiet;
     }
 
+    public StandardUser(String UserName){
+        super (UserName);
+    }
+
     public List<EatenFood> getEatenFoods() {return eatenFoods; }
     public Diet getCurrentDiet() { return currentDiet; }
 
