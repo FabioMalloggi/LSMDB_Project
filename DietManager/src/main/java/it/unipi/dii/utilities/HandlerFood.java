@@ -3,6 +3,7 @@ package it.unipi.dii.utilities;
 import it.unipi.dii.dietmanager.entities.Food;
 import it.unipi.dii.dietmanager.entities.Nutrient;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -52,8 +53,6 @@ public class HandlerFood
         operationsCSV = new OperationsCSV();
     }
 
-
-
     public String getAttributeValueFromFile(File fileInput, String id, int attributePosition)
     {
         try{
@@ -73,17 +72,14 @@ public class HandlerFood
                     bufReader.close();
                     return attributes[attributePosition];
                 }
-
                 line = bufReader.readLine();
             }
-
             bufReader.close();
         }
         catch(IOException e){
             e.printStackTrace();
             System.exit(1);
         }
-
         // error case
         return null;
     }
@@ -228,6 +224,7 @@ public class HandlerFood
                             quantity = quantity * CONVERTION_COEFFICIENT_FROM_IU_TO_UG;
                         }
                         nutrient = new Nutrient(row_nutrient.getName(), unit, quantity);
+                        nutrients = new ArrayList<>();
                         nutrients.add(nutrient);
                     }
                 }
@@ -262,12 +259,8 @@ public class HandlerFood
 
             while(line != null){
                 attributes = line.split(";");
-
                 System.out.println(++j);
-                if(j >= 869)
-                {
-                    System.out.println(line);
-                }
+
                 // if a line contains at least 3 times the character '"', then I drop the line
                 if(line.length() - line.replace("\"", "").length() >= 3)
                 {
@@ -299,6 +292,7 @@ public class HandlerFood
                     if(nutrientQuantity != 0.0){
                         nutrientName = TARGET_NUTRIENT_NAMES_DB2[i];
                         nutrientUnit = TARGET_NUTRIENT_UNITS_DB2[i];
+                        nutrients = new ArrayList<>();
                         nutrients.add(new Nutrient(nutrientName, nutrientUnit, nutrientQuantity));
                     }
                 }
@@ -308,6 +302,12 @@ public class HandlerFood
                 else
                     food = new Food(foodName, nutrients, 0);
 
+                if(j==915)
+                {
+                    System.out.println("PRINT");
+                }
+
+                JSONObject tmp = food.toJSONObject();
                 jsonFoods.put(food.toJSONObject());
                 line = bufReader.readLine();
             }
@@ -339,12 +339,13 @@ public class HandlerFood
 
     public void createJSON()
     {
-        JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
-                                                            fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
+        //JSONArray jsonFoods = createJSONFoodsFromFile1(fileTargetNutrientTargetFoodPer100g,
+        //                                                    fileTargetNutrients, fileAttributesRepetitions, fileTargetFood1WithSemicolonSeparators);
         System.out.println("FINITO FILE 1");
+        JSONArray jsonFoods = new JSONArray();
         JSONArray jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
-        System.out.println(jsonFile.toString());
+        //System.out.println(jsonFile.toString());
         fileJSONFoods.delete();
 
         try {

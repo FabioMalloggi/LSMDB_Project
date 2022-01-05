@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,17 @@ public class StandardUser extends User {
 
     private Diet currentDiet;
     private List<EatenFood> eatenFoods;
+
+    public StandardUser(StandardUser standardUser){
+        super(standardUser.getUsername(),
+                standardUser.getFullName(),
+                standardUser.getPassword(),
+                standardUser.getSex(),
+                standardUser.getAge(),
+                standardUser.getCountry());
+        this.eatenFoods = new ArrayList<>(standardUser.getEatenFoods());
+        this.currentDiet = new Diet(standardUser.getCurrentDiet());
+    }
 
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
         super(UserName, FullName, Password, Sex, Age, Country);
@@ -36,6 +49,37 @@ public class StandardUser extends User {
     public void setEatenFoods(List<EatenFood> eatenFoods) { this.eatenFoods = eatenFoods; }
     public void setCurrentDiet(Diet currentDiet) { this.currentDiet = currentDiet; }
     public void stopCurrentDiet(){ this.currentDiet = null; }
+
+    private String computeNewEatenFoodID(){
+        long higherID = -1, currentID;
+        if(this.eatenFoods == null || this.eatenFoods.isEmpty())
+            higherID = 1;
+        else {
+            for (EatenFood eatenFood : this.eatenFoods) {
+                if (eatenFood.getId() == null)
+                    continue;
+                else {
+                    currentID = Long.getLong(eatenFood.getId());
+                    if (higherID == -1 || currentID > higherID)
+                        higherID = currentID;
+                }
+            }
+            higherID++;
+        }
+        return EatenFood.generateEatenFoodFormatID(higherID);
+    }
+
+    public void addEatenFood( String foodName, int quantity ){
+
+        EatenFood eatenFood = new EatenFood(
+                computeNewEatenFoodID(),
+                foodName,
+                quantity,
+                new Timestamp(System.currentTimeMillis()) );
+        this.eatenFoods.add(eatenFood);
+    }
+
+
 
     @Override
     public JSONObject toJSONObject() {

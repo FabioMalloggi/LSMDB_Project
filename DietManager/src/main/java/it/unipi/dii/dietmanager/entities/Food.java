@@ -46,7 +46,8 @@ public class Food
         JSONObject jsonFood = new JSONObject();
         try {
             jsonFood.put(Food.NAME, name);                          // inserting name
-            jsonFood.put(Food.CATEGORY, category);                  // inserting category
+            if(!category.isEmpty())
+                jsonFood.put(Food.CATEGORY, category);              // inserting category
             jsonFood.put(Food.EATEN_TIMES_COUNT, eatenTimesCount);  // inserting eatenTimesCount
 
             JSONArray jsonNutrients = new JSONArray();

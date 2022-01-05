@@ -1,20 +1,34 @@
 package it.unipi.dii.dietmanager.entities;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Objects;
 
 public class EatenFood {
-    public static final String ID = "id";
+    public static final String ID = "_id";
     public static final String FOOD_NAME = "foodName";
     public static final String QUANTITY = "quantity";
     public static final String TIMESTAMP = "timestamp";
+
+    public static final int EATEN_FOOD_FOOD_NAME_STRING_LENGTH = 50; // needed to standardize length
+    public static final int EATEN_FOOD_ID_STRING_LENGTH = 20;
+    private static final String foodNameFieldFormat = "%1$" + EATEN_FOOD_FOOD_NAME_STRING_LENGTH + "s";
+    private static final String idFieldFormat = ("%1$" + EATEN_FOOD_ID_STRING_LENGTH + "s");
 
     private String id;
     private String foodName;
     private int quantity;
     private Timestamp timestamp;
+
+    // needed for inserting empty eatenFoods into mongoDB in order to reduce re-allocations of documents.
+    public EatenFood(){
+        this(   generateEatenFoodNullID(),
+                String.format(foodNameFieldFormat,""), -1, new Timestamp(0));
+    }
 
     // only for first time an eatenFood is created by standard users
     public EatenFood(String foodName, int quantity, Timestamp timestamp) {
@@ -30,10 +44,24 @@ public class EatenFood {
         this.timestamp = timestamp;
     }
 
+    public static String generateEatenFoodFormatID(long newID){
+        return String.format(idFieldFormat,newID).replace(' ','0');
+    }
+    public static String generateEatenFoodNullID(){
+        return generateEatenFoodFormatID(0);
+    }
+
     public String getId() { return id;}
     public String getFoodName() {return foodName;}
     public int getQuantity() { return quantity;}
     public Timestamp getTimestamp() {return timestamp;}
+
+    public static JSONArray toJSONArray(List<EatenFood> eatenFoods){
+        JSONArray jsonEatenFoods = new JSONArray();
+        for(EatenFood eatenFood: eatenFoods)
+            jsonEatenFoods.put(eatenFood.toJSONObject());
+        return jsonEatenFoods;
+    }
 
     public JSONObject toJSONObject(){
         JSONObject jsonEatenFood = new JSONObject();
@@ -77,5 +105,22 @@ public class EatenFood {
                 ", quantity=" + quantity +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+    // needed for indexOf() operation in MongoDB
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EatenFood eatenFood = (EatenFood) o;
+        return quantity == eatenFood.quantity &&
+                Objects.equals(id, eatenFood.id) &&
+                Objects.equals(foodName, eatenFood.foodName) &&
+                Objects.equals(timestamp, eatenFood.timestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, foodName, quantity, timestamp);
     }
 }

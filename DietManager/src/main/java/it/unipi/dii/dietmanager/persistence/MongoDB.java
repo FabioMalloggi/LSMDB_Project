@@ -10,6 +10,7 @@ import com.mongodb.client.result.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import it.unipi.dii.dietmanager.entities.*;
 
@@ -30,6 +31,8 @@ public class MongoDB{
     private final String COLLECTION_USERS = "users";
     private final String COLLECTION_DIETS = "diets";
     private final String COLLECTION_FOODS = "foods";
+
+    private final int EATEN_FOOD_SLOT_SIZE = 70;
 
     public MongoDB(int localhostPort)
     {
@@ -117,9 +120,10 @@ public class MongoDB{
 
     private User userFromJSONObject(JSONObject jsonUser){
         String userType = jsonUser.getString(User.USERTYPE);
-        if(userType.equals(User.USERTYPE_STANDARDUSER))
-            return StandardUser.fromJSONObject(jsonUser);
-
+        if(userType.equals(User.USERTYPE_STANDARDUSER)){
+            StandardUser mongoStandardUser = StandardUser.fromJSONObject(jsonUser);
+            return userFromEatenFoodUserMongoAllocation(mongoStandardUser);
+        }
         if(userType.equals(User.USERTYPE_NUTRITIONIST))
             return Nutritionist.fromJSONObject(jsonUser);
 
@@ -137,7 +141,12 @@ public class MongoDB{
     }
 
     private Document userToDocument(User user){
-        return Document.parse(user.toJSONObject().toString());
+
+        if(user instanceof StandardUser){
+            StandardUser mongoStandardUser = userToUserEatenFoodMongoAllocation((StandardUser) user);
+            return Document.parse(mongoStandardUser.toJSONObject().toString());
+        }else
+            return Document.parse(user.toJSONObject().toString());
     }
 
     // for both signIn and lookUpUserbyUsername
@@ -501,6 +510,11 @@ public class MongoDB{
         return Document.parse(eatenFood.toJSONObject().toString());
     }
 
+    private Document eatenFoodListToDocument(List<EatenFood> eatenFoods){
+        JSONArray jsonEatenFoods = new JSONArray();
+        return Document.parse(EatenFood.toJSONArray(eatenFoods).toString());
+    }
+
     public List<Food> lookUpFoodsByName(String name){
         openConnection();
         String regex = "\\.\\*"+name+"\\.\\*";
@@ -549,34 +563,48 @@ public class MongoDB{
         return deleteResult.wasAcknowledged();
     }
 
-    public StandardUser toEatenFoodMongoAllocation(StandardUser user){
-        StandardUser mongoUser = null;
+    public StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
+        StandardUser mongoUser = new StandardUser(user);
+        int eatenFoodsCount = user.getEatenFoods().size();
 
+        // padding of empty eatenFoods into the user according to the defined constant.
+        for(int i=0; i < eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
+            mongoUser.getEatenFoods().add( new EatenFood() );
+        }
         return mongoUser;
     }
-    public StandardUser fromEatenFoodMongoAllocation(StandardUser mongoUser){
-        StandardUser user = null;
-
-        return mongoUser;
+    public StandardUser userFromEatenFoodUserMongoAllocation(StandardUser mongoUser){
+        StandardUser user = new StandardUser(mongoUser);
+        // remove padding of eatenFoods from user eatenFood list
+        int index;
+        while((index = user.getEatenFoods().indexOf(new EatenFood())) > 0){
+            user.getEatenFoods().remove(index);
+        }
+        return user;
     }
-/*
-    public boolean addEatenFood(StandardUser standardUser, EatenFood eatenFood){
 
-        // add id to EatenFood object
+    public boolean updateEatenFood(StandardUser standardUser){
+
+        // add id to EatenFood object: DONE IN ENTITY STANDARD USER -> LOGIC MANAGER
+
         // update eatenTimesCount field.
+        // DA FAREEEEEEEEEEEEEEEEEEEEEEEEe
+
+        StandardUser mongoUser = userToUserEatenFoodMongoAllocation(standardUser);
+
         openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
-        Bson insertEatenFoodDocument = Updates.push(StandardUser.EATENFOODS, eatenFoodToDocument(eatenFood));
-        UpdateResult updateResult = userCollection.updateOne(userFilter, insertEatenFoodDocument);
+        Bson updateEatenFoodsDocument = Filters.eq( StandardUser.EATENFOODS, eatenFoodListToDocument(mongoUser.getEatenFoods()));
+        UpdateResult updateResult = userCollection.updateOne(userFilter, updateEatenFoodsDocument);
 
         closeConnection();
         return updateResult.wasAcknowledged();
     }
 
- */
 
+/*      NOT NEEDED: UPDATE EATEN FOOD IS ENOUGH
     public boolean removeEatenFood(StandardUser standardUser, String eatenFoodID){
         openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
@@ -588,6 +616,8 @@ public class MongoDB{
         closeConnection();
         return updateResult.wasAcknowledged();
     }
+
+ */
 
 
     /************************************************************************************/
