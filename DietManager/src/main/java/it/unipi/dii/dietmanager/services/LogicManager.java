@@ -332,7 +332,11 @@ public class LogicManager {
             ((StandardUser)currentUser).getEatenFoods().add(ef);
             OLD versione
             */
-        ((StandardUser)currentUser).addEatenFood(foodName, quantity);
+        List<Food> foodsList = lookUpFoodByName(foodName);
+        if( foodsList != null && foodsList.size() == 1 ) {
+            ((StandardUser) currentUser).addEatenFood(foodName, quantity);
+            task = true;
+        }
         //MongoDB.incrementEatenTimesCount(ef.getFoodName());
         return  task;
     }

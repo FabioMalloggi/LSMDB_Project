@@ -187,6 +187,28 @@ public class StartingPopulator {
 
     }
 
+    public void testMongo(){
+        int counterFollow = 0, indexDietTarget, typeOfRelationships;
+        String idDietTarget;
+        int counter = 0;
+        System.out.println("0");
+        try{
+            System.out.println("0.5");
+            JSONObject jsonNodeUser; JSONObject jsonNodeDiet;
+            List<JSONObject> jsonNodesUsers = getJSONList(fileJSONUsers);
+            jsonNodeUser = jsonNodesUsers.get(0);
+
+            //sign-In
+            logicManager.signIn(jsonNodeUser.getString(User.USERNAME), jsonNodeUser.getString(User.PASSWORD));
+        }catch(Exception e){
+            e.printStackTrace();
+            System.exit(0);
+        }
+
+    }
+
+
+
     public void populateDBs(){
         //resetDBs();
         //insertObjects(fileJSONUsers, User.class.getName());
@@ -203,5 +225,7 @@ public class StartingPopulator {
         StartingPopulator startingPopulator = new StartingPopulator();
         //startingPopulator.populateDBs();
         startingPopulator.generationFollowRelationshipsUsersDiets();
+
+        //startingPopulator.testMongo();
     }
 }
