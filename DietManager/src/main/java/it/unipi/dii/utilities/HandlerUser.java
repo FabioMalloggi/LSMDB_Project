@@ -3,10 +3,7 @@ package it.unipi.dii.utilities;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;*/
 
-import it.unipi.dii.dietmanager.entities.Administrator;
-import it.unipi.dii.dietmanager.entities.Nutritionist;
-import it.unipi.dii.dietmanager.entities.StandardUser;
-import it.unipi.dii.dietmanager.entities.User;
+import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.persistence.Neo4j;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +16,7 @@ import java.util.List;
 public class HandlerUser {
     private static int K = 100;
     private static final int NUMBER_OF_ADMIN = 3;
+    private static final int EATEN_FOOD_SLOT_SIZE = 70;
     private static List<User> usersList = new ArrayList<>();
 
     private static boolean isNutritionist(int counter){
@@ -35,43 +33,19 @@ public class HandlerUser {
         return  admin;
     }
 
-    /* OLD method used for populate the DBs
-    public static void generatorNutritionistJSON() throws JSONException{
-        File fileOriginalAthlete = new File("./data/derived/nutritionist.csv");
-        File fileAthleteJSON = new File("./data/derived/nutritionistJ");
-        OperationsCSV opCSV = new OperationsCSV();
-        BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser; String[] tokens;
-        int counter = 1, writeUser = 0, writeNut = 0;
-        User userTmp;
-        opCSV.initializeR(fileOriginalAthlete);
-        JSONArray users = new JSONArray();
+    /**PRESO DA MONGODB*/
+    private static StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
+        StandardUser mongoUser = new StandardUser(user);
+        int eatenFoodsCount = 0;
+        if(user.getEatenFoods() != null)
+            eatenFoodsCount = user.getEatenFoods().size(); // 100
 
-        try {
-            String line = opCSV.bufReader.readLine();
-            line = opCSV.bufReader.readLine(); //first line contains the columns names
-            while (line != null) {
-                tokens = line.split(",");
-
-                userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
-                users.put(userTmp.toJSONObject());
-                line = opCSV.bufReader.readLine();
-                counter++;
-                System.out.println("Counter: "+counter);
-            }
-        }catch(IOException e) {
-            e.printStackTrace();
+        // padding of empty eatenFoods into the user according to the defined constant.
+        for(int i=0; i < EATEN_FOOD_SLOT_SIZE - eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
+            mongoUser.getEatenFoods().add(new EatenFood());
         }
-        try{
-            fileAthleteJSON.delete();
-            bufWriterJson = new BufferedWriter(new FileWriter(fileAthleteJSON));
-            bufWriterJson.write(users.toString());
-            bufWriterJson.close();
-
-        }catch(IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }*/
+        return mongoUser;
+    }
 
     public static void generatorUser() throws JSONException{
         File fileOriginalAthlete = new File("./data/derived/athleteR2.csv");
@@ -83,8 +57,10 @@ public class HandlerUser {
         BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser;
         String[] tokens;
         List<User> admin;
+        List<EatenFood> eatenFoodList = new ArrayList<>(); // !!!
         int counter = 1, writeUser = 0, writeNut = 0;
         User userTmp;
+        User userTMP2; // !!!
 
         opCSV.initializeR(fileOriginalAthlete);
         JSONArray users = new JSONArray();
@@ -104,19 +80,21 @@ public class HandlerUser {
                 JSONObject user = new JSONObject();
                 if(isNutritionist(counter)){ //nutritionist
                     userTmp = new Nutritionist(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
+                    userTMP2 = userTmp; // !!!
                     bufWriterNut.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterNut.newLine();
                     writeNut++;
                 }
 
                 else{ //standardUser
-                    userTmp = new StandardUser(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6]);
+                    userTmp = new StandardUser(tokens[1],tokens[3], tokens[4],tokens[1],Integer.parseInt(tokens[5]),tokens[6],eatenFoodList);
+                    userTMP2 = userToUserEatenFoodMongoAllocation((StandardUser) userTmp);// !!!
                     bufWriterUser.write(tokens[0]+","+tokens[1]+","+tokens[1]+","+tokens[3]+","+tokens[4]+","+tokens[5]+","+tokens[6]); //the password is equal to the username
                     bufWriterUser.newLine();
                     writeUser++;
                 }
 
-                bufWriterJson.write(userTmp.toJSONObject().toString());
+                bufWriterJson.write(userTMP2.toJSONObject().toString()); // !!! <-- prima era userTmp.toJSONObject().toString()
                 bufWriterJson.newLine();
                 users.put(userTmp.toJSONObject()); //NOT MORE USEFUL
                 line = opCSV.bufReader.readLine();

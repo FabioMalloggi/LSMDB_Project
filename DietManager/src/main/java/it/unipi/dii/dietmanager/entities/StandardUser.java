@@ -35,6 +35,12 @@ public class StandardUser extends User {
         this.currentDiet = null;
     }
 
+    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country, List<EatenFood> eatenFoods) { // !!!
+        super(UserName, FullName, Password, Sex, Age, Country);
+        this.currentDiet = null;
+        this.eatenFoods = eatenFoods;
+    }
+
     public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet) {
         super(UserName, FullName, Password, Sex, Age, Country);
         this.eatenFoods = eatenFoods;

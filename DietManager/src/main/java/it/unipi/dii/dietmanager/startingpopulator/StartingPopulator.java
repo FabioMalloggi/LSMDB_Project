@@ -143,15 +143,20 @@ public class StartingPopulator {
     public void generationFollowRelationshipsUsersDiets(){
         int counterFollow = 0, indexDietTarget, typeOfRelationships;
         String idDietTarget;
+        int counter = 0;
+        System.out.println("here0");
         try{
+            System.out.println("here0.5");
             JSONObject jsonNodeUser; JSONObject jsonNodeDiet;
             List<JSONObject> jsonNodesUsers = getJSONList(fileJSONUsers);
             List<JSONObject> jsonNodesDiets = getJSONList(fileJSONDiets);
 
             for(JSONObject jsonNodesUser: jsonNodesUsers){
+                System.out.println("here1");
                 if(jsonNodesUser.get(User.USERTYPE).equals(User.USERTYPE_STANDARDUSER)){
-
+                    System.out.println("here2");
                     if(createFollow(counterFollow)){ //generation follow relationships
+                        System.out.println(jsonNodesUser.getString(User.USERNAME));
                         logicManager.signIn(jsonNodesUser.getString(User.USERNAME), jsonNodesUser.getString(User.PASSWORD));
 
                         generationEatenFoodForSU(fileJSONFoods); //generation eatenFood for the current S.U
@@ -171,6 +176,7 @@ public class StartingPopulator {
                         }
                         counterFollow++;
                     }
+                    System.out.println(counter++);
                 }
 
             }
@@ -182,9 +188,9 @@ public class StartingPopulator {
     }
 
     public void populateDBs(){
-        resetDBs();
-        insertObjects(fileJSONUsers, User.class.getName());
-        //insertObjects(fileJSONDiets, Diet.class.getName());
+        //resetDBs();
+        //insertObjects(fileJSONUsers, User.class.getName());
+        insertObjects(fileJSONDiets, Diet.class.getName());
         //insertObjects(fileJSONFoods, Food.class.getName());
     }
 
@@ -195,7 +201,7 @@ public class StartingPopulator {
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
-        startingPopulator.populateDBs();
-        //startingPopulator.generationFollowRelationshipsUsersDiets();
+        //startingPopulator.populateDBs();
+        startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }

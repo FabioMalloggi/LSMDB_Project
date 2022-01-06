@@ -88,7 +88,7 @@ public class Diet {
 
         //first i retrive the attributes values from the JSONObject
         try{
-            id = jsonDiet.getString(Diet.ID);                           // retrieving ID
+            //id = jsonDiet.getString(Diet.ID);                           // retrieving ID
             name = jsonDiet.getString(Diet.NAME);                       // retrieving name
             nutritionist = jsonDiet.getString(Diet.NUTRITIONIST);       // retrieving nutritionist
 
@@ -97,7 +97,8 @@ public class Diet {
                 nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
             }
             //then generate the new object StandardUser
-            newDiet = new Diet(id, name, nutrients, nutritionist);
+            //newDiet = new Diet(id, name, nutrients, nutritionist);
+            newDiet = new Diet(name, nutrients, nutritionist);
         }
         catch (JSONException e){
             e.printStackTrace();
