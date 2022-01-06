@@ -127,8 +127,8 @@ public class HandlerDiet {
         List<Nutrient> nutrientList = new ArrayList<>();
         for(int i=0; i<DIETS_NUMBER; i++) {
 
-            // creating ID
-            String id = String.format("%08d",i);
+            // creating ID: Diets IDs are created by MongoDB
+            //String id = String.format("%08d",i);
 
             // creating name
             String name = dietsNames.get(i%dietsNamesNumber); //we repeatedly use all diets names until all diets have a name
@@ -147,7 +147,7 @@ public class HandlerDiet {
                                                         // nutritionistNumber => in case there are lower than DIETS_NUMBER/2 nutritionist.
 
 
-            diets.add(new Diet(id,name, nutrientList,dietAuthor));
+            diets.add(new Diet(/*id, */name, nutrientList,dietAuthor));
             nutrientList.clear();
         }
     }

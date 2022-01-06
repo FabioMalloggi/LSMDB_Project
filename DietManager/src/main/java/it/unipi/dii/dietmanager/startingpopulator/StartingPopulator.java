@@ -23,6 +23,9 @@ public class StartingPopulator {
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MIN_NUMBER_OF_EATEN_FOODS = 2;
     private final int MAX_QUANTITY = 3000;
+
+    private final int MAX_STANDARD_USER = 50000;
+    private int countStandardUser = 0;
     LogicManager logicManager = new LogicManager();
     Neo4j neo4j = new Neo4j();
 
@@ -32,31 +35,31 @@ public class StartingPopulator {
 
             JSONObject jsonNode;
             String line = bufferedReader.readLine();
-            int counter = 0;
+            int count =0, counter = 0;
             while(line != null){
                 jsonNode = new JSONObject(line);
 
                 if(nodeType.equals(Food.class.getName())){
                     logicManager.addFood(Food.fromJSONObject(jsonNode));
-
+                    System.out.println(count++);
                 }
 
                 else if(nodeType.equals(Diet.class.getName())) {
                     Diet diet = Diet.fromJSONObject(jsonNode);
                     logicManager.addDiet(diet);
-                    //System.out.println(neo4j.addDiet(diet));
                 }
 
                 else if(jsonNode.getString(User.USERTYPE).equals(User.USERTYPE_NUTRITIONIST)) {
                     Nutritionist nutritionist = Nutritionist.fromJSONObject(jsonNode);
                     logicManager.addUser(nutritionist);
-                    //neo4j.addUser(nutritionist);
                 }
 
                 else{
-                    StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
-                    logicManager.addUser(standardUser);
-                    //neo4j.addUser(standardUser);
+                    if(countStandardUser <= MAX_STANDARD_USER) {
+                        StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
+                        logicManager.addUser(standardUser);
+                        countStandardUser++;
+                    }
                 }
                 line = bufferedReader.readLine();
                 System.out.println(counter++);
