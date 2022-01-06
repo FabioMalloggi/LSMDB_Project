@@ -24,6 +24,7 @@ public class StartingPopulator {
     private final int MIN_NUMBER_OF_EATEN_FOODS = 2;
     private final int MAX_QUANTITY = 3000;
     LogicManager logicManager = new LogicManager();
+    Neo4j neo4j = new Neo4j();
 
     public boolean insertObjects(File fileInput, String nodeType){
         try{
@@ -31,29 +32,34 @@ public class StartingPopulator {
 
             JSONObject jsonNode;
             String line = bufferedReader.readLine();
-
+            int counter = 0;
             while(line != null){
                 jsonNode = new JSONObject(line);
 
                 if(nodeType.equals(Food.class.getName())){
                     logicManager.addFood(Food.fromJSONObject(jsonNode));
+
                 }
 
                 else if(nodeType.equals(Diet.class.getName())) {
                     Diet diet = Diet.fromJSONObject(jsonNode);
                     logicManager.addDiet(diet);
+                    //System.out.println(neo4j.addDiet(diet));
                 }
 
                 else if(jsonNode.getString(User.USERTYPE).equals(User.USERTYPE_NUTRITIONIST)) {
                     Nutritionist nutritionist = Nutritionist.fromJSONObject(jsonNode);
                     logicManager.addUser(nutritionist);
+                    //neo4j.addUser(nutritionist);
                 }
 
                 else{
                     StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
                     logicManager.addUser(standardUser);
+                    //neo4j.addUser(standardUser);
                 }
                 line = bufferedReader.readLine();
+                System.out.println(counter++);
             }
             bufferedReader.close();
             return true;
@@ -174,9 +180,9 @@ public class StartingPopulator {
 
     public void populateDBs(){
         resetDBs();
+        insertObjects(fileJSONUsers, User.class.getName());
         //insertObjects(fileJSONDiets, Diet.class.getName());
         //insertObjects(fileJSONFoods, Food.class.getName());
-        insertObjects(fileJSONUsers, User.class.getName());
     }
 
     public void resetDBs(){
