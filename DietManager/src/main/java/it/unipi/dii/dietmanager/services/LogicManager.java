@@ -39,6 +39,7 @@ public class LogicManager {
 
         if(userTarget != null && userTarget.getPassword().equals(password)) {
             currentUser = userTarget;
+            System.out.println("YEP");
             return true;
         }
         else return false;
@@ -47,7 +48,7 @@ public class LogicManager {
     public Diet lookUpDietByID(String id){
         Diet dietTarget = null;
 
-        //dietTarget = MongoDB.lookUpDietByID(id);
+        dietTarget = MongoDB.lookUpDietByID(id);
 
         return dietTarget;
     }
@@ -55,7 +56,7 @@ public class LogicManager {
     public List<Diet> lookUpDietByName(String subName){
         List<Diet> dietsTarget = null;
 
-        //dietsTarget = MongoDB.lookUpDietByName(subName);
+        dietsTarget = MongoDB.lookUpDietByName(subName);
 
         return  dietsTarget;
     }
@@ -63,7 +64,7 @@ public class LogicManager {
     public List<Diet> lookUpDietByNutritionist (String username){
         List<Diet> dietsTarget = null;
 
-        //dietsTarget = MongoDB.lookUpDietByNutritionist(username);
+        dietsTarget = MongoDB.lookUpDietByNutritionist(username);
 
         return  dietsTarget;
     }
@@ -71,7 +72,7 @@ public class LogicManager {
     public List<Food> lookUpFoodByName (String subName){
         List<Food> foodsTarget = null;
 
-        //foodsTarget = MongoDB.lookUpFoodByName(subName);
+        foodsTarget = MongoDB.lookUpFoodsByName(subName);
 
         return  foodsTarget;
     }
@@ -80,7 +81,7 @@ public class LogicManager {
     public Food lookUpMostEatenFoodByCategory (String category){
         Food foodTarget = null;
 
-        //foodTarget = MongoDB.lookUpMostEatenFoodByCategory(category);
+        foodTarget = MongoDB.lookUpMostEatenFoodByCategory(category);
 
         return  foodTarget;
     }
@@ -88,7 +89,7 @@ public class LogicManager {
     public User lookUpUserByUsername(String username){
         User userTarget = null;
 
-        //userTarget = MongoDB.lookUpUserByUsername(username);
+        userTarget = MongoDB.lookUpUserByUsername(username);
 
         return userTarget;
     }

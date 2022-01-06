@@ -27,6 +27,7 @@ public class StartingPopulator {
     private final int MAX_STANDARD_USER = 50000;
     private int countStandardUser = 0;
     LogicManager logicManager = new LogicManager();
+    Neo4j neo4j = new Neo4j();
 
     public boolean insertObjects(File fileInput, String nodeType){
         try{
@@ -34,7 +35,7 @@ public class StartingPopulator {
 
             JSONObject jsonNode;
             String line = bufferedReader.readLine();
-            int count =0;
+            int count =0, counter = 0;
             while(line != null){
                 jsonNode = new JSONObject(line);
 
@@ -61,6 +62,7 @@ public class StartingPopulator {
                     }
                 }
                 line = bufferedReader.readLine();
+                System.out.println(counter++);
             }
             bufferedReader.close();
             return true;
@@ -141,15 +143,20 @@ public class StartingPopulator {
     public void generationFollowRelationshipsUsersDiets(){
         int counterFollow = 0, indexDietTarget, typeOfRelationships;
         String idDietTarget;
+        int counter = 0;
+        System.out.println("here0");
         try{
+            System.out.println("here0.5");
             JSONObject jsonNodeUser; JSONObject jsonNodeDiet;
             List<JSONObject> jsonNodesUsers = getJSONList(fileJSONUsers);
             List<JSONObject> jsonNodesDiets = getJSONList(fileJSONDiets);
 
             for(JSONObject jsonNodesUser: jsonNodesUsers){
+                System.out.println("here1");
                 if(jsonNodesUser.get(User.USERTYPE).equals(User.USERTYPE_STANDARDUSER)){
-
+                    System.out.println("here2");
                     if(createFollow(counterFollow)){ //generation follow relationships
+                        System.out.println(jsonNodesUser.getString(User.USERNAME));
                         logicManager.signIn(jsonNodesUser.getString(User.USERNAME), jsonNodesUser.getString(User.PASSWORD));
 
                         generationEatenFoodForSU(fileJSONFoods); //generation eatenFood for the current S.U
@@ -169,6 +176,7 @@ public class StartingPopulator {
                         }
                         counterFollow++;
                     }
+                    System.out.println(counter++);
                 }
 
             }
@@ -180,10 +188,10 @@ public class StartingPopulator {
     }
 
     public void populateDBs(){
-        resetDBs();
-        //insertObjects(fileJSONDiets, Diet.class.getName());
-        insertObjects(fileJSONFoods, Food.class.getName());
+        //resetDBs();
         //insertObjects(fileJSONUsers, User.class.getName());
+        insertObjects(fileJSONDiets, Diet.class.getName());
+        //insertObjects(fileJSONFoods, Food.class.getName());
     }
 
     public void resetDBs(){
@@ -193,7 +201,7 @@ public class StartingPopulator {
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
-        startingPopulator.populateDBs();
-        //startingPopulator.generationFollowRelationshipsUsersDiets();
+        //startingPopulator.populateDBs();
+        startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }
