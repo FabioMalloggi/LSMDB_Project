@@ -23,6 +23,9 @@ public class StartingPopulator {
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MIN_NUMBER_OF_EATEN_FOODS = 2;
     private final int MAX_QUANTITY = 3000;
+
+    private final int MAX_STANDARD_USER = 50000;
+    private int countStandardUser = 0;
     LogicManager logicManager = new LogicManager();
 
     public boolean insertObjects(File fileInput, String nodeType){
@@ -31,12 +34,13 @@ public class StartingPopulator {
 
             JSONObject jsonNode;
             String line = bufferedReader.readLine();
-
+            int count =0;
             while(line != null){
                 jsonNode = new JSONObject(line);
 
                 if(nodeType.equals(Food.class.getName())){
                     logicManager.addFood(Food.fromJSONObject(jsonNode));
+                    System.out.println(count++);
                 }
 
                 else if(nodeType.equals(Diet.class.getName())) {
@@ -50,8 +54,11 @@ public class StartingPopulator {
                 }
 
                 else{
-                    StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
-                    logicManager.addUser(standardUser);
+                    if(countStandardUser <= MAX_STANDARD_USER) {
+                        StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
+                        logicManager.addUser(standardUser);
+                        countStandardUser++;
+                    }
                 }
                 line = bufferedReader.readLine();
             }
@@ -175,8 +182,8 @@ public class StartingPopulator {
     public void populateDBs(){
         resetDBs();
         //insertObjects(fileJSONDiets, Diet.class.getName());
-        //insertObjects(fileJSONFoods, Food.class.getName());
-        insertObjects(fileJSONUsers, User.class.getName());
+        insertObjects(fileJSONFoods, Food.class.getName());
+        //insertObjects(fileJSONUsers, User.class.getName());
     }
 
     public void resetDBs(){
