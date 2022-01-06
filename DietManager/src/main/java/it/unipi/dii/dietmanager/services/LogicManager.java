@@ -39,7 +39,6 @@ public class LogicManager {
 
         if(userTarget != null && userTarget.getPassword().equals(password)) {
             currentUser = userTarget;
-            System.out.println("YEP");
             return true;
         }
         else return false;
@@ -379,6 +378,30 @@ public class LogicManager {
             return false;
         }
     }
+
+    public boolean addDietTOBEREMOVED(Diet diet, boolean duringStartingCreation){
+        boolean mongoDB = false;
+        boolean neo4J = false;
+
+        mongoDB = MongoDB.addDiet(diet); //it will return the ID of the new Diet added
+        if(mongoDB){
+            neo4J = Neo4J.addDiet(diet);
+            if(!neo4J){
+                System.out.println("Errore cross-consistency");
+                MongoDB.removeDiet(diet.getId());
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+        else{
+            System.out.println("Error in MongoDB");
+            //to do something..
+            return false;
+        }
+    }
+
 
     public boolean removeDiet(String id){ //OLD VERSION: Diet diet <-- con questa devo vedere se l'oggetto nutrizionista ha nella lista di diete, un istanza dieta con quell ID e poi ricavere quall'istanza e passarla qui
         boolean mongoDB = false, neo4J = false;

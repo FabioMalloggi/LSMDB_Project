@@ -6,15 +6,19 @@ import com.mongodb.WriteConcern;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
-import com.mongodb.client.result.*;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
+import it.unipi.dii.dietmanager.entities.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import it.unipi.dii.dietmanager.entities.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
@@ -142,7 +146,7 @@ public class MongoDB{
     private User userFromDocument(Document userDocument){
         if(userDocument == null)
             return null;
-        JSONObject jsonUser = new JSONObject(userDocument.toString());
+        JSONObject jsonUser = new JSONObject(userDocument);
         return userFromJSONObject(jsonUser);
     }
 
@@ -159,7 +163,7 @@ public class MongoDB{
     public User lookUpUserByUsername(String username){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        Document userDocument = usersCollection.find(eq(User.USERNAME, new ObjectId(username))).first(); // there can be at least only 1 match.
+        Document userDocument = usersCollection.find(eq(User.USERNAME, username)).first();
         closeConnection();
         return userFromDocument(userDocument);
     }
@@ -229,7 +233,7 @@ public class MongoDB{
     private Diet dietFromDocument(Document dietDocument) {
         if(dietDocument == null)
             return null;
-        JSONObject jsonDiet = new JSONObject(dietDocument.toString());
+        JSONObject jsonDiet = new JSONObject(dietDocument);
         return Diet.fromJSONObject(jsonDiet);
     }
 
@@ -497,7 +501,7 @@ public class MongoDB{
     private Food foodFromDocument(Document foodDocument) {
         if(foodDocument == null)
             return null;
-        JSONObject jsonFood = new JSONObject(foodDocument.toString());
+        JSONObject jsonFood = new JSONObject(foodDocument);
         return Food.fromJSONObject(jsonFood);
     }
 
