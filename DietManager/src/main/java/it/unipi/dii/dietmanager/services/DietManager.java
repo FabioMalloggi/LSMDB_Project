@@ -55,8 +55,6 @@ public class DietManager {
                 newList.add(tmp);
             }
         }
-
-        //OLD VERSION dietCreated = new Diet(name, newList, creator);
         dietCreated = new Diet(name, newList, creator.getUsername());
 
         return dietCreated;
@@ -70,19 +68,12 @@ public class DietManager {
         boolean notFinish = true; //used in the most outer while
         boolean step1 = false; //used in the Registration and Sign in Step
         boolean chekUserNotExist =false; //used to check if the username digitized is already existed, if it is, the user must insert a new user
-        boolean step2 = false; //used in the rest of applicaiton
         boolean isLogged = false; //it has the same task of step1 var
-        String username;
         String tmp = "";
         String[] signIn;
-        List<Diet> dietsTarget;
-        List<Food> foodsTarget;
-        List<User> usersTarget;
-        List<EatenFood> eatenFoodsList;
+        List<Diet> dietsTarget; List<Food> foodsTarget; List<User> usersTarget; List<EatenFood> eatenFoodsList;
         User userTarget = null;
-        Food foodTarget;
-        Nutritionist nutritionistTarget;
-        Diet dietTarget;
+        Food foodTarget; Nutritionist nutritionistTarget; Diet dietTarget;
         boolean checkOperation;
         HashMap<Nutritionist, Nutrient> nutrientPerNutritionist;
         Scanner scanner = new Scanner(System.in);
@@ -107,17 +98,10 @@ public class DietManager {
             if( tmp.equals("S")) {
 
                 signIn = cli.startSignInSubmission();
-                //check if signIn[0] and signIn[1] is present or not in DB --> call the signIn(username, password) method of LogicalManagement
-                //check if signIn[1] is the right password for the acocunt (this check is alredy done b the previouse check
-
-                //if is all right, step = true; else remains false
                 isLogged = logicManager.signIn(signIn[0], signIn[1]);
-
-
 
                 //to test
                 System.out.println("username: "+signIn[0]+", password: "+signIn[1]);
-                //step1 = true; //old
             }
 
 

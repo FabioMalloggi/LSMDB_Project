@@ -153,7 +153,7 @@ public class StartingPopulator {
             for(JSONObject jsonNodesUser: jsonNodesUsers){
                 System.out.println("here1");
                 if(jsonNodesUser.get(User.USERTYPE).equals(User.USERTYPE_STANDARDUSER)){
-                    System.out.println("here2");
+                    System.out.println(counterFollow);
 
                     if(counterFollow > 5000)
                         return;
@@ -234,6 +234,6 @@ public class StartingPopulator {
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
         //startingPopulator.populateDBs();
-        //startingPopulator.generationFollowRelationshipsUsersDiets();
+        startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }
