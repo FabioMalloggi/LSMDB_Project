@@ -121,21 +121,12 @@ public class LogicManager {
         return dietTarget;
     }
 
-
-    public List<EatenFood> lookUpStandardUserEatenFoods() {
-        //List<EatenFood> eatenFoods = null;
-        //eatenFoods = MongoDB.lookUpStandardUserEatenFoods(currentUser); //* trivial : viene letto direttamente da list<EF> di current user
-
-        return ((StandardUser)currentUser).getEatenFoods();
-    }
-
     public HashMap<Nutritionist, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
         HashMap<Nutritionist, Nutrient> npn = null;
 
         //npn = MongoDB.lookUpMostSuggestedNutrientForEachNutritionist();
 
         return npn;
-
     }
 
     /** Read-Operations for Neo4J */
@@ -346,7 +337,7 @@ public class LogicManager {
 
 
     public boolean removeEatenFood(String id){
-        boolean task = false; int indexTarget = -1;
+        int indexTarget = -1;
         int i;
         for(i = 0; i < ((StandardUser)currentUser).getEatenFoods().size(); i++){
             if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
@@ -354,9 +345,8 @@ public class LogicManager {
             }
 
         }
-        //if(indexTarget < 0) // ***CONVIENE FARE un controllo sul indexTarget ? nel caso ci sia un problema di incosistenza nella lsita di cibi?? penso di no
-            ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
-        return  task;
+        ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
+        return indexTarget!=-1;
     }
 
     public boolean addDiet(Diet diet){
