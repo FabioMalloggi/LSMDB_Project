@@ -6,20 +6,27 @@ import com.mongodb.WriteConcern;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
-import com.mongodb.client.result.*;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
+import it.unipi.dii.dietmanager.entities.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import it.unipi.dii.dietmanager.entities.*;
 
-import java.util.*;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.inc;
 
 public class MongoDB{
 
@@ -142,7 +149,7 @@ public class MongoDB{
     private User userFromDocument(Document userDocument){
         if(userDocument == null)
             return null;
-        JSONObject jsonUser = new JSONObject(userDocument.toString());
+        JSONObject jsonUser = new JSONObject(userDocument);
         return userFromJSONObject(jsonUser);
     }
 
@@ -159,7 +166,7 @@ public class MongoDB{
     public User lookUpUserByUsername(String username){
         openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-        Document userDocument = usersCollection.find(eq(User.USERNAME, new ObjectId(username))).first(); // there can be at least only 1 match.
+        Document userDocument = usersCollection.find(eq(User.USERNAME, username)).first();
         closeConnection();
         return userFromDocument(userDocument);
     }
@@ -229,7 +236,9 @@ public class MongoDB{
     private Diet dietFromDocument(Document dietDocument) {
         if(dietDocument == null)
             return null;
-        JSONObject jsonDiet = new JSONObject(dietDocument.toString());
+        JSONObject jsonDiet = new JSONObject(dietDocument);
+        String _id = dietDocument.get(Diet.ID).toString();
+        jsonDiet.put(Diet.ID, _id);
         return Diet.fromJSONObject(jsonDiet);
     }
 
@@ -252,11 +261,14 @@ public class MongoDB{
     // return all diets whose name include substring searched.
     public List<Diet> lookUpDietByName(String subname){
         openConnection();
-        String regex = "\\.\\*"+subname+"\\.\\*";
+        //String regex = "\\.\\*"+subname+"\\.\\*";
+        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
+        Bson filter = Filters.regex(Diet.NAME, pattern);
+
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         try(MongoCursor<Document> cursor = dietCollection.find(
-                eq(Diet.NAME, regex)).iterator()){
+                filter).iterator()){
             while(cursor.hasNext()){
                 diets.add(dietFromDocument(cursor.next()));
             }
@@ -495,9 +507,16 @@ public class MongoDB{
 
 
     private Food foodFromDocument(Document foodDocument) {
+/*        if(foodDocument == null)
+            return null;
+        JSONObject jsonFood = new JSONObject(foodDocument);
+        return Food.fromJSONObject(jsonFood);
+ */
         if(foodDocument == null)
             return null;
-        JSONObject jsonFood = new JSONObject(foodDocument.toString());
+        JSONObject jsonFood = new JSONObject(foodDocument);
+        String name = foodDocument.get(Food.NAME).toString();
+        jsonFood.put(Food.NAME, name);
         return Food.fromJSONObject(jsonFood);
     }
 
@@ -505,29 +524,27 @@ public class MongoDB{
         return Document.parse(food.toJSONObject().toString());
     }
 
+    /*
     private EatenFood eatenFoodFromDocument(Document eatenFoodDocument) {
         if(eatenFoodDocument == null)
             return null;
         JSONObject jsonEatenFood = new JSONObject(eatenFoodDocument.toString());
         return EatenFood.fromJSONObject(jsonEatenFood);
     }
+     */
 
-    private Document eatenFoodToDocument(EatenFood eatenFood){
-        return Document.parse(eatenFood.toJSONObject().toString());
-    }
-
-    private Document eatenFoodListToDocument(List<EatenFood> eatenFoods){
-        return Document.parse(EatenFood.toJSONArray(eatenFoods).toString());
-    }
-
-    public List<Food> lookUpFoodsByName(String name){
+    public List<Food> lookUpFoodsByName(String subname){
         openConnection();
-        String regex = "\\.\\*"+name+"\\.\\*";
+        String regex = "^.*"+subname+".*$";
+//        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
+//        Bson filter = Filters.regex(Food.NAME, pattern);
 
+        //Pattern pattern = Pattern.compile(".*" + subname + ".*");
+        //Bson filter = Filters.regex(Food.NAME, pattern);
         List<Food> foods = new ArrayList<>();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         try(MongoCursor<Document> cursor = foodCollection.find(
-                eq(Food.NAME, regex)).iterator()){
+                eq(Food.NAME, subname)).iterator()){
             while(cursor.hasNext()){
                 foods.add(foodFromDocument(cursor.next()));
             }
@@ -585,31 +602,35 @@ public class MongoDB{
         StandardUser user = new StandardUser(mongoUser);
         // remove padding of eatenFoods from user eatenFood list
         int index;
-        while((index = user.getEatenFoods().indexOf(new EatenFood())) > 0){
+        System.out.println(user.toString());
+        System.out.println(user.getEatenFoods().size());
+        while((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0){
+            user.getEatenFoods().remove(index);
+        }
+
+        // DA ELIMINARE
+        while((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
+                String.format(Food.foodNameFieldFormat,""), -1, new Timestamp(0)))) >= 0){
             user.getEatenFoods().remove(index);
         }
         return user;
     }
 
     public boolean incrementEatenTimesCount(String foodName){
-        // update eatenTimesCount field.
-        // DA FARE
-        return true;
+        openConnection();
+        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+        Bson foodFilter = Filters.eq( Food.NAME, foodName );
+        UpdateResult updateResult = foodCollection.updateOne(foodFilter, inc(Food.EATEN_TIMES_COUNT, 1));
+        closeConnection();
+        return updateResult.wasAcknowledged();
     }
 
     public boolean updateEatenFood(StandardUser standardUser){
-
-        // add id to EatenFood object: DONE IN ENTITY STANDARD USER -> LOGIC MANAGER
-
-        StandardUser mongoUser = userToUserEatenFoodMongoAllocation(standardUser);
-
         openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
-        Bson updateEatenFoodsDocument = Filters.eq( StandardUser.EATENFOODS, eatenFoodListToDocument(mongoUser.getEatenFoods()));
-        UpdateResult updateResult = userCollection.updateOne(userFilter, updateEatenFoodsDocument);
-
+        UpdateResult updateResult = userCollection.replaceOne(userFilter, userToDocument(standardUser));
         closeConnection();
         return updateResult.wasAcknowledged();
     }

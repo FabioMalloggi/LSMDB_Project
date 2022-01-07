@@ -1,10 +1,12 @@
 package it.unipi.dii.dietmanager.services;
 
-import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.client.CLI;
+import it.unipi.dii.dietmanager.entities.*;
 
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class DietManager {
     private static final String[] nutrients_names =
@@ -200,7 +202,7 @@ public class DietManager {
 
                 // general help
                 if(input.equals("help")){
-                    cli.helpMenu("tommasoNocchi");
+                    cli.helpMenu(logicManager.currentUser.getUsername());
                 }
 
                 //possible commands for help food / help diet / help nutritionist
@@ -419,8 +421,13 @@ public class DietManager {
                             System.err.println("Any diet with that ID");
                         }
                     }
-                    else if(tokens[2].equals("-name") && tokens.length == 4){
+                    else if(tokens[2].equals("-name") && tokens.length >= 4){
                         cli.generalPrint("-> search diets by names"); //System.out.println("-> search diets by names");
+
+                        String dietName="";
+                        for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                            dietName += " "+tokens[i];
+                        }
 
                         dietsTarget = logicManager.lookUpDietByName(tokens[3]);
                         if(dietsTarget != null){

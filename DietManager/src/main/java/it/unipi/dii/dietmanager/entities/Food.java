@@ -14,6 +14,9 @@ public class Food
     public static final String NUTRIENTS = "nutrients";
     public static final String EATEN_TIMES_COUNT = "eatenTimesCount";
 
+    public static final int FOOD_NAME_MAX_STRING_LENGTH = 100; // needed to standardize length
+    public static final String foodNameFieldFormat = "%1$" + FOOD_NAME_MAX_STRING_LENGTH + "s";
+
     private String name;
     private String category;
     private List<Nutrient> nutrients;
