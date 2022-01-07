@@ -41,7 +41,7 @@ public class MongoDB{
     private final String COLLECTION_DIETS = "diets";
     private final String COLLECTION_FOODS = "foods";
 
-    private final int EATEN_FOOD_SLOT_SIZE = 70;
+    private final int EATEN_FOOD_SLOTS_SIZE = 70;
 
     public MongoDB(String ipAddress, int port){
         String uri = "mongodb://" + ipAddress + ":" + port;
@@ -600,7 +600,7 @@ public class MongoDB{
             eatenFoodsCount = user.getEatenFoods().size(); // 100
 
         // padding of empty eatenFoods into the user according to the defined constant.
-        for(int i=0; i < EATEN_FOOD_SLOT_SIZE - eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
+        for(int i=0; i < EATEN_FOOD_SLOTS_SIZE - eatenFoodsCount % EATEN_FOOD_SLOTS_SIZE; i++){
             mongoUser.getEatenFoods().add(new EatenFood());
         }
         return mongoUser;
@@ -609,17 +609,20 @@ public class MongoDB{
     private StandardUser userFromEatenFoodUserMongoAllocation(StandardUser mongoUser){
         StandardUser user = new StandardUser(mongoUser);
         // remove padding of eatenFoods from user eatenFood list
-        int index;
-        System.out.println(user.toString());
-        System.out.println(user.getEatenFoods().size());
-        while((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0){
-            user.getEatenFoods().remove(index);
-        }
-
-        // DA ELIMINARE
-        while((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
-                String.format(Food.foodNameFieldFormat,""), -1, new Timestamp(0)))) >= 0){
-            user.getEatenFoods().remove(index);
+        if(user.getCurrentDiet() != null) {
+            if(user.getEatenFoods() != null) {
+                int index;
+                while ((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0) {
+                    user.getEatenFoods().remove(index);
+                }
+                // DA ELIMINARE
+                while ((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
+                        String.format(Food.foodNameFieldFormat, ""), -1, new Timestamp(0)))) >= 0) {
+                    user.getEatenFoods().remove(index);
+                }
+            }
+        } else { // user is not currently following any diet
+            user.getEatenFoods().clear();
         }
         return user;
     }
