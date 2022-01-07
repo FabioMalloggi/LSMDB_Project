@@ -1,8 +1,7 @@
 package it.unipi.dii.dietmanager.persistence;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.ReadConcern;
-import com.mongodb.WriteConcern;
+import ch.qos.logback.classic.Logger;
+import com.mongodb.*;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -14,6 +13,9 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -30,37 +32,43 @@ import static com.mongodb.client.model.Updates.inc;
 
 public class MongoDB{
 
+    private ConnectionString connectionUri;
     private MongoClient mongoClient;
     private MongoDatabase database;
 
-    private final int localhostPort;
-
+    private final String DIET_MANAGER_DATABASE = "dietManagerDB";
     private final String COLLECTION_USERS = "users";
     private final String COLLECTION_DIETS = "diets";
     private final String COLLECTION_FOODS = "foods";
 
     private final int EATEN_FOOD_SLOT_SIZE = 70;
 
-    public MongoDB(int localhostPort)
-    {
-        this.localhostPort = localhostPort;
-
+    public MongoDB(String ipAddress, int port){
+        String uri = "mongodb://" + ipAddress + ":" + port;
+        connectionUri = new ConnectionString(uri);
+        MongoClientSettings mcs = MongoClientSettings.builder()
+                .applyConnectionString(connectionUri)
+                .readPreference(ReadPreference.nearest())
+                .retryWrites(true)
+                .writeConcern(WriteConcern.ACKNOWLEDGED)  // Write Concern to wait for acknowledgement according to Server configuration.
+                .build();
+        mongoClient = MongoClients.create(mcs);
+        disableLogger();
     }
 
-    public boolean openConnection()
-    {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
-        mongoClient = MongoClients.create(connectionString);
-        database = mongoClient.getDatabase("dietManagerDB");
-        database.withWriteConcern(WriteConcern.ACKNOWLEDGED);   // Write Concern to wait for acknowledgement according to Server configuration.
-        // Needed for wasAcknowledged() methods.
-        // other options are possible.
-        database.withReadConcern(ReadConcern.DEFAULT);          // Use the servers default read concern.
-        return true;
+    private void disableLogger(){
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+        rootLogger.setLevel(Level.OFF);
     }
 
-    public void closeConnection()
+    public void openConnection()
     {
+        mongoClient = MongoClients.create(connectionUri);
+        database = mongoClient.getDatabase(DIET_MANAGER_DATABASE);
+    }
+
+    public void closeConnection() {
         try{
             mongoClient.close();
         }catch(Exception e){
@@ -68,7 +76,7 @@ public class MongoDB{
         }
     }
 
-    public void dropDietManagerDatabase(){
+    public void dropDatabase(){
         openConnection();
         database.drop();
         closeConnection();
@@ -656,7 +664,7 @@ public class MongoDB{
 
 
     public static void main( String... args ) throws Exception {
-        MongoDB mongoDB = new MongoDB( 7687);
+        MongoDB mongoDB = new MongoDB( "localhost",27017);
     }
 }
 

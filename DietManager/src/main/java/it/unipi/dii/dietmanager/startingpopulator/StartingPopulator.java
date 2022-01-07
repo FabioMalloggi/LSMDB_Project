@@ -198,7 +198,7 @@ public class StartingPopulator {
 
     public void resetDBs(){
         new Neo4j().dropAll();
-        new MongoDB(MONGODB_PORT).dropDietManagerDatabase();
+        new MongoDB("localhost",MONGODB_PORT).dropDatabase();
     }
 
     public static void main(String... args){
