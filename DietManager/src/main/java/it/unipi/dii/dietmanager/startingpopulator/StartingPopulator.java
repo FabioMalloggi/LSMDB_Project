@@ -191,15 +191,23 @@ public class StartingPopulator {
         int counterFollow = 0, indexDietTarget, typeOfRelationships;
         String idDietTarget;
         int counter = 0;
+        List<Diet> diets;
         System.out.println("0");
         try{
             System.out.println("0.5");
-            JSONObject jsonNodeUser; JSONObject jsonNodeDiet;
+            JSONObject jsonNodeUser; JSONObject jsonNodeDiet, test;
             List<JSONObject> jsonNodesUsers = getJSONList(fileJSONUsers);
+            List<JSONObject> jsoneNodesDiets = getJSONList(fileJSONDiets);
             jsonNodeUser = jsonNodesUsers.get(0);
-
+            jsonNodeDiet = jsoneNodesDiets.get(0);
+            test = new JSONObject();
             //sign-In
-            logicManager.signIn(jsonNodeUser.getString(User.USERNAME), jsonNodeUser.getString(User.PASSWORD));
+            User user = StandardUser.fromJSONObject(jsonNodeUser);
+            Diet diet = Diet.fromJSONObject(jsonNodeDiet); //non ho id
+            //logicManager.signIn(jsonNodeUser.getString(User.USERNAME), jsonNodeUser.getString(User.PASSWORD));
+            logicManager.currentUser = user;
+            diets = logicManager.lookUpDietByName(diet.getName());
+            logicManager.followDiet(diets.get(0).getName());
         }catch(Exception e){
             e.printStackTrace();
             System.exit(0);
@@ -213,7 +221,7 @@ public class StartingPopulator {
         //resetDBs();
         //insertObjects(fileJSONUsers, User.class.getName());
         insertObjects(fileJSONDiets, Diet.class.getName());
-        //insertObjects(fileJSONFoods, Food.class.getName());
+        insertObjects(fileJSONFoods, Food.class.getName());
     }
 
     public void resetDBs(){
@@ -223,7 +231,7 @@ public class StartingPopulator {
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
-        //startingPopulator.populateDBs();
+        startingPopulator.populateDBs();
         startingPopulator.generationFollowRelationshipsUsersDiets();
 
         //startingPopulator.testMongo();
