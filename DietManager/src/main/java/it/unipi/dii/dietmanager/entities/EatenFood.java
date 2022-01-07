@@ -9,13 +9,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class EatenFood {
-    public static final String ID = "_id";
+    public static final String ID = "id";
     public static final String FOOD_NAME = "foodName";
     public static final String QUANTITY = "quantity";
     public static final String TIMESTAMP = "timestamp";
 
-    public static final int EATEN_FOOD_FOOD_NAME_STRING_LENGTH = 100; // needed to standardize length
-    private static final String foodNameFieldFormat = "%1$" + EATEN_FOOD_FOOD_NAME_STRING_LENGTH + "s";
 
     private String id;
     private String foodName;
@@ -24,8 +22,8 @@ public class EatenFood {
 
     // needed for inserting empty eatenFoods into mongoDB in order to reduce re-allocations of documents.
     public EatenFood(){
-        this(   generateEatenFoodFormatID(0),
-                String.format(foodNameFieldFormat,""), -1, new Timestamp(0));
+        this(   generateEatenFoodFormatID(-1),
+                String.format(Food.foodNameFieldFormat,""), -1, new Timestamp(0));
     }
 
     // only for first time an eatenFood is created by standard users
@@ -51,12 +49,15 @@ public class EatenFood {
     public int getQuantity() { return quantity;}
     public Timestamp getTimestamp() {return timestamp;}
 
+    /*
     public static JSONArray toJSONArray(List<EatenFood> eatenFoods){
         JSONArray jsonEatenFoods = new JSONArray();
         for(EatenFood eatenFood: eatenFoods)
             jsonEatenFoods.put(eatenFood.toJSONObject());
         return jsonEatenFoods;
     }
+
+     */
 
     public JSONObject toJSONObject(){
         JSONObject jsonEatenFood = new JSONObject();

@@ -201,7 +201,7 @@ public class StartingPopulator {
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
-        //startingPopulator.populateDBs();
-        startingPopulator.generationFollowRelationshipsUsersDiets();
+        startingPopulator.populateDBs();
+        //startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }

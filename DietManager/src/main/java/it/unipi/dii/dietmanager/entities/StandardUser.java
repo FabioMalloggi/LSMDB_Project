@@ -67,7 +67,7 @@ public class StandardUser extends User {
                 if (eatenFood.getId() == null)
                     continue;
                 else {
-                    currentID = Long.getLong(eatenFood.getId());
+                    currentID = Long.parseLong(eatenFood.getId());
                     if (higherID == -1 || currentID > higherID)
                         higherID = currentID;
                 }

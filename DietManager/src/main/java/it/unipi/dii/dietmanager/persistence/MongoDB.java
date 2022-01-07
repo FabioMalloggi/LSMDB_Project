@@ -24,6 +24,7 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.inc;
 
 public class MongoDB{
 
@@ -509,20 +510,14 @@ public class MongoDB{
         return Document.parse(food.toJSONObject().toString());
     }
 
+    /*
     private EatenFood eatenFoodFromDocument(Document eatenFoodDocument) {
         if(eatenFoodDocument == null)
             return null;
         JSONObject jsonEatenFood = new JSONObject(eatenFoodDocument.toString());
         return EatenFood.fromJSONObject(jsonEatenFood);
     }
-
-    private Document eatenFoodToDocument(EatenFood eatenFood){
-        return Document.parse(eatenFood.toJSONObject().toString());
-    }
-
-    private Document eatenFoodListToDocument(List<EatenFood> eatenFoods){
-        return Document.parse(EatenFood.toJSONArray(eatenFoods).toString());
-    }
+     */
 
     public List<Food> lookUpFoodsByName(String name){
         openConnection();
@@ -596,24 +591,20 @@ public class MongoDB{
     }
 
     public boolean incrementEatenTimesCount(String foodName){
-        // update eatenTimesCount field.
-        // DA FARE
-        return true;
+        openConnection();
+        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+        Bson foodFilter = Filters.eq( Food.NAME, foodName );
+        UpdateResult updateResult = foodCollection.updateOne(foodFilter, inc(Food.EATEN_TIMES_COUNT, 1));
+        closeConnection();
+        return updateResult.wasAcknowledged();
     }
 
     public boolean updateEatenFood(StandardUser standardUser){
-
-        // add id to EatenFood object: DONE IN ENTITY STANDARD USER -> LOGIC MANAGER
-
-        StandardUser mongoUser = userToUserEatenFoodMongoAllocation(standardUser);
-
         openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
-        Bson updateEatenFoodsDocument = Filters.eq( StandardUser.EATENFOODS, eatenFoodListToDocument(mongoUser.getEatenFoods()));
-        UpdateResult updateResult = userCollection.updateOne(userFilter, updateEatenFoodsDocument);
-
+        UpdateResult updateResult = userCollection.replaceOne(userFilter, userToDocument(standardUser));
         closeConnection();
         return updateResult.wasAcknowledged();
     }
