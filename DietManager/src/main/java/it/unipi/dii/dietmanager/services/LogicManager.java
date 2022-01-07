@@ -331,8 +331,12 @@ public class LogicManager {
             ((StandardUser)currentUser).getEatenFoods().add(ef);
             OLD versione
             */
-        ((StandardUser)currentUser).addEatenFood(foodName, quantity);
-        //MongoDB.incrementEatenTimesCount(ef.getFoodName());
+        List<Food> foodList = lookUpFoodByName(foodName);
+        if(foodList != null && foodList.size() == 1){
+            ((StandardUser)currentUser).addEatenFood(foodName, quantity);
+            task = true;
+        }
+        MongoDB.incrementEatenTimesCount(foodName);
         return  task;
     }
 
@@ -379,7 +383,7 @@ public class LogicManager {
         }
     }
 
-    public boolean addDietTOBEREMOVED(Diet diet, boolean duringStartingCreation){
+    public boolean addDietTOBEREMOVED(Diet diet){
         boolean mongoDB = false;
         boolean neo4J = false;
 
@@ -462,10 +466,10 @@ public class LogicManager {
         return MongoDB.removeFood(foodID);
     }
 
-    private int nutrientIndex(List<Nutrient> lista, String nutrientName){
+    private int nutrientIndex(List<Nutrient> list, String nutrientName){
         int i = 0;
-        for(i = 0; i < lista.size(); i++){
-            if(lista.get(i).getName().equals(nutrientName))
+        for(i = 0; i < list.size(); i++){
+            if(list.get(i).getName().equals(nutrientName))
                 return i;
         }
         return -1;
@@ -493,11 +497,16 @@ public class LogicManager {
          * Then we have to comapre the totals[] with the values of the CurrentDiet.
          */
         for (EatenFood ef : ((StandardUser) currentUser).getEatenFoods() ){
+            if(lookUpFoodByName(ef.getFoodName()).size() == 0)
+            {
+                foodTarget = null;
+            }
             foodTarget = lookUpFoodByName(ef.getFoodName()).get(0);
             //i = 0;
             for(int j = 0; j < nutrients_names.length; j++){
                 index = nutrientIndex(foodTarget.getNutrients(), nutrients_names[j]);
-                total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;
+                if(index != -1)
+                    total[j] += (foodTarget.getNutrients().get(index).getQuantity()) * ef.getQuantity() / 100;
             }
             totalQuantityEatenFoods += ef.getQuantity();
         }

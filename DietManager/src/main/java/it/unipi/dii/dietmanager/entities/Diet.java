@@ -1,4 +1,5 @@
 package it.unipi.dii.dietmanager.entities;
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,13 +83,14 @@ public class Diet {
     }
 
     public static Diet fromJSONObject(JSONObject jsonDiet){
-        String id, name, nutritionist;
+        String id ="", name, nutritionist;
         List<Nutrient> nutrients = new ArrayList<>();
         Diet newDiet = null;
 
         //first i retrive the attributes values from the JSONObject
         try{
-            //id = jsonDiet.getString(Diet.ID);                           // retrieving ID
+            if(jsonDiet.has(Diet.ID))
+                id = Document.parse(jsonDiet.toString()).get(Diet.ID).toString(); // retrieving ID
             name = jsonDiet.getString(Diet.NAME);                       // retrieving name
             nutritionist = jsonDiet.getString(Diet.NUTRITIONIST);       // retrieving nutritionist
 
@@ -97,8 +99,10 @@ public class Diet {
                 nutrients.add(Nutrient.fromJSONObject(jsonNutrients.getJSONObject(i))); // retrieving nutrients
             }
             //then generate the new object StandardUser
-            //newDiet = new Diet(id, name, nutrients, nutritionist);
-            newDiet = new Diet(name, nutrients, nutritionist);
+            if(jsonDiet.has(Diet.ID))
+                newDiet = new Diet(id, name, nutrients, nutritionist);
+            else
+                newDiet = new Diet(name, nutrients, nutritionist);
         }
         catch (JSONException e){
             e.printStackTrace();

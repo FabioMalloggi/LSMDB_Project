@@ -46,7 +46,7 @@ public class StartingPopulator {
 
                 else if(nodeType.equals(Diet.class.getName())) {
                     Diet diet = Diet.fromJSONObject(jsonNode);
-                    logicManager.addDietTOBEREMOVED(diet, true);
+                    logicManager.addDietTOBEREMOVED(diet);
                 }
 
                 else if(jsonNode.getString(User.USERTYPE).equals(User.USERTYPE_NUTRITIONIST)) {
@@ -142,8 +142,7 @@ public class StartingPopulator {
 
     public void generationFollowRelationshipsUsersDiets(){
         int counterFollow = 0, indexDietTarget, typeOfRelationships;
-        String idDietTarget;
-        int counter = 0;
+        String nameDietTarget, idDietTarget;
         System.out.println("here0");
         try{
             System.out.println("here0.5");
@@ -155,15 +154,19 @@ public class StartingPopulator {
                 System.out.println("here1");
                 if(jsonNodesUser.get(User.USERTYPE).equals(User.USERTYPE_STANDARDUSER)){
                     System.out.println("here2");
+
+                    if(counterFollow > 5000)
+                        return;
+
                     if(createFollow(counterFollow)){ //generation follow relationships
-                        System.out.println(jsonNodesUser.getString(User.USERNAME));
                         logicManager.signIn(jsonNodesUser.getString(User.USERNAME), jsonNodesUser.getString(User.PASSWORD));
 
                         generationEatenFoodForSU(fileJSONFoods); //generation eatenFood for the current S.U
 
                         indexDietTarget = random(jsonNodesDiets.size());
                         jsonNodeDiet = jsonNodesDiets.get(indexDietTarget);
-                        idDietTarget = jsonNodeDiet.getString(Diet.ID);
+                        nameDietTarget = jsonNodeDiet.getString(Diet.NAME);
+                        idDietTarget = logicManager.lookUpDietByName(nameDietTarget).get(0).getId();
                         typeOfRelationships = typeOfRelationships();
 
                         if(typeOfRelationships == 0){ //Follow
@@ -174,9 +177,8 @@ public class StartingPopulator {
                             logicManager.followDiet(idDietTarget);
                             logicManager.stopDiet();
                         }
-                        counterFollow++;
                     }
-                    System.out.println(counter++);
+                    counterFollow++;
                 }
 
             }
@@ -201,7 +203,7 @@ public class StartingPopulator {
 
     public static void main(String... args){
         StartingPopulator startingPopulator = new StartingPopulator();
-        startingPopulator.populateDBs();
+        //startingPopulator.populateDBs();
         //startingPopulator.generationFollowRelationshipsUsersDiets();
     }
 }
