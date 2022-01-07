@@ -3,8 +3,6 @@ package it.unipi.dii.dietmanager.client;
 import it.unipi.dii.dietmanager.entities.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CLI {
     public Scanner scan;
@@ -159,9 +157,9 @@ public class CLI {
                 "find -d -mp\t\t\t\t-> search most popular diet\n" +
                 "find -d -mc\t\t\t\t-> search most completed diet\n" +
                 "find -d -r\t\t\t\t-> lookup recommended diet\n" +
-                "find -d -mfnut \"username\" \t-> search most followed diet by Nutritionist username\n" +
+                "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n" +
                 "follow \"dietID\"\t-> follow a diet\n" +
-                "unfollow\t\t\t\t-> unfollow a diet" +
+                "unfollow\t\t\t\t-> unfollow a diet\n" +
                 "stop\t\t\t\t\t-> stop a diet\n" +
                 "check\t\t\t\t\t-> check your current diet against your eaten foods\n" +
                 "find -d -c\t\t\t\t-> lookup your current diet\n" +
@@ -301,7 +299,11 @@ public class CLI {
     }
 
     public void printFood(Food foodTarget){
-        System.out.println("Food, name: "+foodTarget.getName());
+        System.out.print("Food name: "+foodTarget.getName());
+        if(foodTarget.getCategory() == null)
+            System.out.println("\t Category: " + foodTarget.getCategory());
+        else
+            System.out.println();
         for (Nutrient n : foodTarget.getNutrients()) {
             System.out.println("Nutrient: " + n.getName() + ", Quantity: " + n.getQuantity()+ ", Unit:" + n.getUnit());
         }
@@ -309,10 +311,7 @@ public class CLI {
 
     public void printFoods(List<Food> foodsTarget){
         for(Food f: foodsTarget){
-            /*System.out.println("Food, ID: "+foodTarget.getId());
-            for (Nutrient n : foodTarget.getNutrients()) {
-                System.out.println("Nutrient: " + n.getName() + ", quantity: " + n.getQuantity(+ ", unit:" + n.getUnit());
-            }*/
+            System.out.println("**********************************");
             printFood(f);
         }
     }
@@ -320,14 +319,7 @@ public class CLI {
     public void printUser(User user){
         System.out.println("Username: "+user.getUsername()+", Full Name: "+user.getUsername()+", Sex: "+user.getSex()+", Age:"+user.getAge()+", Country: "+user.getCountry());
         if(user instanceof StandardUser){
-
-            //StandardUser su = (StandardUser) user;
             System.out.println("Current diet: "+((StandardUser) user).getCurrentDiet().getId());
-
-            /*System.out.println("List of Eaten foods: ");
-            for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
-                System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodID()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
-            }*/
         }
 
         else if(user instanceof Nutritionist){
@@ -346,6 +338,10 @@ public class CLI {
 
     public void printEatenFood(User user){
         System.out.println("List of Eaten foods: ");
+        if(((StandardUser)user).getEatenFoods().isEmpty()){
+            System.out.println("The list of personal eaten foods is empty");
+            return;
+        }
         for(EatenFood ef: ((StandardUser)user).getEatenFoods()){
             System.out.println("ID: "+ef.getId()+", Food ID: "+ef.getFoodName()+", Quantity"+ef.getQuantity()+",Timestamp: "+ef.getTimestamp().toString());
         }

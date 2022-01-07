@@ -116,11 +116,8 @@ public class DietManager {
                     //if is all right, chekUserNotExist = true; else remains false and launch an exception
 
                     //implementation:
-                    //userTarget = logicManager.lookUpUserByUsername(newRegister[0]);
-                    //if(userTarget == null) {chekUserNotExist = true;}
-
-                    //to test
-                    chekUserNotExist = true;
+                    userTarget = logicManager.lookUpUserByUsername(newRegister[0]);
+                    if(userTarget == null) {chekUserNotExist = true;}
                 }
                 //check even if the input of the user is exit, over the check if the username already exist
                 newRegister[1] = cli.startPasswordSubmission(); //to implement this function and so on..
@@ -136,7 +133,7 @@ public class DietManager {
                     userTarget = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1],Integer.parseInt(newRegister[3]),newRegister[5]);
                     if(logicManager.addUser(userTarget)){
                         logicManager.currentUser = userTarget;
-                        cli.generalPrint("StandardUSer correttamente generato!"); //System.out.println("StandardUSer correttamente generato!");
+                        cli.generalPrint("StandardUser correctly registrated "); //System.out.println("StandardUSer correttamente generato!");
                         isLogged = true;
                     }
 
@@ -201,9 +198,13 @@ public class DietManager {
                 }
 
                 //helpFood
-                else if(tokens[0].equals("find") && tokens[1].equals("-f") && tokens.length == 3 && !(logicManager.currentUser instanceof Nutritionist)){ //not nutritionist
+                else if(tokens[0].equals("find") && tokens[1].equals("-f") && tokens.length >= 3 && !(logicManager.currentUser instanceof Nutritionist)){ //not nutritionist
                     cli.generalPrint("-> search food by name"); //System.out.println("-> search food by name");
-                    foodsTarget = logicManager.lookUpFoodByName(tokens[2]);
+                    String foodName = tokens[2];
+                    for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                        foodName += " "+tokens[i];
+                    }
+                    foodsTarget = logicManager.lookUpFoodByName(foodName);
 
                     cli.generalPrint("List of Food with the subString: "+tokens[2]); //System.out.println("List of Food with the subString: "+tokens[2]);
                     if(foodsTarget != null) {
@@ -215,25 +216,23 @@ public class DietManager {
                         System.err.flush();
                     }
                 }
-                else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length==3){
-                    if(tokens[2].equals("-personal") && (logicManager.currentUser instanceof StandardUser)) {
+                else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length>=3){
+                    if(tokens.length == 3 && tokens[2].equals("-personal") && (logicManager.currentUser instanceof StandardUser)) {
                         cli.generalPrint("-> lookup your eaten foods list"); // System.out.println("-> lookup your eaten foods list");
-                        eatenFoodsList = logicManager.lookUpStandardUserEatenFoods();
-
 
                         cli.generalPrint("List of EatenFood : "+tokens[2]); // System.out.println("List of EatenFood : "+tokens[2]);
-                                /*String result ="";
-                                for(EatenFood ef: eatenFoodsList){
-                                    result += "/"+ef.getId()+" "+ef.getFoodID()+" "+ef.getQuantity()+ " "+ef.getTimestamp()+"/";
-                                }
-                                System.out.println(result);*/
+                        cli.printEatenFood(logicManager.currentUser);
                     }
-                    else {
+                    else{
                         cli.generalPrint("-> lookup most eaten food by category"); // System.out.println("-> lookup most eaten food by category");
 
-                        foodTarget = logicManager.lookUpMostEatenFoodByCategory(tokens[2]); //*** data una categoria non ne deve restituire uno ??***
+                        String categoryName = tokens[2];
+                        for(int i = 3; i < tokens.length; i++){ //enter only if the foodName has some keyboard space
+                            categoryName += " "+tokens[i];
+                        }
+                        foodTarget = logicManager.lookUpMostEatenFoodByCategory(categoryName); //*** data una categoria non ne deve restituire uno ??***
 
-                        cli.generalPrint("List of most eaten food by category: "+tokens[2]); // System.out.println("List of most eaten food by category: "+tokens[2]);
+                        cli.generalPrint("List of most eaten food by category: "+categoryName); // System.out.println("List of most eaten food by category: "+tokens[2]);
                         if(foodTarget != null) {
                             cli.printFood(foodTarget);
                         }
@@ -243,6 +242,10 @@ public class DietManager {
                     }
                 }
                 else if(tokens[0].equals("add") && tokens[1].equals("-ef") && tokens.length >= 3 && (logicManager.currentUser instanceof StandardUser)){
+                    if(((StandardUser) logicManager.currentUser).getCurrentDiet() == null) {
+                        System.err.println("NOT allowed: you must follow a diet first");
+                        continue;
+                    }
                     String foodName;
                     cli.generalPrint("-> add food to your eaten foods list"); //System.out.println("-> add food to your eaten foods list");
 
@@ -271,7 +274,6 @@ public class DietManager {
                 else if(tokens[0].equals("rm") && tokens[1].equals("-ef") && tokens.length == 3 && (logicManager.currentUser instanceof StandardUser)){
                     cli.generalPrint("-> remove eaten food from your eaten foods list"); //System.out.println("-> remove eaten food from your eaten foods list");
 
-                    checkOperation = false;
                     checkOperation = logicManager.removeEatenFood(tokens[2]);
 
                     if(checkOperation){

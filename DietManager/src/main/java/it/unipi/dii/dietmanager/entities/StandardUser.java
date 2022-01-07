@@ -56,7 +56,10 @@ public class StandardUser extends User {
 
     public void setEatenFoods(List<EatenFood> eatenFoods) { this.eatenFoods = eatenFoods; }
     public void setCurrentDiet(Diet currentDiet) { this.currentDiet = currentDiet; }
-    public void stopCurrentDiet(){ this.currentDiet = null; }
+    public void stopCurrentDiet(){
+        this.currentDiet = null;
+        this.eatenFoods = null;
+    }
 
     private String computeNewEatenFoodID(){
         long higherID = -1, currentID;
@@ -83,6 +86,8 @@ public class StandardUser extends User {
                 foodName,
                 quantity,
                 new Timestamp(System.currentTimeMillis()) );
+        if(this.eatenFoods == null)
+            this.eatenFoods = new ArrayList<>();
         this.eatenFoods.add(eatenFood);
     }
 
