@@ -64,7 +64,7 @@ public class CLI {
     public String startFullNameSubmission(){
         String fullName;
         System.out.println("==> insert fullName:");
-        //System.out.print("> ");
+        System.out.print("> ");
         fullName = scan.nextLine();
         return fullName;
     }
@@ -72,7 +72,7 @@ public class CLI {
     public String startAgeSubmission(){
         String age;
         System.out.println("==> insert age:");
-        //System.out.print("> ");
+        System.out.print("> ");
         age = scan.nextLine();
         return age;
     }
@@ -80,7 +80,7 @@ public class CLI {
     public String startSexSubmission(){
         String sex;
         System.out.println("==> insert sex:");
-        //System.out.print("> ");
+        System.out.print("> ");
         sex = scan.nextLine();
         return sex;
     }
@@ -88,7 +88,7 @@ public class CLI {
     public String startCountrySubmission(){
         String country;
         System.out.println("==> insert country:");
-        //System.out.print("> ");
+        System.out.print("> ");
         country = scan.nextLine();
         return country;
     }
@@ -100,29 +100,17 @@ public class CLI {
                 "==> Type \"N\" for Nutritionist\n");
         System.out.print("> ");
         input = scan.nextLine();
-        /*if(!input.equals("SU") && !input.equals("N")) //fare qualcosa
-            System.out.print("fare qualcosa con eccezione");
-        else return input;*/
         return input;
     }
 
     public void helpMenu(String username){
         String helpType;
-        //String ret = "";
-        //List<String> helpType;
         System.out.println("=======> Welcome "+username+"\n" +
                 "=======> help\n" +
                 "help food\t\t-> retrieve help commands on foods\n" +
                 "help diet\t\t-> retrieve help commands on diets\n" +
                 "help user\t\t-> retrieve help commands on users\n"+
                 "exit \t\t\t-> log-out from application\n");
-        /*System.out.print("> ");
-        helpType = scan.nextLine();*/
-        /*
-        helpFood("Administrator");
-        helpDiet("Nutritionist");
-        helpUser("Administrator");
-        return helpType;*/
     }
 
     public void helpFood (User user){
