@@ -350,6 +350,11 @@ public class MongoDB{
         // deleting 'diet' document from 'diets' collection
         boolean isSuccessful;
 
+        List<ObjectId> dietObjectIds = new ArrayList<>();
+        for (String dietId: dietIDs){
+            dietObjectIds.add(new ObjectId(dietId));
+        }
+
         // deleting 'currentDiet' field and consequently 'EatenFoods' field from each 'user' document whose current diet value
         // correspond to one of the diets to be removed
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
@@ -371,7 +376,7 @@ public class MongoDB{
         // if the previous operation completed successfully, all diets are removed from 'diets' collection
         if(isSuccessful){
             MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
-            DeleteResult deleteDietsResult = dietCollection.deleteMany(in(Diet.ID, dietIDs));
+            DeleteResult deleteDietsResult = dietCollection.deleteMany(in(Diet.ID, dietObjectIds));
             isSuccessful = deleteDietsResult.wasAcknowledged();
         }
         closeConnection();
@@ -391,9 +396,11 @@ public class MongoDB{
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
 
+        /* FABIO
         Bson groupByNutritionist = group(
                 Diet.NUTRITIONIST,
                 (List<BsonField>) count("numDiets"));
+
 
         Document currentDocument;
         try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
@@ -405,6 +412,45 @@ public class MongoDB{
         }
         closeConnection();
         return nutritionistDietsCountMap;
+        */
+
+        /* TEST 1
+        AggregateIterable it = dietCollection.aggregate(Arrays.asList(
+                group(Diet.NUTRITIONIST, Accumulators.sum("count", 1))
+        ));
+
+        Document currentDocument;
+        try(MongoCursor<Document> cursor = it.iterator()){
+            while(cursor.hasNext()){
+                currentDocument = cursor.next();
+                nutritionistDietsCountMap.put(currentDocument.getString(Diet.NUTRITIONIST), currentDocument.getInteger("numDiets"));
+            }
+        }
+        closeConnection();
+        return nutritionistDietsCountMap;
+        */
+
+        Bson groupByNutritionist = group(
+                Diet.NUTRITIONIST,
+                Accumulators.sum("numDiets", 1));
+
+
+
+        Document currentDocument;
+        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(new Document("$group",
+                new Document("_id", "$nutritionist")
+                        .append("numDiets",
+                                new Document("$sum", 1L)))) ).iterator()){
+            while(cursor.hasNext()){
+                currentDocument = cursor.next();
+                nutritionistDietsCountMap.put(currentDocument.getString(Nutritionist.USERNAME), (int)(long)currentDocument.getLong("numDiets"));
+            }
+        }
+        closeConnection();
+        return nutritionistDietsCountMap;
+
+
+
     }
 
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
