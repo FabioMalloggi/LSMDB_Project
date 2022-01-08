@@ -29,10 +29,6 @@ public class Diet {
                 diet.nutritionist);
     }
 
-    public Diet(String id, String name, String nutritionist) {
-        this( id, name, null, nutritionist);
-    }
-
     public Diet(String name, List<Nutrient> nutrients, String nutritionist) {
         this(null, name, nutrients, nutritionist);
     }
