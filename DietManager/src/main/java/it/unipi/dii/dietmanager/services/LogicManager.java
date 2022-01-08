@@ -23,13 +23,14 @@ public class LogicManager {
                     /*16*/"MG"};
     private final int MAX_FAIL_NUTRIENT = 2;
     private final int MONGO_DB_PORT = 27017;
+    private final String MONGO_DB_ADDRESS = "localhost";
     private Neo4j Neo4J;
     private MongoDB MongoDB;
 
     public LogicManager() {
         this.currentUser = null;
         Neo4J = new Neo4j() ;
-        MongoDB = new MongoDB(MONGO_DB_PORT);
+        MongoDB = new MongoDB(MONGO_DB_ADDRESS,MONGO_DB_PORT);
     }
 
     public boolean signIn(String username, String password){

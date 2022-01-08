@@ -1,8 +1,7 @@
 package it.unipi.dii.dietmanager.persistence;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.ReadConcern;
-import com.mongodb.WriteConcern;
+import ch.qos.logback.classic.Logger;
+import com.mongodb.*;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -14,6 +13,9 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -30,37 +32,43 @@ import static com.mongodb.client.model.Updates.inc;
 
 public class MongoDB{
 
+    private ConnectionString connectionUri;
     private MongoClient mongoClient;
     private MongoDatabase database;
 
-    private final int localhostPort;
-
+    private final String DIET_MANAGER_DATABASE = "dietManagerDB";
     private final String COLLECTION_USERS = "users";
     private final String COLLECTION_DIETS = "diets";
     private final String COLLECTION_FOODS = "foods";
 
-    private final int EATEN_FOOD_SLOT_SIZE = 70;
+    private final int EATEN_FOOD_SLOTS_SIZE = 70;
 
-    public MongoDB(int localhostPort)
-    {
-        this.localhostPort = localhostPort;
-
+    public MongoDB(String ipAddress, int port){
+        String uri = "mongodb://" + ipAddress + ":" + port;
+        connectionUri = new ConnectionString(uri);
+        MongoClientSettings mcs = MongoClientSettings.builder()
+                .applyConnectionString(connectionUri)
+                .readPreference(ReadPreference.nearest())
+                .retryWrites(true)
+                .writeConcern(WriteConcern.ACKNOWLEDGED)  // Write Concern to wait for acknowledgement according to Server configuration.
+                .build();
+        mongoClient = MongoClients.create(mcs);
+        disableLogger();
     }
 
-    public boolean openConnection()
-    {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:" + localhostPort);
-        mongoClient = MongoClients.create(connectionString);
-        database = mongoClient.getDatabase("dietManagerDB");
-        database.withWriteConcern(WriteConcern.ACKNOWLEDGED);   // Write Concern to wait for acknowledgement according to Server configuration.
-        // Needed for wasAcknowledged() methods.
-        // other options are possible.
-        database.withReadConcern(ReadConcern.DEFAULT);          // Use the servers default read concern.
-        return true;
+    private void disableLogger(){
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+        rootLogger.setLevel(Level.OFF);
     }
 
-    public void closeConnection()
+    public void openConnection()
     {
+        mongoClient = MongoClients.create(connectionUri);
+        database = mongoClient.getDatabase(DIET_MANAGER_DATABASE);
+    }
+
+    public void closeConnection() {
         try{
             mongoClient.close();
         }catch(Exception e){
@@ -68,7 +76,7 @@ public class MongoDB{
         }
     }
 
-    public void dropDietManagerDatabase(){
+    public void dropDatabase(){
         openConnection();
         database.drop();
         closeConnection();
@@ -592,7 +600,7 @@ public class MongoDB{
             eatenFoodsCount = user.getEatenFoods().size(); // 100
 
         // padding of empty eatenFoods into the user according to the defined constant.
-        for(int i=0; i < EATEN_FOOD_SLOT_SIZE - eatenFoodsCount % EATEN_FOOD_SLOT_SIZE; i++){
+        for(int i=0; i < EATEN_FOOD_SLOTS_SIZE - eatenFoodsCount % EATEN_FOOD_SLOTS_SIZE; i++){
             mongoUser.getEatenFoods().add(new EatenFood());
         }
         return mongoUser;
@@ -601,17 +609,20 @@ public class MongoDB{
     private StandardUser userFromEatenFoodUserMongoAllocation(StandardUser mongoUser){
         StandardUser user = new StandardUser(mongoUser);
         // remove padding of eatenFoods from user eatenFood list
-        int index;
-        System.out.println(user.toString());
-        System.out.println(user.getEatenFoods().size());
-        while((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0){
-            user.getEatenFoods().remove(index);
-        }
-
-        // DA ELIMINARE
-        while((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
-                String.format(Food.foodNameFieldFormat,""), -1, new Timestamp(0)))) >= 0){
-            user.getEatenFoods().remove(index);
+        if(user.getCurrentDiet() != null) {
+            if(user.getEatenFoods() != null) {
+                int index;
+                while ((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0) {
+                    user.getEatenFoods().remove(index);
+                }
+                // DA ELIMINARE
+                while ((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
+                        String.format(Food.foodNameFieldFormat, ""), -1, new Timestamp(0)))) >= 0) {
+                    user.getEatenFoods().remove(index);
+                }
+            }
+        } else { // user is not currently following any diet
+            user.getEatenFoods().clear();
         }
         return user;
     }
@@ -656,7 +667,7 @@ public class MongoDB{
 
 
     public static void main( String... args ) throws Exception {
-        MongoDB mongoDB = new MongoDB( 7687);
+        MongoDB mongoDB = new MongoDB( "localhost",27017);
     }
 }
 

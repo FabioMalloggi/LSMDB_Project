@@ -105,7 +105,7 @@ public class StandardUser extends User {
             user.put(User.COUNTRY, this.getCountry());          // inserting country
             user.put(User.USERTYPE, User.USERTYPE_STANDARDUSER);// inserting usertype
 
-            if(eatenFoods != null){
+            if(eatenFoods != null || !(eatenFoods.isEmpty())){
                 JSONArray jsonEatenFoods = new JSONArray();
                 for(EatenFood eatenFood: this.getEatenFoods())
                     jsonEatenFoods.put(eatenFood.toJSONObject());
