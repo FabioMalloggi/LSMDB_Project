@@ -22,7 +22,10 @@ public class StandardUser extends User {
                 standardUser.getSex(),
                 standardUser.getAge(),
                 standardUser.getCountry());
-        this.eatenFoods = new ArrayList<>(standardUser.getEatenFoods());
+        if(standardUser.getEatenFoods() != null)
+            this.eatenFoods = new ArrayList<>(standardUser.getEatenFoods());
+        else
+            this.eatenFoods = null;
         if(standardUser.getCurrentDiet() != null)
             this.currentDiet = new Diet(standardUser.getCurrentDiet());
         else
@@ -105,13 +108,13 @@ public class StandardUser extends User {
             user.put(User.COUNTRY, this.getCountry());          // inserting country
             user.put(User.USERTYPE, User.USERTYPE_STANDARDUSER);// inserting usertype
 
-            if(eatenFoods != null || !(eatenFoods.isEmpty())){
-                JSONArray jsonEatenFoods = new JSONArray();
-                for(EatenFood eatenFood: this.getEatenFoods())
-                    jsonEatenFoods.put(eatenFood.toJSONObject());
-                user.put(StandardUser.EATENFOODS, eatenFoods);                 // inserting eatenFoods
-            }
             if(currentDiet != null){
+                if(eatenFoods != null && !eatenFoods.isEmpty()){
+                    JSONArray jsonEatenFoods = new JSONArray();
+                    for(EatenFood eatenFood: this.getEatenFoods())
+                        jsonEatenFoods.put(eatenFood.toJSONObject());
+                    user.put(StandardUser.EATENFOODS, eatenFoods);                 // inserting eatenFoods
+                }
                 user.put(StandardUser.CURRENT_DIET, currentDiet.getId());      // inserting currentDiet
             }
         }

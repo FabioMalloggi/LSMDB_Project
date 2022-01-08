@@ -54,6 +54,11 @@ public class StartingPopulator {
                     logicManager.addUser(nutritionist);
                 }
 
+                else if(jsonNode.getString(User.USERTYPE).equals(User.USERTYPE_ADMINISTRATOR)) {
+                    Administrator administrator = Administrator.fromJSONObject(jsonNode);
+                    logicManager.addUser(administrator);
+                }
+
                 else{
                     if(countStandardUser <= MAX_STANDARD_USER) {
                         StandardUser standardUser = StandardUser.fromJSONObject(jsonNode);
