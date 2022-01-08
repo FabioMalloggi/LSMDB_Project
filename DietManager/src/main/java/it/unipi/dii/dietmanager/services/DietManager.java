@@ -112,48 +112,52 @@ public class DietManager {
                 while(chekUserNotExist != true) {
                     newRegister[0] = cli.startUsernameSubmission();
 
-                    //check if signIn[0] is present or not in DB --> call the lookUpUserByUsername method of LogicalManagement
-                    //if is all right, chekUserNotExist = true; else remains false and launch an exception
-
-                    //implementation:
                     userTarget = logicManager.lookUpUserByUsername(newRegister[0]);
                     if(userTarget == null) {chekUserNotExist = true;}
+                    else
+                        cli.generalPrint("Username already exists");
                 }
                 //check even if the input of the user is exit, over the check if the username already exist
-                newRegister[1] = cli.startPasswordSubmission(); //to implement this function and so on..
+                newRegister[1] = cli.startPasswordSubmission();
                 newRegister[2] = cli.startFullNameSubmission();
                 newRegister[3] = cli.startAgeSubmission();
                 newRegister[4] = cli.startSexSubmission();
                 newRegister[5] = cli.startCountrySubmission();
                 newRegister[6] = cli.startUserTypeSubmission();
 
+                boolean isNumber = true;
+
+                for(int i=0; i< newRegister[3].length(); i++){
+                    if(!Character.isDigit(newRegister[3].charAt(i)))
+                        isNumber = false;
+                }
+
+                // I check age and sex
+                if((!newRegister[4].equals("M") && !newRegister[4].equals("F")) || !isNumber || Integer.parseInt(newRegister[3]) <= 0){
+                    cli.generalPrint("At least one of inserted parameters is not correct");
+                    continue;
+                }
 
                 if(newRegister[6].equals("SU")){
-                    //the attribute user of LogicalManagement  = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
                     userTarget = new StandardUser(newRegister[0],newRegister[2],newRegister[4],newRegister[1],Integer.parseInt(newRegister[3]),newRegister[5]);
                     if(logicManager.addUser(userTarget)){
                         logicManager.currentUser = userTarget;
-                        cli.generalPrint("StandardUser correctly registrated "); //System.out.println("StandardUSer correttamente generato!");
+                        cli.generalPrint("StandardUser correctly registrated ");
                         isLogged = true;
                     }
 
                 }
 
                 else if(newRegister[6].equals("N")){
-                    //the attribute user of LogicalManagement  = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1], newRegister[3], newRegister[5]); //check if the order is correct
                     userTarget = new Nutritionist(newRegister[0],newRegister[2],newRegister[4],newRegister[1],Integer.parseInt(newRegister[3]),newRegister[5]);
                     if(logicManager.addUser(userTarget)){
                         logicManager.currentUser = userTarget;
-                        cli.generalPrint("Nutritionist correttamente generato!"); //System.out.println("Nutritionist correttamente generato!");
+                        cli.generalPrint("Nutritionist correttamente generato!");
                         isLogged = true;
                     }
                 }
-
-                //else{ ...is the same
-                else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) { //fare qualcosa
-                    //cli.generalPrint("Tipo di utente non valido");
-                    System.err.println("Tipo di utente non valido");
-
+                else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) {
+                    cli.generalPrint("The user type is not valid");
                 }
 
                 //to test
@@ -175,8 +179,8 @@ public class DietManager {
                 //helpType = cli.helpMenu(logicManager.currentUser.getUserName());
 
                 // to test
-                cli.generalPrint("Write help or write a command"); //System.out.println("Write help or write a command");
-                cli.generalPrint("> "); //System.out.println("> ");
+                cli.generalPrint("Write help or write a command");
+                cli.generalPrintInLine("> ");
                 input = scanner.nextLine();
                 tokens = input.split(" ");
 
@@ -275,6 +279,7 @@ public class DietManager {
                     cli.generalPrint("-> remove eaten food from your eaten foods list"); //System.out.println("-> remove eaten food from your eaten foods list");
 
                     checkOperation = logicManager.removeEatenFood(tokens[2]);
+                    checkOperation = logicManager.removeEatenFood(tokens[2]);
 
                     if(checkOperation){
 
@@ -305,14 +310,12 @@ public class DietManager {
                         result += "nutrient "+string;
                     }
 
-                    cli.generalPrint("result menuNutrient: "+result); //System.out.println("result menuNutrient: "+result);
-
-                    newFood = generateFood(tokens[2], chooseNutrients);
+                    newFood = generateFood(foodName, chooseNutrients);
                     checkOperation = logicManager.addFood(newFood);
 
                     if(checkOperation){
 
-                        cli.generalPrint(foodName+" correctly inserted into catalog"); //System.out.println(tokens[2]+" correctly inserted into catalog");
+                        cli.generalPrint(foodName+" correctly inserted into catalog");
                     }
                     else {
                         System.err.println(foodName+" not inserted into catalog");
@@ -535,7 +538,6 @@ public class DietManager {
                     }
                     cli.generalPrint("result menuNutrient: "+result); //System.out.println("result menuNutrient: "+result);
 
-                    //***CREARE FUNZIONE CHE RESTITUISCE Diet DATO token[2] e STRING[] di nutirenti.*****
                     //create a List of Nutrients with the chooseNutrients[] values
                     //create a diet object;
                     //call addDiet(Diet diet)
@@ -611,12 +613,15 @@ public class DietManager {
                     step1 = false;
                 }
 
-                //error
-                else{
-                    cli.generalPrint("Wrong or incomplete command"); //System.out.println("Wrong or incomplete command");
+                else if(input.equals("\n")){
+                    continue;
                 }
 
-            }// while (isLogged)
+                //error
+                else{
+                    cli.generalPrint("Wrong or incomplete command");
+                }
+            }
         }
     }
 }

@@ -596,12 +596,12 @@ public class MongoDB{
     private StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
         StandardUser mongoUser = new StandardUser(user);
         int eatenFoodsCount = 0;
-        if(user.getEatenFoods() != null)
-            eatenFoodsCount = user.getEatenFoods().size(); // 100
-
-        // padding of empty eatenFoods into the user according to the defined constant.
-        for(int i=0; i < EATEN_FOOD_SLOTS_SIZE - eatenFoodsCount % EATEN_FOOD_SLOTS_SIZE; i++){
-            mongoUser.getEatenFoods().add(new EatenFood());
+        if(user.getEatenFoods() != null && user.getCurrentDiet() != null){
+            eatenFoodsCount = user.getEatenFoods().size();
+            // padding of empty eatenFoods into the user according to the defined constant.
+            for(int i=0; i < EATEN_FOOD_SLOTS_SIZE - eatenFoodsCount % EATEN_FOOD_SLOTS_SIZE; i++){
+                mongoUser.getEatenFoods().add(new EatenFood());
+            }
         }
         return mongoUser;
     }
