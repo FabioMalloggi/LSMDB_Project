@@ -122,10 +122,10 @@ public class LogicManager {
         return dietTarget;
     }
 
-    public HashMap<Nutritionist, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
-        HashMap<Nutritionist, Nutrient> npn = null;
+    public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
+        HashMap<String, Nutrient> npn = null;
 
-        //npn = MongoDB.lookUpMostSuggestedNutrientForEachNutritionist();
+        npn = MongoDB.lookUpMostSuggestedNutrientForEachNutritionist();
 
         return npn;
     }
@@ -180,15 +180,15 @@ public class LogicManager {
         return  dietTarget;
     }
 
-    public Nutritionist lookUpMostPopularNutritionist(){
-        Nutritionist nutritionistTarget = null; String username;
+    public User lookUpMostPopularNutritionist(){
+        String username;
 
 
         username = Neo4J.lookUpMostPopularNutritionist();
         User usertarget = null;
         usertarget = lookUpUserByUsername(username);
         if(usertarget instanceof Nutritionist)
-            return nutritionistTarget;
+            return usertarget;
         else {
             System.out.println("Errore non è un nutrizionista - Inconsistenza tra i due DB");
             return  null;
@@ -205,7 +205,7 @@ public class LogicManager {
             if(!neo4J){
                 System.out.println("Error cross-consistency");
                 //to do something.. //REMOVE DA MONGO
-                MongoDB.removeUser(user.getUsername());
+                MongoDB.removeUser(user);
                 return false;
             }
             else return true;
@@ -363,7 +363,7 @@ public class LogicManager {
                 return false;
             }
             else{
-                ((Nutritionist)currentUser).getDiets().add(diet);
+                //((Nutritionist)currentUser).getDiets().add(diet);
                 return true;
             }
         }
@@ -402,26 +402,29 @@ public class LogicManager {
         boolean mongoDB = false, neo4J = false;
         Diet dietToRemove;
         dietToRemove = lookUpDietByID(id);
-        mongoDB = MongoDB.removeDiet(id);
-        if(mongoDB){
-            neo4J = Neo4J.removeDiet(id);
-            if(!neo4J){
-                System.out.println("Errore cross-consistency");
-                //to do something..
+        if(currentUser.getUsername().equals(dietToRemove.getNutritionist())){
+            mongoDB = MongoDB.removeDiet(id);
+            if(mongoDB){
+                neo4J = Neo4J.removeDiet(id);
+                if(!neo4J){
+                    System.out.println("Errore cross-consistency");
+                    //to do something..
 
-                MongoDB.addDiet(dietToRemove);
+                    MongoDB.addDiet(dietToRemove);
+                    return false;
+                }
+                else {
+                    //((Nutritionist)currentUser).getDiets().remove(dietToRemove);
+                    return true;
+                }
+            }
+            else{
+                System.out.println("Error in MongoDB");
+                //to do something..
                 return false;
             }
-            else {
-                ((Nutritionist)currentUser).getDiets().remove(dietToRemove);
-                return true;
-            }
         }
-        else{
-            System.out.println("Error in MongoDB");
-            //to do something..
-            return false;
-        }
+        else return false;
     }
 
     public boolean removeUser(String username){
@@ -429,7 +432,7 @@ public class LogicManager {
         User userToRemove;
         userToRemove = lookUpUserByUsername(username);
         if(userToRemove != null){
-            mongoDB = MongoDB.removeUser(username);
+            mongoDB = MongoDB.removeUser(userToRemove);
             if(mongoDB){
                 neo4J = Neo4J.removeUser(username);
                 if(!neo4J){

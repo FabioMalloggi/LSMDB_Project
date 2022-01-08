@@ -214,21 +214,19 @@ public class MongoDB{
         return insertOneResult.wasAcknowledged();
     }
 
-    public boolean removeUser(String username){
+    public boolean removeUser(User user){
         openConnection();
         boolean isSuccessful = true;
-        User userToRemove = lookUpUserByUsername(username); // we need to know if the user is a nutritionist
-
-        if(userToRemove != null) {
+        if(user != null) {
             // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
-            if(userToRemove instanceof Nutritionist){
-                isSuccessful = removeDietsByNutritionist(username);
+            if(user instanceof Nutritionist){
+                isSuccessful = removeDietsByNutritionist(user.getUsername());
             }
 
             // deleting user given his username
             if(isSuccessful) {
                 MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
-                DeleteResult deleteResult = usersCollection.deleteOne(eq(User.USERNAME, username));
+                DeleteResult deleteResult = usersCollection.deleteOne(eq(User.USERNAME, user.getUsername()));
                 isSuccessful = deleteResult.wasAcknowledged();
             }
         } else {

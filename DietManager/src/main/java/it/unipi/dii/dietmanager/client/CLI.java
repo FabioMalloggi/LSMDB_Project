@@ -105,8 +105,7 @@ public class CLI {
 
     public void helpMenu(String username){
         String helpType;
-        System.out.println("=======> Welcome "+username+"\n" +
-                "=======> help\n" +
+        System.out.println("=======> help\n" +
                 "help food\t\t-> retrieve help commands on foods\n" +
                 "help diet\t\t-> retrieve help commands on diets\n" +
                 "help user\t\t-> retrieve help commands on users\n"+
@@ -261,12 +260,12 @@ public class CLI {
         }
     }
 
-    public void printNutrientPerNutritinist(HashMap<Nutritionist, Nutrient> npn){
+    public void printNutrientPerNutritinist(HashMap<String, Nutrient> npn){
         Iterator hmIterator = npn.entrySet().iterator();
         while(hmIterator.hasNext()){
             Map.Entry mapElement = (Map.Entry)hmIterator.next();
             Nutrient n = ((Nutrient) mapElement.getValue());
-            System.out.println(((Nutritionist)(mapElement.getKey())).getUsername()+": "+n.getName() );
+            System.out.println( mapElement.getKey()+": "+n.getName() );
         }
     }
 
@@ -289,16 +288,28 @@ public class CLI {
     }
 
     public void printUser(User user){
-        System.out.println("Username: "+user.getUsername()+", Full Name: "+user.getUsername()+", Sex: "+user.getSex()+", Age:"+user.getAge()+", Country: "+user.getCountry());
-        if(user instanceof StandardUser){
-            System.out.println("Current diet: "+((StandardUser) user).getCurrentDiet().getId());
-        }
+        if(!(user instanceof Administrator))
+            System.out.print("Username: "+user.getUsername()+", Full Name: "+user.getUsername()+", Sex: "+user.getSex()+", Age:"+user.getAge()+", Country: "+user.getCountry());
+        else System.out.println("Administrator account, details not allowed ");
+        if(user instanceof StandardUser) {
+            System.out.print(", User Type:"+User.USERTYPE_STANDARDUSER);
+            if (((StandardUser) user).getCurrentDiet() != null) {
+                System.out.println("Current diet: " + ((StandardUser) user).getCurrentDiet().getId());
 
-        else if(user instanceof Nutritionist){
-            System.out.println("List of diets generated:");
-            for(Diet d: ((Nutritionist)user).getDiets()){
-                printDiet(d);
             }
+            else
+                System.out.println();
+        }
+        else if(user instanceof Nutritionist ){
+            System.out.print(", User Type:"+User.USERTYPE_NUTRITIONIST);
+            if (((Nutritionist)user).getDiets() != null) {
+                System.out.println("List of diets generated:");
+                for(Diet d: ((Nutritionist)user).getDiets()){
+                    printDiet(d);
+                }
+            }
+            else
+                System.out.println();
         }
     }
 

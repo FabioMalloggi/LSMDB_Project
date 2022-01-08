@@ -226,7 +226,7 @@ public class StartingPopulator {
 
     public void populateDBs(){
         //resetDBs();
-        //insertObjects(fileJSONUsers, User.class.getName());
+        insertObjects(fileJSONUsers, User.class.getName());
         insertObjects(fileJSONDiets, Diet.class.getName());
         insertObjects(fileJSONFoods, Food.class.getName());
     }
