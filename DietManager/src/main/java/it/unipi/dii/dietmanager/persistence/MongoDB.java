@@ -426,7 +426,7 @@ public class MongoDB{
             // than we compute the most suggested nutrient each nutritionist proposed in his diets.
 
             /*
-            Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
+            Bson dietsUnwindNutrients = unwind("$"+Diet.NUTRIENTS);
             Bson projectionFields = project(
                     fields(include(Diet.NUTRITIONIST, Nutrient.QUANTITY, Nutrient.UNIT),computed("nutrientName",Diet.NUTRIENTS)));
             Bson dietsMatchOutEnergyNutrient = match(
