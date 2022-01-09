@@ -293,10 +293,9 @@ public class LogicManager {
                 check = checkDietProgress(); //check diet progress
                 neo4J = Neo4J.stopDiet((StandardUser) currentUser, check);
                 if(neo4J){
-                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser); //<--*** non è meglio passargli solamente currnUser al MongoDB.unfollow ?? ***
+                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser);
                     if(!mongoDB){
-                        System.out.println("Errore cross-consistency");
-                        //to do something.. //RE-INSERT IN NEO4j
+                        System.out.println("Error cross-consistency");
                         Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
                         return false;
                     }
@@ -307,7 +306,6 @@ public class LogicManager {
                 }
                 else{
                     System.out.println("Error in MongoDB");
-                    //to do something..
                     return false;
                 }
             }
@@ -317,12 +315,8 @@ public class LogicManager {
     }
 
     public boolean addFoodToEatenFoods(String foodName, int quantity){
-        boolean task = false; // *** se vogliamo che io qui creo un EatenFood instance da poi aggiungere alla lista del current user: devo inizialmente crearlo senza E.F ID poi in qualche modo devo recuperare l'ID e chiamare setID di E.F
-        /*task = MongoDB.addFoodToEatenFoods(ef, (StandardUser) currentUser); <-- mongo restituirà l'istanza 'ef' (inizialmente era senza EatenFoodID) con EatenFoodID
-        if(task)
-            ((StandardUser)currentUser).getEatenFoods().add(ef);
-            OLD versione
-            */
+        boolean task = false;
+
         List<Food> foodList = lookUpFoodByName(foodName);
         if(foodList != null && foodList.size() == 1){
             ((StandardUser)currentUser).addEatenFood(foodName, quantity);

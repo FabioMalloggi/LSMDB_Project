@@ -300,17 +300,9 @@ public class CLI {
             else
                 System.out.println();
         }
-        else if(user instanceof Nutritionist ){
-            System.out.print(", User Type:"+User.USERTYPE_NUTRITIONIST);
-            if (((Nutritionist)user).getDiets() != null) {
-                System.out.println("List of diets generated:");
-                for(Diet d: ((Nutritionist)user).getDiets()){
-                    printDiet(d);
-                }
-            }
-            else
-                System.out.println();
-        }
+        else if(user instanceof Nutritionist )
+            System.out.println(", User Type:"+User.USERTYPE_NUTRITIONIST);
+
     }
 
     public void printUsers(List<User> usersTarget){
