@@ -1,7 +1,12 @@
 package it.unipi.dii.dietmanager.persistence;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.mongodb.*;
+import ch.qos.logback.classic.LoggerContext;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.ReadPreference;
+import com.mongodb.WriteConcern;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.*;
 import com.mongodb.client.model.*;
@@ -13,8 +18,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
@@ -26,10 +29,8 @@ import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.inc;
-import static com.mongodb.client.model.Updates.pullAll;
 
 public class MongoDB{
 
