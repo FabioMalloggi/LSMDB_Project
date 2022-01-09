@@ -397,52 +397,12 @@ public class MongoDB{
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
 
-
-        /* FABIO
-        Bson groupByNutritionist = group(
-                Diet.NUTRITIONIST,
-                (List<BsonField>) count("numDiets"));
-
-
-        Document currentDocument;
-        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
-                groupByNutritionist)).iterator()){
-            while(cursor.hasNext()){
-                currentDocument = cursor.next();
-                nutritionistDietsCountMap.put(currentDocument.getString(Diet.NUTRITIONIST), currentDocument.getInteger("numDiets"));
-            }
-        }
-        closeConnection();
-        return nutritionistDietsCountMap;
-        */
-
-        /* TEST 1
-        AggregateIterable it = dietCollection.aggregate(Arrays.asList(
-                group(Diet.NUTRITIONIST, Accumulators.sum("count", 1))
-        ));
-
-        Document currentDocument;
-        try(MongoCursor<Document> cursor = it.iterator()){
-            while(cursor.hasNext()){
-                currentDocument = cursor.next();
-                nutritionistDietsCountMap.put(currentDocument.getString(Diet.NUTRITIONIST), currentDocument.getInteger("numDiets"));
-            }
-        }
-        closeConnection();
-        return nutritionistDietsCountMap;
-        */
-
-        Bson groupByNutritionist = group(
-                Diet.NUTRITIONIST,
-                Accumulators.sum("numDiets", 1));
-
-
-
         Document currentDocument;
         try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                 new Document("$group",
                     new Document("_id", "$"+Diet.NUTRITIONIST)
                             .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
+
             while(cursor.hasNext()){
                 currentDocument = cursor.next();
                 nutritionistDietsCountMap.put(currentDocument.getString(Nutritionist.USERNAME), (int)(long)currentDocument.getLong("numDiets"));
@@ -450,9 +410,6 @@ public class MongoDB{
         }
         closeConnection();
         return nutritionistDietsCountMap;
-
-
-
     }
 
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
@@ -580,19 +537,19 @@ public class MongoDB{
                     ));
                 }
             }
-
-
-
-
-
             // end of connection: next steps are performed in local
             closeConnection();
-
 
             String lastAnalyzedNutritionist = "", currentNutritionist;
             Nutrient lastMostNutrient = null, currentNutrient;
 
-            for(int i=0; i<nutrients.size(); i++){
+            // DEBUG
+            if(nutrients.size() != nutritionists.size()) {
+                System.err.println("nutrient.size() != nutritionist.size()!");
+                System.exit(1);
+            }
+
+            for(int i=0; i < nutrients.size(); i++){
                 currentNutritionist = nutritionists.get(i);
                 currentNutrient = nutrients.get(i);
 
@@ -609,7 +566,6 @@ public class MongoDB{
                 } else if( ! currentNutrient.getUnit().equals("G")){
                     System.err.println("ERROR: nutrient unit is not recognize");
                 }
-
                  */
 
                 // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
@@ -620,6 +576,10 @@ public class MongoDB{
                 if(i==0){
                     lastAnalyzedNutritionist = currentNutritionist;
                     lastMostNutrient = currentNutrient;
+
+                    if(i == nutrients.size()-1){
+                        nutritionistNutrientMap.put(lastAnalyzedNutritionist,lastMostNutrient);
+                    }
 
                 }else if(i!=0 && currentNutritionist == lastAnalyzedNutritionist){
                     if(currentNutrient.getQuantity() > lastMostNutrient.getQuantity()) {
@@ -638,7 +598,7 @@ public class MongoDB{
 
                     // if last 'record' to be analyzed:
                     if(i == nutrients.size()-1){
-                        nutritionistNutrientMap.put(currentNutritionist,currentNutrient);
+                        nutritionistNutrientMap.put(lastAnalyzedNutritionist,lastMostNutrient);
                     }
                 }
             }
