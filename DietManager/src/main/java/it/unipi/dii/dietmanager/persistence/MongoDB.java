@@ -636,6 +636,53 @@ public class MongoDB{
 
         EatenFood eatenFood = new EatenFood();
 
+        /********************  VERSION 3: BRUTAL VERSION 2 *********************************************/
+
+
+        /*
+        Bson query = new Document(
+                "$update",
+                new Document(
+                        new Document(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, foodName),
+                        new Document("$set",
+                                new Document(StandardUser.EATENFOODS+".$["+elementIdentifier+"]",
+                                        new Document(EatenFood.ID, eatenFood.getId())
+                                                .append(EatenFood.FOOD_NAME, eatenFood.getFoodName())
+                                                .append(EatenFood.QUANTITY, eatenFood.getQuantity())
+                                                .append(EatenFood.TIMESTAMP, eatenFood.getTimestamp())
+                                )
+                        )
+                )
+        );
+
+        userCollection.aggregate(Arrays.asList(query));
+         */
+
+        /********************  VERSION 2: SHOULD BE TESTED *********************************************/
+
+        String elementIdentifier = "elem";
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+
+        UpdateResult updateResult = userCollection.updateMany(
+                new Document(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, foodName),
+                new Document("$set",
+                        new Document(StandardUser.EATENFOODS+".$["+elementIdentifier+"]",
+                                new Document(EatenFood.ID, eatenFood.getId())
+                                        .append(EatenFood.FOOD_NAME, eatenFood.getFoodName())
+                                        .append(EatenFood.QUANTITY, eatenFood.getQuantity())
+                                        .append(EatenFood.TIMESTAMP, eatenFood.getTimestamp())
+                        )
+                ),
+                new UpdateOptions().arrayFilters(
+                        Arrays.asList(new Document(elementIdentifier+"."+EatenFood.FOOD_NAME, foodName))
+                )
+        );
+
+
+
+        /********************  VERSION 1: DELETE ONLY FIRST ONE IN THE EATEN FOOD LIST *********************************************/
+        /*
+
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
         Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+".["+EatenFood.ID + "]." + EatenFood.FOOD_NAME, foodName);
         UpdateResult updateResult = userCollection.updateMany(
@@ -649,6 +696,8 @@ public class MongoDB{
                         )
                 )
         );
+        */
+        /*****************************************************************/
         //        {'_id':'2', 'users._id':'2'}, {$set:{'users.$':{ "_id":2,"name":"name6",... }}}, false, true)
         /*
         EatenFood eatenFood = new EatenFood();
