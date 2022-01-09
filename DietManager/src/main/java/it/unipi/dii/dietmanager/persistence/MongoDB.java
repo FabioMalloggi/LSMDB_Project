@@ -520,20 +520,27 @@ public class MongoDB{
                                     .append(Nutrient.UNIT, "$"+Diet.NUTRIENTS+"."+Nutrient.UNIT))
                             .append("totalQuantity",
                                     new Document("$sum", "$"+Diet.NUTRIENTS+"."+Nutrient.QUANTITY)));
+            Bson projectDocument = new Document("$project",
+                    new Document("_id", 0L)
+                            .append(Diet.NUTRITIONIST, "$_id."+Diet.NUTRITIONIST)
+                            .append("nutrient", "$_id.nutrient")
+                            .append(Nutrient.UNIT, "$_id."+Nutrient.UNIT)
+                            .append("totalQuantity", "$totalQuantity"));
 
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
-                    groupDocument)).iterator()){
+                    groupDocument,
+                    projectDocument)).iterator()){
 
                 Document currentDocument;
                 while(cursor.hasNext()){
                     currentDocument = cursor.next();
 
                     nutritionists.add(
-                            currentDocument.getString("_id."+Diet.NUTRITIONIST));
+                            currentDocument.getString(Diet.NUTRITIONIST));
                     nutrients.add(new Nutrient(
-                            currentDocument.getString("_id.nutrient"),
-                            currentDocument.getString("_id."+Nutrient.UNIT),
+                            currentDocument.getString("nutrient"),
+                            currentDocument.getString(Nutrient.UNIT),
                             currentDocument.getDouble("totalQuantity")
                     ));
                 }
@@ -555,10 +562,15 @@ public class MongoDB{
                 currentNutrient = nutrients.get(i);
 
                 //convert nutrient quantity to standard unit: mg
+                if(currentNutrient.getName().equals("Energy"))
+                    continue;
                 if(currentNutrient.getUnit().equals("UG")){
+                    currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000000);
+                    currentNutrient.setUnit("G");
+                } else if( currentNutrient.getUnit().equals("MG")){
                     currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000);
-                    currentNutrient.setUnit("MG");
-                } else if( ! currentNutrient.getUnit().equals("MG")){
+                    currentNutrient.setUnit("G");
+                } else if( ! currentNutrient.getUnit().equals("G")){
                     System.err.println("ERROR: nutrient unit is not recognize");
                 }
 
