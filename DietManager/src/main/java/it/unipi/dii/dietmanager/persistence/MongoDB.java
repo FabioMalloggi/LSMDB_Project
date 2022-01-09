@@ -634,14 +634,16 @@ public class MongoDB{
         boolean isSuccessful = false;
 
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
-        Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, foodName );
+        Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+".["+EatenFood.ID + "]." + EatenFood.FOOD_NAME, foodName);
 
         EatenFood eatenFood = new EatenFood();
 
-        Bson updateEatenFoodTimestampField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.TIMESTAMP, eatenFood.getTimestamp());
+        //list.$[ele].price --> set(eatenFoods.$[EatenFood.ID],Document.parse(new EatenFood().toJSONObject().toString()))
+/*        Bson updateEatenFoodTimestampField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.TIMESTAMP, eatenFood.getTimestamp());
         Bson updateEatenFoodQuantityField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.QUANTITY, eatenFood.getQuantity());
         Bson updateEatenFoodIDField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.ID, eatenFood.getId());
         Bson updateEatenFoodFoodNameField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, eatenFood.getFoodName());
+
 
         UpdateManyModel<Document> updateEatenFoodTimestampModel = new UpdateManyModel<>(
                 eatenFoodFilter, updateEatenFoodTimestampField);
@@ -652,6 +654,7 @@ public class MongoDB{
         UpdateManyModel<Document> updateEatenFoodFoodNameModel = new UpdateManyModel<>(
                 eatenFoodFilter, updateEatenFoodFoodNameField);
 
+
         List<WriteModel<Document>> bulkOperations = new ArrayList<>();
         bulkOperations.addAll(Arrays.asList(
                 updateEatenFoodTimestampModel,
@@ -659,6 +662,14 @@ public class MongoDB{
                 updateEatenFoodIDModel,
                 updateEatenFoodFoodNameModel    // must be the last to be executed
         ));
+
+ */
+        Bson updateEatenFood = Updates.set(StandardUser.EATENFOODS+".["+EatenFood.ID+"]", Document.parse(new EatenFood().toJSONObject().toString()));
+        UpdateManyModel<Document> updateEatenFoodModel = new UpdateManyModel<>(
+                eatenFoodFilter, updateEatenFood);
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        bulkOperations.addAll(Arrays.asList(updateEatenFoodModel));
+
         BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
 
         closeConnection();

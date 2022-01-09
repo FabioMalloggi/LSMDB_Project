@@ -270,7 +270,7 @@ public class DietManager {
 
                     if(checkOperation){
 
-                        cli.generalPrint(tokens[2]+" correctly added in your EatenFoodList"); //System.out.println(tokens[2]+" correctly added in your EatenFoodList");
+                        cli.generalPrint(foodName+" correctly added in your EatenFoodList"); //System.out.println(tokens[2]+" correctly added in your EatenFoodList");
                     }
                     else {
                         System.err.println(tokens[2]+" not added in your EatenFoodList");
@@ -283,7 +283,6 @@ public class DietManager {
                 else if(tokens[0].equals("rm") && tokens[1].equals("-ef") && tokens.length == 3 && (logicManager.currentUser instanceof StandardUser)){
                     cli.generalPrint("-> remove eaten food from your eaten foods list"); //System.out.println("-> remove eaten food from your eaten foods list");
 
-                    checkOperation = logicManager.removeEatenFood(tokens[2]);
                     checkOperation = logicManager.removeEatenFood(tokens[2]);
 
                     if(checkOperation){

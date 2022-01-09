@@ -344,9 +344,9 @@ public class LogicManager {
             if(((StandardUser)currentUser).getEatenFoods().get(i).getId().equals(id)){
                 indexTarget = i;
             }
-
         }
-        ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
+        if(indexTarget != -1)
+            ((StandardUser)currentUser).getEatenFoods().remove(indexTarget);
         return indexTarget!=-1;
     }
 
