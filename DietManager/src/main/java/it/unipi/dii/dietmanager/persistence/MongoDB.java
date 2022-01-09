@@ -513,24 +513,59 @@ public class MongoDB{
             Bson unwindDocument = new Document("$unwind",
                     new Document("path", "$"+Diet.NUTRIENTS)
                             .append("preserveNullAndEmptyArrays", false));
-            Bson groupDocument = new Document("$group",
+
+            Bson matchDocument = new Document("$match",
+                    new Document(Diet.NUTRIENTS+"."+Nutrient.NAME,
+                            new Document("$ne", "Energy")));
+
+            Bson group1Document = new Document("$group",
                     new Document("_id",
                             new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST)
                                     .append("nutrient", "$"+Diet.NUTRIENTS+"."+Nutrient.NAME)
                                     .append(Nutrient.UNIT, "$"+Diet.NUTRIENTS+"."+Nutrient.UNIT))
                             .append("totalQuantity",
                                     new Document("$sum", "$"+Diet.NUTRIENTS+"."+Nutrient.QUANTITY)));
-            Bson projectDocument = new Document("$project",
+
+            Bson project1Document = new Document("$project",
                     new Document("_id", 0L)
                             .append(Diet.NUTRITIONIST, "$_id."+Diet.NUTRITIONIST)
                             .append("nutrient", "$_id.nutrient")
-                            .append(Nutrient.UNIT, "$_id."+Nutrient.UNIT)
-                            .append("totalQuantity", "$totalQuantity"));
+                            .append("totalQuantity",
+                                    new Document("$cond",
+                                        new Document("if",
+                                                new Document("$eq", Arrays.asList("$_id."+Nutrient.UNIT, "UG")))
+                                                .append("then",
+                                                        new Document("$divide", Arrays.asList("$totalQuantity", 1000000L)))
+                                                .append("else",
+                                                        new Document("$cond",
+                                                                new Document("if",
+                                                                        new Document("$eq", Arrays.asList("$_id"+Nutrient.UNIT, "MG")))
+                                                                        .append("then",
+                                                                                new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
+                                                                        .append("else", "$totalQuantity"))))));
+
+
+            /*
+            Bson group2Document =  new Document("$group",
+                    new Document("_id",
+                            new Document(Diet.NUTRITIONIST, "$"+ Diet.NUTRITIONIST)
+                                    .append("nutrient", "$nutrient"))
+                            .append("maxQuantity",
+                                    new Document("$max", "$totalQuantity")));
+
+            Bson project2Document = new Document("$project",
+                    new Document("_id", 0L)
+                            .append(Diet.NUTRITIONIST, "$_id."+Diet.NUTRITIONIST)
+                            .append("nutrient", "$_id.nutrient")
+                            .append("maxQuantity", "$maxQuantity"));
+
+             */
 
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
-                    groupDocument,
-                    projectDocument)).iterator()){
+                    matchDocument,
+                    group1Document,
+                    project1Document )).iterator()){
 
                 Document currentDocument;
                 while(cursor.hasNext()){
@@ -540,7 +575,7 @@ public class MongoDB{
                             currentDocument.getString(Diet.NUTRITIONIST));
                     nutrients.add(new Nutrient(
                             currentDocument.getString("nutrient"),
-                            currentDocument.getString(Nutrient.UNIT),
+                            "G",
                             currentDocument.getDouble("totalQuantity")
                     ));
                 }
@@ -562,6 +597,7 @@ public class MongoDB{
                 currentNutrient = nutrients.get(i);
 
                 //convert nutrient quantity to standard unit: mg
+                /*
                 if(currentNutrient.getName().equals("Energy"))
                     continue;
                 if(currentNutrient.getUnit().equals("UG")){
@@ -573,6 +609,8 @@ public class MongoDB{
                 } else if( ! currentNutrient.getUnit().equals("G")){
                     System.err.println("ERROR: nutrient unit is not recognize");
                 }
+
+                 */
 
                 // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
                 // by dividing it for the number of diets the currentNutritionist has published.
