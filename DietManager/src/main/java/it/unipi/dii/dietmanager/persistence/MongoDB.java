@@ -29,6 +29,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.inc;
+import static com.mongodb.client.model.Updates.pullAll;
 
 public class MongoDB{
 
@@ -633,13 +634,29 @@ public class MongoDB{
         openConnection();
         boolean isSuccessful = false;
 
-        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
-        Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+".["+EatenFood.ID + "]." + EatenFood.FOOD_NAME, foodName);
-
         EatenFood eatenFood = new EatenFood();
 
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+        Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+".["+EatenFood.ID + "]." + EatenFood.FOOD_NAME, foodName);
+        UpdateResult updateResult = userCollection.updateMany(
+                new Document(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, foodName),
+                new Document("$set",
+                        new Document(StandardUser.EATENFOODS+".$",
+                                new Document(EatenFood.ID, eatenFood.getId())
+                                        .append(EatenFood.FOOD_NAME, eatenFood.getFoodName())
+                                        .append(EatenFood.QUANTITY, eatenFood.getQuantity())
+                                        .append(EatenFood.TIMESTAMP, eatenFood.getTimestamp())
+                        )
+                )
+        );
+        //        {'_id':'2', 'users._id':'2'}, {$set:{'users.$':{ "_id":2,"name":"name6",... }}}, false, true)
+        /*
+        EatenFood eatenFood = new EatenFood();
+        Bson MatchDocument = Aggregates.match(eatenFoodFilter);
+        Bson replaceWithDocument = Aggregates.replaceWith();
+
         //list.$[ele].price --> set(eatenFoods.$[EatenFood.ID],Document.parse(new EatenFood().toJSONObject().toString()))
-/*        Bson updateEatenFoodTimestampField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.TIMESTAMP, eatenFood.getTimestamp());
+        Bson updateEatenFoodTimestampField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.TIMESTAMP, eatenFood.getTimestamp());
         Bson updateEatenFoodQuantityField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.QUANTITY, eatenFood.getQuantity());
         Bson updateEatenFoodIDField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.ID, eatenFood.getId());
         Bson updateEatenFoodFoodNameField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, eatenFood.getFoodName());
@@ -663,7 +680,7 @@ public class MongoDB{
                 updateEatenFoodFoodNameModel    // must be the last to be executed
         ));
 
- */
+
         Bson updateEatenFood = Updates.set(StandardUser.EATENFOODS+".["+EatenFood.ID+"]", Document.parse(new EatenFood().toJSONObject().toString()));
         UpdateManyModel<Document> updateEatenFoodModel = new UpdateManyModel<>(
                 eatenFoodFilter, updateEatenFood);
@@ -672,9 +689,11 @@ public class MongoDB{
 
         BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
 
+         */
+
         closeConnection();
 
-        if(bulkWriteResult.wasAcknowledged()){
+        if(updateResult.wasAcknowledged()){
             openConnection();
             MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
             DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
