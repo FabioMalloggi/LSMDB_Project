@@ -32,26 +32,26 @@ public class StandardUser extends User {
             this.currentDiet = null;
     }
 
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country) {
-        super(UserName, FullName, Password, Sex, Age, Country);
+    public StandardUser(String userName, String fullName, String sex, String password, int age, String country) {
+        super(userName, fullName, password, sex, age, country);
         this.eatenFoods = null;
         this.currentDiet = null;
     }
 
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country, List<EatenFood> eatenFoods) { // !!!
-        super(UserName, FullName, Password, Sex, Age, Country);
+    public StandardUser(String userName, String fullName, String sex, String password, int age, String country, List<EatenFood> eatenFoods) { // !!!
+        super(userName, fullName, password, sex, age, country);
         this.currentDiet = null;
         this.eatenFoods = eatenFoods;
     }
 
-    public StandardUser(String UserName, String FullName, String Sex, String Password, int Age, String Country , List<EatenFood> eatenFoods, Diet currentDiet) {
-        super(UserName, FullName, Password, Sex, Age, Country);
+    public StandardUser(String userName, String fullName, String sex, String password, int age, String country , List<EatenFood> eatenFoods, Diet currentDiet) {
+        super(userName, fullName, password, sex, age, country);
         this.eatenFoods = eatenFoods;
         this.currentDiet = currentDiet;
     }
 
-    public StandardUser(String UserName){
-        super (UserName);
+    public StandardUser(String userName){
+        super (userName);
     }
 
     public List<EatenFood> getEatenFoods() {return eatenFoods; }

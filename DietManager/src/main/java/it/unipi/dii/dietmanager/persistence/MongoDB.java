@@ -631,10 +631,46 @@ public class MongoDB{
 
     public boolean removeFood(String foodName){
         openConnection();
-        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
-        DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
+        boolean isSuccessful = false;
+
+        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
+        Bson eatenFoodFilter = Filters.eq( StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, foodName );
+
+        EatenFood eatenFood = new EatenFood();
+
+        Bson updateEatenFoodTimestampField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.TIMESTAMP, eatenFood.getTimestamp());
+        Bson updateEatenFoodQuantityField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.QUANTITY, eatenFood.getQuantity());
+        Bson updateEatenFoodIDField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.ID, eatenFood.getId());
+        Bson updateEatenFoodFoodNameField = Updates.set(StandardUser.EATENFOODS+"."+EatenFood.FOOD_NAME, eatenFood.getFoodName());
+
+        UpdateManyModel<Document> updateEatenFoodTimestampModel = new UpdateManyModel<>(
+                eatenFoodFilter, updateEatenFoodTimestampField);
+        UpdateManyModel<Document> updateEatenFoodQuantityModel = new UpdateManyModel<>(
+                eatenFoodFilter, updateEatenFoodQuantityField);
+        UpdateManyModel<Document> updateEatenFoodIDModel = new UpdateManyModel<>(
+                eatenFoodFilter, updateEatenFoodIDField);
+        UpdateManyModel<Document> updateEatenFoodFoodNameModel = new UpdateManyModel<>(
+                eatenFoodFilter, updateEatenFoodFoodNameField);
+
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        bulkOperations.addAll(Arrays.asList(
+                updateEatenFoodTimestampModel,
+                updateEatenFoodQuantityModel,
+                updateEatenFoodIDModel,
+                updateEatenFoodFoodNameModel    // must be the last to be executed
+        ));
+        BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
+
         closeConnection();
-        return deleteResult.wasAcknowledged();
+
+        if(bulkWriteResult.wasAcknowledged()){
+            openConnection();
+            MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+            DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
+            isSuccessful = deleteResult.wasAcknowledged();
+            closeConnection();
+        }
+        return isSuccessful;
     }
 
     private StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
