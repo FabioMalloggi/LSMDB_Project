@@ -103,24 +103,26 @@ public class CLI {
         return input;
     }
 
-    public void helpMenu(String username){
-        String helpType;
-        System.out.println("=======> help\n" +
-                "help food\t\t-> retrieve help commands on foods\n" +
-                "help diet\t\t-> retrieve help commands on diets\n" +
+    public void helpMenu(User user){
+        System.out.println("=======> help");
+        if(! (user instanceof Nutritionist)){
+            System.out.println(
+                    "help food\t\t-> retrieve help commands on foods\n");
+        }
+        System.out.println("help diet\t\t-> retrieve help commands on diets\n" +
                 "help user\t\t-> retrieve help commands on users\n"+
                 "exit \t\t\t-> log-out from application\n");
     }
 
     public void helpFood (User user){
-        String choose;
-        System.out.println("====> help food\n" +
-                "find -f \"foodName\"\t\t-> search food by name\n" +
-                "find -ef \"category\"\t\t-> lookup most eaten food by category\n" +
-                "find -ef -personal\t\t-> lookup your eaten foods list\n" +
-                "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
-                "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
-
+        if(user instanceof StandardUser) {
+            System.out.println("====> help food\n" +
+                    "find -f \"foodName\"\t\t-> search food by name\n" +
+                    "find -ef \"category\"\t\t-> lookup most eaten food by category\n" +
+                    "find -ef -personal\t\t-> lookup your eaten foods list\n" +
+                    "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
+                    "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
+        }
         if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
@@ -129,7 +131,6 @@ public class CLI {
     }
 
     public void helpDiet(User user) {
-        String choose;
         System.out.println("====> help diet\n" +
                 "find -d -id \"dietID\"\t\t-> search diet by ID\n" +
                 "find -d -name \"dietName\"\t-> search diets by names\n" +
@@ -139,13 +140,14 @@ public class CLI {
                 "find -d -mc\t\t\t\t\t-> search most completed diet\n" +
                 "find -d -r\t\t\t\t\t-> lookup recommended diet\n" +
                 "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n" +
-                "follow \"dietID\"\t\t\t\t-> follow a diet\n" +
-                "unfollow\t\t\t\t\t-> unfollow a diet\n" +
-                "stop\t\t\t\t\t\t-> stop a diet\n" +
-                "check\t\t\t\t\t\t-> check your current diet against your eaten foods\n" +
-                "find -d -c\t\t\t\t\t-> lookup your current diet\n" +
                 "find -npn\t\t\t\t\t-> lookup most suggested nutrient for each nutritionist");
-
+        if(user instanceof  StandardUser){
+            System.out.println("follow \"dietID\"\t\t\t\t-> follow a diet\n" +
+                    "unfollow\t\t\t\t\t-> unfollow a diet\n" +
+                    "stop\t\t\t\t\t\t-> stop a diet\n" +
+                    "check\t\t\t\t\t\t-> check your current diet against your eaten foods\n" +
+                    "find -d -c\t\t\t\t\t-> lookup your current diet\n");
+        }
         if(user instanceof Nutritionist){
             System.out.println("==> commands for nutritionist\n" +
                     "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
@@ -154,7 +156,6 @@ public class CLI {
     }
 
     public void helpUser(User user ) {
-        String choose;
         System.out.println("==> help user\n" +
                 "find -u -u \"username\"\t\t\t-> search user by username\n" +
                 "find -u -c \"country\"\t\t\t-> search user by country\n" +

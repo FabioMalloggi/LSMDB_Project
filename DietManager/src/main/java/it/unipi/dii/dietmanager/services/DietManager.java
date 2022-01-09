@@ -64,7 +64,7 @@ public class DietManager {
 
     public static void main(String[] args) {
         CLI cli = new CLI();
-        LogicManager logicManager = new LogicManager();
+        LogicManager logicManager = new LogicManager(); //Logic Manager istance to interact with the DBs
         boolean notFinish = true; //used in the most outer while
         boolean step1 = false; //used in the Registration and Sign in Step
         boolean chekUserNotExist =false; //used to check if the username digitized is already existed, if it is, the user must insert a new user
@@ -192,7 +192,7 @@ public class DietManager {
 
                 // general help
                 if(input.equals("help")){
-                    cli.helpMenu(logicManager.currentUser.getUsername());
+                    cli.helpMenu(logicManager.currentUser);
                 }
 
                 //possible commands for help food / help diet / help nutritionist
