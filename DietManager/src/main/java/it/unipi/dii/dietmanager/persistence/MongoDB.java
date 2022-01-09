@@ -397,6 +397,7 @@ public class MongoDB{
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
 
+
         /* FABIO
         Bson groupByNutritionist = group(
                 Diet.NUTRITIONIST,
@@ -438,10 +439,10 @@ public class MongoDB{
 
 
         Document currentDocument;
-        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(new Document("$group",
-                new Document("_id", "$nutritionist")
-                        .append("numDiets",
-                                new Document("$sum", 1L)))) ).iterator()){
+        try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
+                new Document("$group",
+                    new Document("_id", "$"+Diet.NUTRITIONIST)
+                            .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
             while(cursor.hasNext()){
                 currentDocument = cursor.next();
                 nutritionistDietsCountMap.put(currentDocument.getString(Nutritionist.USERNAME), (int)(long)currentDocument.getLong("numDiets"));
@@ -467,6 +468,7 @@ public class MongoDB{
         if( ! nutritionistDietsCountMap.isEmpty()){
             // than we compute the most suggested nutrient each nutritionist proposed in his diets.
 
+            /*
             Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
             Bson projectionFields = project(
                     fields(include(Diet.NUTRITIONIST, Nutrient.QUANTITY, Nutrient.UNIT),computed("nutrientName",Diet.NUTRIENTS)));
@@ -478,6 +480,8 @@ public class MongoDB{
 
             List<String> nutritionists = new ArrayList<>();
             List<Nutrient> nutrients = new ArrayList<>();
+
+
 
             // retrieve documents representing for each combination of Nutritionist-Nutrient
             // (unit is the same for each of their combination),
@@ -500,6 +504,45 @@ public class MongoDB{
                     ));
                 }
             }
+
+             */
+
+            List<String> nutritionists = new ArrayList<>();
+            List<Nutrient> nutrients = new ArrayList<>();
+
+            Bson unwindDocument = new Document("$unwind",
+                    new Document("path", "$"+Diet.NUTRIENTS)
+                            .append("preserveNullAndEmptyArrays", false));
+            Bson groupDocument = new Document("$group",
+                    new Document("_id",
+                            new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST)
+                                    .append("nutrient", "$"+Diet.NUTRIENTS+"."+Nutrient.NAME)
+                                    .append(Nutrient.UNIT, "$"+Diet.NUTRIENTS+"."+Nutrient.UNIT))
+                            .append("totalQuantity",
+                                    new Document("$sum", "$"+Diet.NUTRIENTS+"."+Nutrient.QUANTITY)));
+
+            try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
+                    unwindDocument,
+                    groupDocument)).iterator()){
+
+                Document currentDocument;
+                while(cursor.hasNext()){
+                    currentDocument = cursor.next();
+
+                    nutritionists.add(
+                            currentDocument.getString("_id."+Diet.NUTRITIONIST));
+                    nutrients.add(new Nutrient(
+                            currentDocument.getString("_id.nutrient"),
+                            currentDocument.getString("_id."+Nutrient.UNIT),
+                            currentDocument.getDouble("totalQuantity")
+                    ));
+                }
+            }
+
+
+
+
+
             // end of connection: next steps are performed in local
             closeConnection();
 
