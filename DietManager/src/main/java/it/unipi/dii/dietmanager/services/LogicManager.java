@@ -2,6 +2,7 @@ package it.unipi.dii.dietmanager.services;
 
 import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.persistence.MongoDB;
+import it.unipi.dii.dietmanager.persistence.MongoDB2;
 import it.unipi.dii.dietmanager.persistence.Neo4j;
 
 import java.util.Arrays;
@@ -25,16 +26,18 @@ public class LogicManager {
     private final int MONGO_DB_PORT = 27017;
     private final String MONGO_DB_ADDRESS = "localhost";
     private Neo4j Neo4J;
-    private MongoDB MongoDB;
+    private MongoDB2 MongoDB;
 
     public LogicManager() {
         this.currentUser = null;
         Neo4J = new Neo4j() ;
-        MongoDB = new MongoDB(MONGO_DB_ADDRESS,MONGO_DB_PORT);
+        MongoDB = new MongoDB2(MONGO_DB_ADDRESS,MONGO_DB_PORT);
+        MongoDB.openConnection();
     }
 
     /** Read operations in MongoDB */
     public boolean signIn(String username, String password){
+        // check user type (if it's nutritionist then load him diets)
         User userTarget;
         userTarget = lookUpUserByUsername(username);
 

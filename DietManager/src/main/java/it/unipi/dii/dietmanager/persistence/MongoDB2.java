@@ -32,7 +32,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.inc;
 
-public class MongoDB{
+public class MongoDB2{
 
     private ConnectionString connectionUri;
     private MongoClient mongoClient;
@@ -45,7 +45,7 @@ public class MongoDB{
 
     private final int EATEN_FOOD_SLOTS_SIZE = 70;
 
-    public MongoDB(String ipAddress, int port){
+    public MongoDB2(String ipAddress, int port){
         String uri = "mongodb://" + ipAddress + ":" + port;
         connectionUri = new ConnectionString(uri);
         MongoClientSettings mcs = MongoClientSettings.builder()
@@ -79,23 +79,20 @@ public class MongoDB{
     }
 
     public void dropDatabase(){
-        openConnection();
         database.drop();
-        closeConnection();
     }
 
-    public static void createDietManagerIndexes(MongoDB mongoDB){
-        mongoDB.createSimpleIndex(mongoDB.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
-        mongoDB.createSimpleIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
-        mongoDB.createCompoundPartialIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
+    public static void createDietManagerIndexes(MongoDB2 mongoDB2){
+        mongoDB2.createSimpleIndex(mongoDB2.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
+        mongoDB2.createSimpleIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
+        mongoDB2.createCompoundPartialIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
                 User.COUNTRY, true);// 3rd index (OPZIONE A)
-        mongoDB.createCompoundIndex(mongoDB.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
-        mongoDB.createCompoundIndex(mongoDB.COLLECTION_FOODS, Food.CATEGORY, true,
+        mongoDB2.createCompoundIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
+        mongoDB2.createCompoundIndex(mongoDB2.COLLECTION_FOODS, Food.CATEGORY, true,
                 Food.EATEN_TIMES_COUNT, false); // 5th index
     }
 
     private void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
-        openConnection();
         int sortingOrder = isAttributeAscending ? 1:-1;
         //Retrieving the collection on which you want to create the index
         MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -107,12 +104,10 @@ public class MongoDB{
             System.out.println(index.toJson());
         }
  */
-        closeConnection();
     }
 
     private void createCompoundIndex(String collectionName, String firstAttributeName, boolean isFirstAttributeAscending,
-                                    String secondAttributeName, boolean isSecondAttributeAscending){
-        openConnection();
+                                     String secondAttributeName, boolean isSecondAttributeAscending){
         int firstAttributeSortingOrder = isFirstAttributeAscending ? 1:-1;
         int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
         //Retrieving the collection on which you want to create the index
@@ -125,18 +120,15 @@ public class MongoDB{
             System.out.println(index.toJson());
         }
 */
-        closeConnection();
     }
 
     private void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
-                                           String secondAttributeName, boolean isSecondAttributeAscending){
-        openConnection();
+                                            String secondAttributeName, boolean isSecondAttributeAscending){
         int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
         MongoCollection<Document> collection = database.getCollection(collectionName);
         IndexOptions partialFilterIndexOptions = new IndexOptions()
                 .partialFilterExpression(Filters.eq(firstAttributeName, firstAttributeValue));
         collection.createIndex(new Document(secondAttributeName, secondAttributeSortingOrder), partialFilterIndexOptions);
-        closeConnection();
     }
 
     /*************************** Users related methods **********************************/
@@ -174,15 +166,12 @@ public class MongoDB{
 
     // for both signIn and lookUpUserbyUsername
     public User lookUpUserByUsername(String username){
-        openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         Document userDocument = usersCollection.find(eq(User.USERNAME, username)).first();
-        closeConnection();
         return userFromDocument(userDocument);
     }
 
     public List<Nutritionist> lookUpNutritionistsByCountry(String country){
-        openConnection();
         List<Nutritionist> nutritionists = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
@@ -190,12 +179,10 @@ public class MongoDB{
             while(cursor.hasNext())
                 nutritionists.add((Nutritionist) userFromDocument(cursor.next()));
         }
-        closeConnection();
         return nutritionists;
     }
 
     public List<User> lookUpAllUsersByCountry(String country){
-        openConnection();
         List<User> users = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
@@ -204,20 +191,16 @@ public class MongoDB{
                 users.add(userFromDocument(cursor.next()));
             }
         }
-        closeConnection();
         return users;
     }
 
     public boolean addUser(User user){
-        openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         InsertOneResult insertOneResult = usersCollection.insertOne(userToDocument(user));
-        closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
     public boolean removeUser(User user){
-        openConnection();
         boolean isSuccessful = true;
         if(user != null) {
             // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
@@ -234,7 +217,6 @@ public class MongoDB{
         } else {
             isSuccessful = false;
         }
-        closeConnection();
         return isSuccessful;
     }
 
@@ -256,19 +238,16 @@ public class MongoDB{
 
     // for both lookUpDietByID and lookUpStandardUserCurrentDiet
     public Diet lookUpDietByID(String id){
-        openConnection();
         Document dietDocument = null;
         try {
             MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
             dietDocument = dietCollection.find(eq(Diet.ID, new ObjectId(id))).first(); // there can be at least only 1 match.
         }catch(Exception e){}
-        closeConnection();
         return dietFromDocument(dietDocument);
     }
 
     // return all diets whose name include substring searched.
     public List<Diet> lookUpDietByName(String subname){
-        openConnection();
         //String regex = "\\.\\*"+subname+"\\.\\*";
         Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
         Bson filter = Filters.regex(Diet.NAME, pattern);
@@ -281,12 +260,10 @@ public class MongoDB{
                 diets.add(dietFromDocument(cursor.next()));
             }
         }
-        closeConnection();
         return diets;
     }
 
     public List<Diet> lookUpDietByNutritionist(String username){
-        openConnection();
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         try(MongoCursor<Document> cursor = dietCollection.find(
@@ -295,23 +272,19 @@ public class MongoDB{
                 diets.add(dietFromDocument(cursor.next()));
             }
         }
-        closeConnection();
         return diets;
     }
 
     public boolean followDiet(StandardUser standardUser, String dietID){
-        openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
         Bson insertCurrentDietField = Updates.set(StandardUser.CURRENT_DIET, dietID);
         UpdateResult updateResult = userCollection.updateOne(userFilter, insertCurrentDietField);
-        closeConnection();
         return updateResult.wasAcknowledged();
     }
 
     // used for both 'unfollowDiet' and 'stopDiet'
     public boolean unfollowDiet(StandardUser standardUser){
-        openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
@@ -326,20 +299,17 @@ public class MongoDB{
         List<WriteModel<Document>> bulkOperations = new ArrayList<>();
         bulkOperations.addAll(Arrays.asList(updateRemoveCurrentDietDocument,updateRemoveEatenFoodsDocument));
         BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
-        closeConnection();
         return bulkWriteResult.wasAcknowledged();
     }
 
     public boolean addDiet(Diet diet){
         if(diet.getId() != null)
             return false;
-        openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         Document dietDocument = dietToDocument(diet);
         InsertOneResult insertOneResult = dietCollection.insertOne(dietDocument);
         // adding '_id' to diet object passed as argument
         diet.setId(dietDocument.getObjectId("_id").toString());
-        closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
@@ -348,7 +318,6 @@ public class MongoDB{
     }
 
     public boolean removeDiet(List<String> dietIDs){
-        openConnection();
         // deleting 'diet' document from 'diets' collection
         boolean isSuccessful;
 
@@ -381,7 +350,6 @@ public class MongoDB{
             DeleteResult deleteDietsResult = dietCollection.deleteMany(in(Diet.ID, dietObjectIds));
             isSuccessful = deleteDietsResult.wasAcknowledged();
         }
-        closeConnection();
         return isSuccessful;
     }
 
@@ -394,27 +362,24 @@ public class MongoDB{
     }
 
     private HashMap<String, Integer> lookUpDietsCountForEachNutritionist(){
-        openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
 
         Document currentDocument;
         try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                 new Document("$group",
-                    new Document("_id", "$"+Diet.NUTRITIONIST)
-                            .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
+                        new Document("_id", "$"+Diet.NUTRITIONIST)
+                                .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
 
             while(cursor.hasNext()){
                 currentDocument = cursor.next();
                 nutritionistDietsCountMap.put(currentDocument.getString(Nutritionist.USERNAME), (int)(long)currentDocument.getLong("numDiets"));
             }
         }
-        closeConnection();
         return nutritionistDietsCountMap;
     }
 
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
-        openConnection();
 
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
@@ -450,17 +415,17 @@ public class MongoDB{
                             .append("nutrient", "$_id.nutrient")
                             .append("totalQuantity",
                                     new Document("$cond",
-                                        new Document("if",
-                                                new Document("$eq", Arrays.asList("$_id."+Nutrient.UNIT, "UG")))
-                                                .append("then",
-                                                        new Document("$divide", Arrays.asList("$totalQuantity", 1000000L)))
-                                                .append("else",
-                                                        new Document("$cond",
-                                                                new Document("if",
-                                                                        new Document("$eq", Arrays.asList("$_id"+Nutrient.UNIT, "MG")))
-                                                                        .append("then",
-                                                                                new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
-                                                                        .append("else", "$totalQuantity"))))));
+                                            new Document("if",
+                                                    new Document("$eq", Arrays.asList("$_id."+Nutrient.UNIT, "UG")))
+                                                    .append("then",
+                                                            new Document("$divide", Arrays.asList("$totalQuantity", 1000000L)))
+                                                    .append("else",
+                                                            new Document("$cond",
+                                                                    new Document("if",
+                                                                            new Document("$eq", Arrays.asList("$_id"+Nutrient.UNIT, "MG")))
+                                                                            .append("then",
+                                                                                    new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
+                                                                            .append("else", "$totalQuantity"))))));
 
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
@@ -482,7 +447,6 @@ public class MongoDB{
                 }
             }
             // end of connection: next steps are performed in local
-            closeConnection();
 
             String lastAnalyzedNutritionist = "", currentNutritionist;
             Nutrient lastMostNutrient = null, currentNutrient;
@@ -494,7 +458,7 @@ public class MongoDB{
                 // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
                 // by dividing it for the number of diets the currentNutritionist has published.
                 currentNutrient.setQuantity( currentNutrient.getQuantity() /
-                                            nutritionistDietsCountMap.get(currentNutritionist) );
+                        nutritionistDietsCountMap.get(currentNutritionist) );
 
                 if(i==0){
                     lastAnalyzedNutritionist = currentNutritionist;
@@ -549,7 +513,6 @@ public class MongoDB{
     }
 
     public List<Food> lookUpFoodsByName(String subname){
-        openConnection();
         String regex = "^.*"+subname+".*$";
 //        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
 //        Bson filter = Filters.regex(Food.NAME, pattern);
@@ -564,12 +527,10 @@ public class MongoDB{
                 foods.add(foodFromDocument(cursor.next()));
             }
         }
-        closeConnection();
         return foods;
     }
 
     public Food lookUpMostEatenFoodByCategory(String category){
-        openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
 
         Bson matchFoodsByCategory = match(Filters.eq(Food.CATEGORY, category));
@@ -580,20 +541,16 @@ public class MongoDB{
                 sortFoodsByEatenTimesCount)).first();
 
         Food maxEatenTimesFood = foodFromDocument(maxEatenTimesFoodDocument);
-        closeConnection();
         return maxEatenTimesFood;
     }
 
     public boolean addFood(Food food){
-        openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         InsertOneResult insertOneResult = foodCollection.insertOne(foodToDocument(food));
-        closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
     public boolean removeFood(String foodName){
-        openConnection();
         boolean isSuccessful = false;
 
         EatenFood eatenFood = new EatenFood();
@@ -616,15 +573,12 @@ public class MongoDB{
                         Arrays.asList(new Document(elementIdentifier+"."+EatenFood.FOOD_NAME, foodName))
                 )
         );
-        closeConnection();
 
         // Consistency issue: only if the precedent operation completed successfully then we can delete the food
         if(updateResult.wasAcknowledged()){
-            openConnection();
             MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
             DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
             isSuccessful = deleteResult.wasAcknowledged();
-            closeConnection();
         }
         return isSuccessful;
     }
@@ -664,21 +618,17 @@ public class MongoDB{
     }
 
     public boolean incrementEatenTimesCount(String foodName){
-        openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         Bson foodFilter = Filters.eq( Food.NAME, foodName );
         UpdateResult updateResult = foodCollection.updateOne(foodFilter, inc(Food.EATEN_TIMES_COUNT, 1));
-        closeConnection();
         return updateResult.wasAcknowledged();
     }
 
     public boolean updateEatenFood(StandardUser standardUser){
-        openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
         UpdateResult updateResult = userCollection.replaceOne(userFilter, userToDocument(standardUser));
-        closeConnection();
         return updateResult.wasAcknowledged();
     }
 
