@@ -16,7 +16,7 @@ public class StartingPopulator2 {
     File fileJSONDiets = new File("./data/json/diet.json");
     File fileJSONUsers = new File("./data/json/users.json");
     File fileJSONFoods = new File("./data/json/foods.json");
-    private final int MONGODB_PORT = 27017;
+    private final int MONGODB_PORT = 27020;
 
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MAX_QUANTITY = 3000;
