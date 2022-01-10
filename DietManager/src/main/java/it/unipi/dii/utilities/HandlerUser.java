@@ -33,7 +33,7 @@ public class HandlerUser {
         return  admin;
     }
 
-    /**PRESO DA MONGODB*/
+    /**MONGODB*/
     private static StandardUser userToUserEatenFoodMongoAllocation(StandardUser user){
         StandardUser mongoUser = new StandardUser(user);
         int eatenFoodsCount = 0;

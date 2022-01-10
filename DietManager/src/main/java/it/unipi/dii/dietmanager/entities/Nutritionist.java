@@ -6,11 +6,9 @@ import org.json.JSONObject;
 import java.util.List;
 
 public class Nutritionist extends User {
-    private List<Diet> diets;
 
     public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country) {
         super(Id, FullName, Password, Sex, Age, Country);
-        this.diets = null;
     }
 
     @Override
@@ -51,19 +49,10 @@ public class Nutritionist extends User {
         return  newNutritionist;
     }
 
-    public List<Diet> getDiets() {
-        return diets;
-    }
-
-    public void setDiets(List<Diet> diets) {
-        this.diets = diets;
-    }
-
     @Override
     public String toString() {
         return "Nutritionist{" +
                 super.toString() +
-                ", diets=" + diets +
                 '}';
     }
 }

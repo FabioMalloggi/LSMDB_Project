@@ -49,15 +49,6 @@ public class EatenFood {
     public int getQuantity() { return quantity;}
     public Timestamp getTimestamp() {return timestamp;}
 
-    /*
-    public static JSONArray toJSONArray(List<EatenFood> eatenFoods){
-        JSONArray jsonEatenFoods = new JSONArray();
-        for(EatenFood eatenFood: eatenFoods)
-            jsonEatenFoods.put(eatenFood.toJSONObject());
-        return jsonEatenFoods;
-    }
-
-     */
 
     public JSONObject toJSONObject(){
         JSONObject jsonEatenFood = new JSONObject();

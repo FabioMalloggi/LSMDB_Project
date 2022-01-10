@@ -106,7 +106,7 @@ public class CLI {
     public void helpMenu(User user){
         System.out.println("=======> help");
         if(! (user instanceof Nutritionist)){
-            System.out.println(
+            System.out.print(
                     "help food\t\t-> retrieve help commands on foods\n");
         }
         System.out.println("help diet\t\t-> retrieve help commands on diets\n" +
@@ -138,20 +138,23 @@ public class CLI {
                 "find -d -mf\t\t\t\t\t-> search most currently followed diet\n" +
                 "find -d -mp\t\t\t\t\t-> search most popular diet\n" +
                 "find -d -mc\t\t\t\t\t-> search most completed diet\n" +
-                "find -d -r\t\t\t\t\t-> lookup recommended diet\n" +
-                "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n" +
-                "find -npn\t\t\t\t\t-> lookup most suggested nutrient for each nutritionist");
+                "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n");
         if(user instanceof  StandardUser){
             System.out.println("follow \"dietID\"\t\t\t\t-> follow a diet\n" +
                     "unfollow\t\t\t\t\t-> unfollow a diet\n" +
                     "stop\t\t\t\t\t\t-> stop a diet\n" +
                     "check\t\t\t\t\t\t-> check your current diet against your eaten foods\n" +
+                    "find -d -r\t\t\t\t\t-> lookup recommended diet\n" +
                     "find -d -c\t\t\t\t\t-> lookup your current diet\n");
         }
         if(user instanceof Nutritionist){
             System.out.println("==> commands for nutritionist\n" +
                     "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
                     "rm -d \"dietID\"\t\t\t-> remove your diet");
+        }
+        if(user instanceof Administrator){ //instanceof su user
+            System.out.println("===> commands for administrators \n" +
+                    "find -npn\t\t\t\t\t-> lookup most suggested nutrient for each nutritionist\n");
         }
     }
 
