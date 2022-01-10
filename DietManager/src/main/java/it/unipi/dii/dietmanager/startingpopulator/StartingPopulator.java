@@ -45,7 +45,7 @@ public class StartingPopulator {
 
                 else if(nodeType.equals(Diet.class.getName())) {
                     Diet diet = Diet.fromJSONObject(jsonNode);
-                    logicManager.addDietTOBEREMOVED(diet);
+                    logicManager.addDiet(diet);
                 }
 
                 else if(jsonNode.getString(User.USERTYPE).equals(User.USERTYPE_NUTRITIONIST)) {
