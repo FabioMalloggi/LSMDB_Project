@@ -23,7 +23,7 @@ public class LogicManager {
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
     private final int MAX_FAIL_NUTRIENT = 2;
-    private final int MONGO_DB_PORT = 27017;
+    private final int MONGO_DB_PORT = 27020;
     private final String MONGO_DB_ADDRESS = "172.16.4.84";
     private Neo4j Neo4J;
     private MongoDB2 MongoDB;
