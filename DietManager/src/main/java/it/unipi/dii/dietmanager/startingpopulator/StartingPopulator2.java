@@ -138,7 +138,7 @@ public class StartingPopulator2 {
         currentPercentage=0; oldPercentage=-1;
         int count = 0;
         for(Diet diet: diets){
-            logicManager.addDietTOBEREMOVED(diet);
+            logicManager.addDiet(diet);
             count++;
             printPercentageProgress(count, diets.size(), "diets");
         }
@@ -287,13 +287,13 @@ public class StartingPopulator2 {
     public static void main(String... args){
         StartingPopulator2 startingPopulator2 = new StartingPopulator2();
 
-        startingPopulator2.setMAX_STANDARD_USERS( 1000000 );
-        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 200000 );
+        startingPopulator2.setMAX_STANDARD_USERS( 50000 );
+        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 10000 );
 
         startingPopulator2.readPopulationFromJSONFiles();
-        startingPopulator2.resetDBs();
-        startingPopulator2.populateDBs(true, true, true);
-        //startingPopulator2.processStandardUsers();
+        //startingPopulator2.resetDBs();
+        //startingPopulator2.populateDBs(false, true, false);
+        startingPopulator2.processStandardUsers();
         //System.out.println(startingPopulator2.logicManager.lookUpDietByName("").size());
         System.out.println(">>> Code finished: stop the execution");
     }
