@@ -94,6 +94,7 @@ public class Neo4j implements AutoCloseable
 
     public boolean addUser(User user)
     {
+        boolean isSuccessful = false;
         try ( Session session = driver.session() )
         {
             if(user instanceof StandardUser)
@@ -106,16 +107,17 @@ public class Neo4j implements AutoCloseable
                     tx.run( "MERGE (:Nutritionist {username: $username})", parameters( "username", user.getUsername()));
                     return null;
                 });
-            return true;
+            isSuccessful = true;
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
         }
-        return false;
+        return isSuccessful;
     }
 
     public boolean addDiet(Diet diet)
     {
+        boolean isSuccessful = false;
         try ( Session session = driver.session() )
         {
             // I create the Diet node
@@ -132,12 +134,12 @@ public class Neo4j implements AutoCloseable
                         parameters("username", diet.getNutritionist(), "id", diet.getId()));
                 return null;
             });
-            return true;
+            isSuccessful = true;
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
         }
-        return false;
+        return isSuccessful;
     }
 
     private boolean userAlreadyFollowedDiet(StandardUser user, Diet diet){

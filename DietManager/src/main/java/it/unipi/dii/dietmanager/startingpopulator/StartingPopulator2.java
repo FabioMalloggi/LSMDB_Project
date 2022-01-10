@@ -200,7 +200,7 @@ public class StartingPopulator2 {
         }
         if(populateUsers){
             System.out.println(">>> Starting inserting Users");
-            countUsers = insertUsers();
+            countUsers = insertUsersWithLimitedStandardUsers();
             System.out.println(">>> Finished inserting Users");
             System.out.println("users inserted: " + countUsers);
         }
@@ -209,6 +209,8 @@ public class StartingPopulator2 {
     private void generationEatenFoodForSingleSU(){
         int quantity;
         String foodName;
+        diets.clear();
+        diets = logicManager.lookUpDietByName("");
         int numberOfEatenFoods = new Random().nextInt(MAX_NUMBER_OF_EATEN_FOODS);// + MIN_NUMBER_OF_EATEN_FOODS
 
         for (int i = 0; i < numberOfEatenFoods; i++) {
@@ -219,18 +221,6 @@ public class StartingPopulator2 {
         logicManager.addEatenFoodToMongo(); //we must insert them in MongoDB
     }
 
-    public void userFollowDiet(String relationshipType){
-        Diet dietTarget = diets.get(random.nextInt(diets.size()));
-
-        if( relationshipType == "current"){
-            logicManager.followDiet(dietTarget.getId());
-        }
-        else if(relationshipType == "stopped"){
-            //i cannot insert manually stopped diet because i do not have manner to pass the stopped diet according to the implmementation of stopped diet
-            logicManager.followDiet(dietTarget.getId());
-            logicManager.stopDiet();
-        }
-    }
 
     public void processStandardUsers(){
         currentPercentage=0; oldPercentage=-1;
@@ -252,19 +242,26 @@ public class StartingPopulator2 {
 
                     logicManager.signIn(user.getUsername(), user.getPassword());
 
+                    String randomRelationship = followRelationships[random.nextInt(2)];
+                    Diet dietTarget = diets.get(random.nextInt(diets.size()));
+
+                    logicManager.followDiet(logicManager.lookUpDietByName(dietTarget.getName()).get(0).getId());
                     //generation eatenFood for the current S.U
                     generationEatenFoodForSingleSU();
                     //eatenFoods are removed whenever the stopDiet is call (in the next method)
 
-                    String randomRelationship = followRelationships[random.nextInt(2)];
-                    userFollowDiet(randomRelationship);
-                    if(randomRelationship == "current")
+                    if(randomRelationship.equals("current")){
                         currentDietUsersCount++;
-                    else if(randomRelationship == "stopped")
+                    }
+                    else if(randomRelationship.equals("stopped")) {
+                        logicManager.stopDiet();
                         stoppedDietUsersCount++;
+                    }
                     else
                         System.exit(1);
+
                     standardUsersWithRelationship++;
+
                 }else{
                     standardUsersWithoutRelationship++;
                 }
@@ -290,13 +287,14 @@ public class StartingPopulator2 {
     public static void main(String... args){
         StartingPopulator2 startingPopulator2 = new StartingPopulator2();
 
-        // startingPopulator2.setMAX_STANDARD_USERS( 1000000 );
-        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 10000 );
+        startingPopulator2.setMAX_STANDARD_USERS( 10000 );
+        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 2000 );
 
         startingPopulator2.readPopulationFromJSONFiles();
         //startingPopulator2.resetDBs();
-        //startingPopulator2.populateDBs(true, true, true);
+        //startingPopulator2.populateDBs(false, true, false);
         startingPopulator2.processStandardUsers();
+        //System.out.println(startingPopulator2.logicManager.lookUpDietByName("").size());
         System.out.println(">>> Code finished: stop the execution");
     }
 
