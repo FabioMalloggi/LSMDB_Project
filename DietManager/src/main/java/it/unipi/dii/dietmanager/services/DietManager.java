@@ -19,7 +19,7 @@ public class DietManager {
                     /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
-    public static Food generateFood(String name, String[] nutrientsValues){
+    public static Food generateFood(String name, String category,String[] nutrientsValues){
         double [] doubleValues = new double[17];
         List<Nutrient> newList = new ArrayList<>();
         Nutrient tmp;
@@ -35,7 +35,7 @@ public class DietManager {
                 newList.add(tmp);
             }
         }
-        foodCreated = new Food(name, "", newList, 0);
+        foodCreated = new Food(name, category, newList, 0);
         return foodCreated;
     }
 
@@ -286,10 +286,20 @@ public class DietManager {
 
                 //commands for Administrator (Food)
                 else if(tokens[0].equals("add") && tokens[1].equals("-f") && tokens.length >= 3 && (logicManager.currentUser instanceof Administrator)){
-                    String[] chooseNutrients; String foodName;
+                    String[] chooseNutrients, tokens2; String foodName, category;
                     Food newFood;
-
                     cli.generalPrint("-> add food to catalog");
+
+                    cli.printCategory();
+                    cli.generalPrintInLine("> ");
+                    input2 = scanner.nextLine();
+                    tokens2 = input2.split(" ");
+
+                    category = tokens2[0];
+                    for(int i = 1; i < tokens2.length; i++){ //enter only if the foodName has some keyboard space
+                        category += " "+tokens2[i];
+                    }
+
                     chooseNutrients = cli.menuInsertNutrient();
 
                     foodName = tokens[2];
@@ -297,12 +307,7 @@ public class DietManager {
                         foodName += " "+tokens[i];
                     }
 
-                    //to test  //work
-                    String result = "";
-                    for(String string: chooseNutrients){
-                        result += "nutrient "+string;
-                    }
-                    newFood = generateFood(foodName, chooseNutrients);
+                    newFood = generateFood(foodName, category,chooseNutrients);
                     checkOperation = logicManager.addFood(newFood);
 
                     if(checkOperation){
@@ -519,13 +524,6 @@ public class DietManager {
                     for(int i = 3; i < tokens.length; i++){ //enter only if the dietName has some keyboard space
                         dietName += " "+tokens[i];
                     }
-
-                    //to test menuNut //work
-                    String result = "";
-                    for(String string: chooseNutrients){
-                        result += "nutrient "+string;
-                    }
-                    cli.generalPrint("result menuNutrient: "+result);
 
                     //create a List of Nutrients with the chooseNutrients[] value and create a diet object;
                     //call addDiet(Diet diet)

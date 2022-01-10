@@ -118,11 +118,11 @@ public class CLI {
         if(user instanceof StandardUser) {
             System.out.println("====> help food\n" +
                     "find -f \"foodName\"\t\t-> search food by name\n" +
-                    "find -ef \"category\"\t\t-> lookup most eaten food by category\n" +
                     "find -ef -personal\t\t-> lookup your eaten foods list\n" +
                     "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
                     "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
         }
+        System.out.print("find -ef \"category\"\t\t-> lookup most eaten food by category");
         if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
@@ -133,7 +133,7 @@ public class CLI {
     public void helpDiet(User user) {
         System.out.println("====> help diet\n" +
                 "find -d -id \"dietID\"\t\t-> search diet by ID\n" +
-                "find -d -name \"dietName\"\t-> search diets by names\n" +
+                "find -d -subName \"dietName\"\t-> search diets by names\n" +
                 "find -d -nut\"username\" \t\t-> search diets by Nutritionist username\n" +
                 "find -d -mf\t\t\t\t\t-> search most currently followed diet\n" +
                 "find -d -mp\t\t\t\t\t-> search most popular diet\n" +
@@ -168,6 +168,10 @@ public class CLI {
             System.out.println("===> commands for administrators \n" +
                     "rm -u \"username\"\t\t\t\t\t-> remove user by username");
         }
+    }
+
+    public void printCategory(){
+        System.out.println("Insert the category:");
     }
 
     public String[] menuInsertNutrient(){
