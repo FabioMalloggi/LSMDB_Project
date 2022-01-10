@@ -18,7 +18,7 @@ public class StartingPopulator {
     File fileJSONUsers = new File("./data/json/users.json");
     File fileJSONFoods = new File("./data/json/foods.json");
     private final int MONGODB_PORT = 27017;
-    private final int FOLLOW_RANDOM = 10;
+    private final int FOLLOW_RANDOM = 4;
     private final int MAX_TYPE_OF_RELATIONSHIPS = 2; //current following or stopped
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MIN_NUMBER_OF_EATEN_FOODS = 2;
@@ -27,7 +27,6 @@ public class StartingPopulator {
     private final int MAX_STANDARD_USER = 50000;
     private int countStandardUser = 0;
     LogicManager logicManager = new LogicManager();
-    Neo4j neo4j = new Neo4j();
 
     public boolean insertObjects(File fileInput, String nodeType){
         try{
@@ -160,7 +159,7 @@ public class StartingPopulator {
                 if(jsonNodesUser.get(User.USERTYPE).equals(User.USERTYPE_STANDARDUSER)){
                     System.out.println(counterFollow);
 
-                    if(counterFollow > 5000)
+                    if(counterFollow > 10000)
                         return;
 
                     if(createFollow(counterFollow)){ //generation follow relationships
@@ -184,6 +183,7 @@ public class StartingPopulator {
                         }
                     }
                     counterFollow++;
+                    System.out.println("Follow generation: " + counterFollow);
                 }
 
             }
@@ -222,13 +222,11 @@ public class StartingPopulator {
 
     }
 
-
-
     public void populateDBs(){
         //resetDBs();
-        insertObjects(fileJSONUsers, User.class.getName());
+        //insertObjects(fileJSONUsers, User.class.getName());
         insertObjects(fileJSONDiets, Diet.class.getName());
-        insertObjects(fileJSONFoods, Food.class.getName());
+        //insertObjects(fileJSONFoods, Food.class.getName());
     }
 
     public void resetDBs(){

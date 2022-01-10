@@ -337,7 +337,6 @@ public class HandlerFood
         System.out.println("FINITO FILE 1");
         List<JSONObject> jsonFile = insertJSONFoodsFromFile2(fileTargetFood2WithSemicolonSeparators, fileAttributesRepetitions, jsonFoods);
 
-        //System.out.println(jsonFile.toString());
         fileJSONFoods.delete();
 
         try {

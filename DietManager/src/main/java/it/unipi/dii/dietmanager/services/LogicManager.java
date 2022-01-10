@@ -204,7 +204,6 @@ public class LogicManager {
             neo4J = Neo4J.addUser(user);
             if(!neo4J){
                 System.out.println("Error cross-consistency");
-                //to do something.. //REMOVE DA MONGO
                 MongoDB.removeUser(user);
                 return false;
             }

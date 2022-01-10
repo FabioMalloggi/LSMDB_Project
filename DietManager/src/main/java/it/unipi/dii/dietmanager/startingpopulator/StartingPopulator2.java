@@ -291,12 +291,12 @@ public class StartingPopulator2 {
         StartingPopulator2 startingPopulator2 = new StartingPopulator2();
 
         // startingPopulator2.setMAX_STANDARD_USERS( 1000000 );
-        //startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 5000 );
+        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 10000 );
 
         startingPopulator2.readPopulationFromJSONFiles();
-        startingPopulator2.resetDBs();
-        startingPopulator2.populateDBs(true, true, true);
-        //startingPopulator2.processStandardUsers();
+        //startingPopulator2.resetDBs();
+        //startingPopulator2.populateDBs(true, true, true);
+        startingPopulator2.processStandardUsers();
         System.out.println(">>> Code finished: stop the execution");
     }
 
