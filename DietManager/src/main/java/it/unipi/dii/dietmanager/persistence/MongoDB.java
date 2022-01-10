@@ -424,46 +424,6 @@ public class MongoDB{
         nutritionistDietsCountMap = lookUpDietsCountForEachNutritionist();
 
         if( ! nutritionistDietsCountMap.isEmpty()){
-            // than we compute the most suggested nutrient each nutritionist proposed in his diets.
-
-            /*
-            Bson dietsUnwindNutrients = unwind(Diet.NUTRIENTS);
-            Bson projectionFields = project(
-                    fields(include(Diet.NUTRITIONIST, Nutrient.QUANTITY, Nutrient.UNIT),computed("nutrientName",Diet.NUTRIENTS)));
-            Bson dietsMatchOutEnergyNutrient = match(
-                    Filters.not(eq("nutrientName", "Energy")));
-            Bson groupByNutrientAndNutritionist = group(
-                    new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST).append("nutrientName","$nutrientName").append(Nutrient.UNIT,"$"+Nutrient.UNIT),
-                    Accumulators.sum("totalQuantity", "$"+Nutrient.QUANTITY));
-
-            List<String> nutritionists = new ArrayList<>();
-            List<Nutrient> nutrients = new ArrayList<>();
-
-
-
-            // retrieve documents representing for each combination of Nutritionist-Nutrient
-            // (unit is the same for each of their combination),
-            // the average quantity of the nutrient that the nutritionist has recommended in its diets.
-            try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
-                    dietsUnwindNutrients,
-                    projectionFields,
-                    dietsMatchOutEnergyNutrient,
-                    groupByNutrientAndNutritionist)).iterator()){
-
-                Document currentDocument;
-                while(cursor.hasNext()){
-                    currentDocument = cursor.next();
-
-                    nutritionists.add(currentDocument.getString(Diet.NUTRITIONIST));
-                    nutrients.add(new Nutrient(
-                            currentDocument.getString("nutrientName"),
-                            currentDocument.getString(Nutrient.UNIT),
-                            currentDocument.getDouble("totalQuantity")
-                    ));
-                }
-            }
-
-             */
 
             List<String> nutritionists = new ArrayList<>();
             List<Nutrient> nutrients = new ArrayList<>();
@@ -502,23 +462,6 @@ public class MongoDB{
                                                                                 new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
                                                                         .append("else", "$totalQuantity"))))));
 
-
-            /*
-            Bson group2Document =  new Document("$group",
-                    new Document("_id",
-                            new Document(Diet.NUTRITIONIST, "$"+ Diet.NUTRITIONIST)
-                                    .append("nutrient", "$nutrient"))
-                            .append("maxQuantity",
-                                    new Document("$max", "$totalQuantity")));
-
-            Bson project2Document = new Document("$project",
-                    new Document("_id", 0L)
-                            .append(Diet.NUTRITIONIST, "$_id."+Diet.NUTRITIONIST)
-                            .append("nutrient", "$_id.nutrient")
-                            .append("maxQuantity", "$maxQuantity"));
-
-             */
-
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
                     matchDocument,
@@ -544,30 +487,9 @@ public class MongoDB{
             String lastAnalyzedNutritionist = "", currentNutritionist;
             Nutrient lastMostNutrient = null, currentNutrient;
 
-            // DEBUG
-            if(nutrients.size() != nutritionists.size()) {
-                System.err.println("nutrient.size() != nutritionist.size()!");
-                System.exit(1);
-            }
-
             for(int i=0; i < nutrients.size(); i++){
                 currentNutritionist = nutritionists.get(i);
                 currentNutrient = nutrients.get(i);
-
-                //convert nutrient quantity to standard unit: mg
-                /*
-                if(currentNutrient.getName().equals("Energy"))
-                    continue;
-                if(currentNutrient.getUnit().equals("UG")){
-                    currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000000);
-                    currentNutrient.setUnit("G");
-                } else if( currentNutrient.getUnit().equals("MG")){
-                    currentNutrient.setQuantity( currentNutrient.getQuantity() / 1000);
-                    currentNutrient.setUnit("G");
-                } else if( ! currentNutrient.getUnit().equals("G")){
-                    System.err.println("ERROR: nutrient unit is not recognize");
-                }
-                 */
 
                 // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
                 // by dividing it for the number of diets the currentNutritionist has published.
@@ -614,11 +536,6 @@ public class MongoDB{
 
 
     private Food foodFromDocument(Document foodDocument) {
-/*        if(foodDocument == null)
-            return null;
-        JSONObject jsonFood = new JSONObject(foodDocument);
-        return Food.fromJSONObject(jsonFood);
- */
         if(foodDocument == null)
             return null;
         JSONObject jsonFood = new JSONObject(foodDocument);
@@ -630,15 +547,6 @@ public class MongoDB{
     private Document foodToDocument(Food food){
         return Document.parse(food.toJSONObject().toString());
     }
-
-    /*
-    private EatenFood eatenFoodFromDocument(Document eatenFoodDocument) {
-        if(eatenFoodDocument == null)
-            return null;
-        JSONObject jsonEatenFood = new JSONObject(eatenFoodDocument.toString());
-        return EatenFood.fromJSONObject(jsonEatenFood);
-    }
-     */
 
     public List<Food> lookUpFoodsByName(String subname){
         openConnection();
@@ -773,23 +681,6 @@ public class MongoDB{
         closeConnection();
         return updateResult.wasAcknowledged();
     }
-
-
-/*      NOT NEEDED: UPDATE EATEN FOOD IS ENOUGH
-    public boolean removeEatenFood(StandardUser standardUser, String eatenFoodID){
-        openConnection();
-        MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
-
-        Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
-        Bson deleteEatenFoodDocument = Updates.pull(StandardUser.EATENFOODS, new Document(EatenFood.ID, eatenFoodID));
-        UpdateResult updateResult = userCollection.updateOne(userFilter, deleteEatenFoodDocument);
-
-        closeConnection();
-        return updateResult.wasAcknowledged();
-    }
-
- */
-
 
     /************************************************************************************/
 
