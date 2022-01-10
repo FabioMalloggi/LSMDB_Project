@@ -17,7 +17,7 @@ public class Neo4j implements AutoCloseable
 
     public Neo4j()
     {
-        uri = "neo4j://localhost:7687";
+        uri = "neo4j://172.16.4.84:7474";
         user = "neo4j";
         password = "root";
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ),
