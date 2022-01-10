@@ -209,8 +209,6 @@ public class StartingPopulator2 {
     private void generationEatenFoodForSingleSU(){
         int quantity;
         String foodName;
-        diets.clear();
-        diets = logicManager.lookUpDietByName("");
         int numberOfEatenFoods = new Random().nextInt(MAX_NUMBER_OF_EATEN_FOODS);// + MIN_NUMBER_OF_EATEN_FOODS
 
         for (int i = 0; i < numberOfEatenFoods; i++) {
@@ -233,6 +231,8 @@ public class StartingPopulator2 {
         int standardUsersWithRelationship = 0;
         int currentDietUsersCount = 0;
         int stoppedDietUsersCount = 0;
+        diets.clear();
+        diets = logicManager.lookUpDietByName("");
 
         for(User user: users) {
             // only StandardUser can add eatenFoods
@@ -242,14 +242,14 @@ public class StartingPopulator2 {
 
                     logicManager.signIn(user.getUsername(), user.getPassword());
 
-                    String randomRelationship = followRelationships[random.nextInt(2)];
                     Diet dietTarget = diets.get(random.nextInt(diets.size()));
 
-                    logicManager.followDiet(logicManager.lookUpDietByName(dietTarget.getName()).get(0).getId());
+                    logicManager.followDiet(dietTarget.getId());
                     //generation eatenFood for the current S.U
                     generationEatenFoodForSingleSU();
                     //eatenFoods are removed whenever the stopDiet is call (in the next method)
 
+                    String randomRelationship = followRelationships[random.nextInt(2)];
                     if(randomRelationship.equals("current")){
                         currentDietUsersCount++;
                     }
