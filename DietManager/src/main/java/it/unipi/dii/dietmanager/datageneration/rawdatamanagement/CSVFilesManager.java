@@ -1,10 +1,10 @@
-package it.unipi.dii.utilities;
+package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OperationsCSV {
+public class CSVFilesManager {
     BufferedReader bufReader;
     BufferedWriter bufWriter;
 

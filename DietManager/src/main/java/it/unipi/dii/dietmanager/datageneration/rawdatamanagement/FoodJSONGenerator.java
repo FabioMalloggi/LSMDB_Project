@@ -1,4 +1,4 @@
-package it.unipi.dii.utilities;
+package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
 
 import it.unipi.dii.dietmanager.entities.Food;
 import it.unipi.dii.dietmanager.entities.Nutrient;
@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HandlerFood
+public class FoodJSONGenerator
 {
     private final int NUTRIENT_ID_POSITION_IN_TARGET_NUTRIENTS = 0;
     private final int NUTRIENT_NAME_POSITION_IN_TARGET_NUTRIENTS = 1;
@@ -46,10 +46,10 @@ public class HandlerFood
     File fileJSONFoods = new File("./data/json/foods.json");
     File fileAttributeFoodNames = new File("./data/derived/foodNames.csv");
     File fileAttributesRepetitions = new File("./data/derived/attributesRepetitions.csv");
-    OperationsCSV operationsCSV;
+    CSVFilesManager CSVFilesManager;
 
-    public HandlerFood(){
-        operationsCSV = new OperationsCSV();
+    public FoodJSONGenerator(){
+        CSVFilesManager = new CSVFilesManager();
     }
 
     public String getAttributeValueFromFile(File fileInput, String id, int attributePosition)
@@ -141,7 +141,7 @@ public class HandlerFood
         String foodName = null, foodCategory = null;
 
         // I get repeated food names array
-        String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
+        String[] repeatedFoodNames = CSVFilesManager.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
         try
         {
@@ -239,7 +239,7 @@ public class HandlerFood
 
     public List<JSONObject> insertJSONFoodsFromFile2(File fileInput, File fileInputAttributesToDrop, List<JSONObject> jsonFoods)
     {
-        String[] repeatedFoodNames = operationsCSV.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
+        String[] repeatedFoodNames = CSVFilesManager.getAttributeValuesArrayFromFile(fileInputAttributesToDrop);
 
         try {
             BufferedReader bufReader = new BufferedReader(new FileReader(fileInput));
@@ -314,20 +314,20 @@ public class HandlerFood
 
     public void createInputFile(){
         File originalFood = new File("./data/original/Food.csv");
-        operationsCSV.samplinglinesCSV(originalFood, fileTargetFood1, 1000);
+        CSVFilesManager.samplinglinesCSV(originalFood, fileTargetFood1, 1000);
 
         // I delete ';' in original file
-        operationsCSV.replaceCharactersInFile(fileTargetFood1, fileTargetFood1WithCommaSeparators, ';', ' ');
-        operationsCSV.replaceCharactersInFile(fileTargetFood2, fileTargetFood2WithCommaSeparators, ';', ' ');
+        CSVFilesManager.replaceCharactersInFile(fileTargetFood1, fileTargetFood1WithCommaSeparators, ';', ' ');
+        CSVFilesManager.replaceCharactersInFile(fileTargetFood2, fileTargetFood2WithCommaSeparators, ';', ' ');
 
-        operationsCSV.changeFileSeparators(fileTargetFood1WithCommaSeparators, fileTargetFood1WithSemicolonSeparators,
+        CSVFilesManager.changeFileSeparators(fileTargetFood1WithCommaSeparators, fileTargetFood1WithSemicolonSeparators,
                 ',', ';', '"');
-        operationsCSV.changeFileSeparators(fileTargetFood2WithCommaSeparators, fileTargetFood2WithSemicolonSeparators,
+        CSVFilesManager.changeFileSeparators(fileTargetFood2WithCommaSeparators, fileTargetFood2WithSemicolonSeparators,
                 ',', ';', '"');
 
-        operationsCSV.insertIntoFileAttributesFrom2Files(fileTargetFood1WithSemicolonSeparators, fileTargetFood2WithSemicolonSeparators,
+        CSVFilesManager.insertIntoFileAttributesFrom2Files(fileTargetFood1WithSemicolonSeparators, fileTargetFood2WithSemicolonSeparators,
                                                 0, 1, 0, 2, fileAttributeFoodNames);
-        System.out.println(operationsCSV.writeToFileAttributeRepetitions(fileAttributeFoodNames, fileAttributesRepetitions));
+        System.out.println(CSVFilesManager.writeToFileAttributeRepetitions(fileAttributeFoodNames, fileAttributesRepetitions));
     }
 
     public void createJSON()
@@ -357,9 +357,9 @@ public class HandlerFood
 
     public static void main(String[] args) throws IOException
     {
-        HandlerFood handlerFood = new HandlerFood();
+        FoodJSONGenerator foodJSONGenerator = new FoodJSONGenerator();
 
-        handlerFood.createInputFile();
-        handlerFood.createJSON();
+        foodJSONGenerator.createInputFile();
+        foodJSONGenerator.createJSON();
     }
 }

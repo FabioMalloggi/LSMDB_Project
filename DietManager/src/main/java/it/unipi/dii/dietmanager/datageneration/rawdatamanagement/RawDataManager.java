@@ -1,11 +1,11 @@
-package it.unipi.dii.utilities;
+package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataManager {
+public class RawDataManager {
     private static String fileNameInput = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/FoodId-NutrientId-Per100g_target.csv";
     private static String fileNameOutput = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/FoodId-NutrientId-Per100g_target_part1.csv";
     private static final List<String> nutrientIDtargets = Arrays.asList( "1008","1003","1258","1005","2000","1079",
@@ -23,7 +23,7 @@ public class DataManager {
         File fileOriginalFood = new File("./data/original/Food.csv");
         File fileTargetFood = new File("./data/derived/TargetFood.csv");
 
-        OperationsCSV opCSV = new OperationsCSV();
+        CSVFilesManager opCSV = new CSVFilesManager();
 
         // copy only target nutrients
         opCSV.copyFileByLineContainingTargets(fileOriginalFoodPer100g,fileTargetNutrientPer100g,nutrientIDtargets, nutrientIDFieldInPer100gFile);

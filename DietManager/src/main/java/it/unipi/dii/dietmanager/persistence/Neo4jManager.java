@@ -10,16 +10,13 @@ import java.util.logging.Level;
 
 import static org.neo4j.driver.Values.parameters;
 
-public class Neo4j implements AutoCloseable
+public class Neo4jManager implements AutoCloseable
 {
     private Driver driver;
-    private String uri, user, password;
 
-    public Neo4j()
+    public Neo4jManager(String connectionMode, String ipAddress, int port, String user, String password)
     {
-        uri = "neo4j://172.16.4.84:7474";
-        user = "neo4j";
-        password = "root";
+        String uri = connectionMode+"://"+ipAddress+":"+port;
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ),
                 Config.builder().withLogging(new JULogging(Level.WARNING)).build());
     }
@@ -396,7 +393,7 @@ public class Neo4j implements AutoCloseable
         return mostRecommendedDietID;
     }
 
-    public void dropAll(){
+    public void dropDatabase(){
         try ( Session session = driver.session() )
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {

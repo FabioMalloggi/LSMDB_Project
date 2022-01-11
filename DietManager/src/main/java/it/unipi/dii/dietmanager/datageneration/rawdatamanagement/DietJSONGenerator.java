@@ -1,15 +1,13 @@
-package it.unipi.dii.utilities;
+package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
 
 import it.unipi.dii.dietmanager.entities.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HandlerDiet {
+public class DietJSONGenerator {
 
     private final int DIETS_NUMBER;
     private final int[] TARGET_NUTRIENT_INDEXES_DB2 = {7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -45,7 +43,7 @@ public class HandlerDiet {
 
 
 
-    public HandlerDiet(int dietsNumber){
+    public DietJSONGenerator(int dietsNumber){
         DIETS_NUMBER = dietsNumber;
         nutrientsMatrix = new double[DIETS_NUMBER][TARGET_NUTRIENT_INDEXES_DB2.length];
     }
@@ -174,10 +172,10 @@ public class HandlerDiet {
 
 
     public static void main(String[] args) {
-        HandlerDiet handlerDiet = new HandlerDiet(2000);
-        handlerDiet.dietCreator();
+        DietJSONGenerator dietJSONGenerator = new DietJSONGenerator(2000);
+        dietJSONGenerator.dietCreator();
         // handlerDiet.printNutritionists();
-        handlerDiet.printDietsToFile();
+        dietJSONGenerator.printDietsToFile();
         /*
         for(String max: handlerDiet.extractTargetNutrientfromMax())
             System.out.println(max);
