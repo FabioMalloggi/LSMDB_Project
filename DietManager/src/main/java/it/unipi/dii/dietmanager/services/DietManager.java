@@ -61,7 +61,6 @@ public class DietManager {
     }
 
 
-
     public static void main(String[] args) {
         CLI cli = new CLI();
         LogicManager logicManager = new LogicManager( false ); //Logic Manager istance to interact with the DBs

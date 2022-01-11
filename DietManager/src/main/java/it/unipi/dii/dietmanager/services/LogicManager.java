@@ -16,11 +16,6 @@ public class LogicManager {
                     /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
                     /*16*/"Zinc"};
 
-    private final String[] nutrients_units =
-            {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
-                    /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
-                    /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
-                    /*16*/"MG"};
     private final int MAX_FAIL_NUTRIENT = 2;
 
     private final int MONGO_DB_PORT_LOCAL = 27017;
@@ -60,15 +55,19 @@ public class LogicManager {
 
 
     public void openOnlyOneConnection(){
-        mongoDBManager.setOnlyOneConnection();
+        mongoDBManager.openOnlyOneConnection();
     }
     public void closeOnlyOneConnection(){
-        mongoDBManager.closeConnection();
+        mongoDBManager.closeOnlyOneConnection();
     }
 
     public void dropAllDBs(){
         neo4JManager.dropDatabase();
         mongoDBManager.dropDatabase();
+    }
+
+    public void createMongoDBindex(){
+        mongoDBManager.createDietManagerIndexes();
     }
 
     /** Read operations in MongoDB */
@@ -524,6 +523,8 @@ public class LogicManager {
         return true;
     }
 
+    // for future usage: it returns the differences between the averages quantities of each nutrients in the eaten foods
+    // of the current standard user and the values of the correspondent nutrient of his current followed diet
     public HashMap<Nutrient, double[]> dietProgress (){
         Food foodTarget; Diet dietTarget; HashMap<Nutrient, double[]> hashMap = new HashMap<>();
         int i, index, totalQuantityEatenFoods = 0;

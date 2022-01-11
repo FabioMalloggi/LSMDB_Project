@@ -16,11 +16,9 @@ public class Populator {
     File fileJSONDiets = new File("./data/json/diet.json");
     File fileJSONUsers = new File("./data/json/users.json");
     File fileJSONFoods = new File("./data/json/foods.json");
-    private final int MONGODB_PORT = 27017;
 
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MAX_QUANTITY = 3000;
-    //private final int USER_SAMPLING_PERCENTAGE = 10;
     private int MAX_STANDARD_USERS= 1000000;
     private int MAX_STANDARD_USERS_RELATIONSHIPS = 1000000;
 
@@ -289,13 +287,13 @@ public class Populator {
 
         populator.readPopulationFromJSONFiles();
 
-        //startingPopulator2.resetDBs();
         populator.logicManager.openOnlyOneConnection();
-
+        //startingPopulator2.resetDBs();
+        populator.logicManager.createMongoDBindex();
         //populator.populateDBs(false, true, false);
         //startingPopulator2.processStandardUsers();
-
         populator.logicManager.closeOnlyOneConnection();
+
         System.out.println(">>> Code finished: stop the execution");
     }
 

@@ -57,11 +57,6 @@ public abstract class  User {
         return country;
     }
 
-    // public void setUsername (String userName) { this.username = userName; }
-    // public void setFullName(String fullName) { this.fullName = fullName; }
-    // public void setPassword(String password) { this.password = password; }
-    // public void setSex(String sex) { this.sex = sex; }
-    // public void setCountry(String country) { this.country = country; }
 
     public abstract JSONObject toJSONObject();
 

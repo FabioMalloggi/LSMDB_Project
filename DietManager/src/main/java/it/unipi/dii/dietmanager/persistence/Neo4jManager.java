@@ -18,7 +18,7 @@ public class Neo4jManager implements AutoCloseable
     {
         String uri = connectionMode+"://"+ipAddress+":"+port;
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ),
-                Config.builder().withLogging(new JULogging(Level.WARNING)).build());
+                Config.builder().withLogging(new JULogging(Level.OFF)).build());
     }
 
     @Override
@@ -26,6 +26,7 @@ public class Neo4jManager implements AutoCloseable
         driver.close();
     }
 
+    // for future usage
     public boolean userAlreadyExists(String username){
         try ( Session session = driver.session() )
         {
@@ -47,6 +48,7 @@ public class Neo4jManager implements AutoCloseable
         return false;
     }
 
+    // for future usage
     public boolean dietAlreadyExists(String dietID){
         try ( Session session = driver.session() )
         {
@@ -68,6 +70,7 @@ public class Neo4jManager implements AutoCloseable
         return false;
     }
 
+    // for future usage
     private boolean userAlreadyFollowedAnyDiet(StandardUser user){
         try ( Session session = driver.session() )
         {
@@ -139,6 +142,7 @@ public class Neo4jManager implements AutoCloseable
         return isSuccessful;
     }
 
+    // for future usage
     private boolean userAlreadyFollowedDiet(StandardUser user, Diet diet){
         try ( Session session = driver.session() )
         {

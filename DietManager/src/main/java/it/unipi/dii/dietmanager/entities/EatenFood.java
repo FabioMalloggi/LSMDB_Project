@@ -1,11 +1,9 @@
 package it.unipi.dii.dietmanager.entities;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Objects;
 
 public class EatenFood {

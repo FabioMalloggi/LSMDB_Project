@@ -59,9 +59,27 @@ public class MongoDBManager {
         disableLogger();
     }
     
-    public void setOnlyOneConnection(){ 
+    public void openOnlyOneConnection(){
         this.onlyOneConnection = true; 
         openConnection();
+    }
+
+    public void closeOnlyOneConnection(){
+        closeConnection();
+    }
+
+    private void openConnection()
+    {
+        mongoClient = MongoClients.create(connectionUri);
+        database = mongoClient.getDatabase(DIET_MANAGER_DATABASE);
+    }
+
+    private void closeConnection() {
+        try{
+            mongoClient.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void disableLogger(){
@@ -70,34 +88,17 @@ public class MongoDBManager {
         rootLogger.setLevel(Level.OFF);
     }
 
-    public void openConnection()
-    {
-        mongoClient = MongoClients.create(connectionUri);
-        database = mongoClient.getDatabase(DIET_MANAGER_DATABASE);
-    }
-
-    public void closeConnection() {
-        try{
-            mongoClient.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
     public void dropDatabase(){
         if( ! onlyOneConnection) openConnection();
         database.drop();
         if( ! onlyOneConnection) closeConnection();
     }
 
-    public static void createDietManagerIndexes(MongoDBManager mongoDBManager){
-        mongoDBManager.createSimpleIndex(mongoDBManager.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
-        mongoDBManager.createSimpleIndex(mongoDBManager.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
-        mongoDBManager.createCompoundPartialIndex(mongoDBManager.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
-                User.COUNTRY, true);// 3rd index (OPZIONE A)
-        mongoDBManager.createCompoundIndex(mongoDBManager.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
-        mongoDBManager.createCompoundIndex(mongoDBManager.COLLECTION_FOODS, Food.CATEGORY, true,
-                Food.EATEN_TIMES_COUNT, false); // 5th index
+    public void createDietManagerIndexes(){
+        createSimpleIndex(COLLECTION_DIETS, Diet.NUTRITIONIST, true);
+        createSimpleIndex(COLLECTION_USERS, User.COUNTRY, true);
+        createCompoundIndex(COLLECTION_FOODS, Food.CATEGORY, true,
+                Food.EATEN_TIMES_COUNT, false);
     }
 
     private void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
@@ -134,6 +135,7 @@ public class MongoDBManager {
         if( ! onlyOneConnection) closeConnection();
     }
 
+    // for future usage: create compound partial index
     private void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
                                            String secondAttributeName, boolean isSecondAttributeAscending){
         if( ! onlyOneConnection) openConnection();
@@ -187,6 +189,7 @@ public class MongoDBManager {
         return userFromDocument(userDocument);
     }
 
+    // for future usage
     public List<Nutritionist> lookUpNutritionistsByCountry(String country){
         if( ! onlyOneConnection) openConnection();
         List<Nutritionist> nutritionists = new ArrayList<>();
@@ -224,13 +227,12 @@ public class MongoDBManager {
 
     public boolean removeUser(User user){
         if( ! onlyOneConnection) openConnection();
-        boolean isSuccessful = true;
+        boolean isSuccessful = true, wasAcknowledged = false;
         if(user != null) {
             // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
             if(user instanceof Nutritionist){
                 isSuccessful = removeDietsByNutritionist(user.getUsername());
             }
-
             // deleting user given his username
             if(isSuccessful) {
                 MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
@@ -362,7 +364,6 @@ public class MongoDBManager {
         for (String dietId: dietIDs){
             dietObjectIds.add(new ObjectId(dietId));
         }
-
         // deleting 'currentDiet' field and consequently 'EatenFoods' field from each 'user' document whose current diet value
         // correspond to one of the diets to be removed
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
@@ -533,8 +534,6 @@ public class MongoDBManager {
             }
         }
         return nutritionistNutrientMap;
-
-
     }
 
     /************************************************************************************/
@@ -687,55 +686,5 @@ public class MongoDBManager {
         if( ! onlyOneConnection) closeConnection();
         return updateResult.wasAcknowledged();
     }
-
     /************************************************************************************/
-
-
-    public static void main( String... args ) throws Exception {
-        MongoDBManager mongoDBManager = new MongoDBManager( "localhost",27017);
-    }
 }
-
-
-
-
-
-
-/*
-    public MongoDB(List<String> hosts, List<Integer> ports, String username, String authenticationDB, String password ){
-        String uriComposition = "mongodb://";
-        for(int i=0; i<hosts.size(); i++){
-            uriComposition += username + ":" + password + "@" + hosts.get(i) + ":" + ports.get(i);
-            if(i < hosts.size()-1)
-                uriComposition += ",";
-            else
-                uriComposition += "/?authSource=" + authenticationDB;
-        }
-        ConnectionString connectionString = new ConnectionString(uriComposition);
-        mongoClient = MongoClients.create(connectionString);
-    }
-
-     */
-
-    /*
-    // REMIND: poolsize, writing mode (majority ecc) and other options are available at instantiation phase of MongoClient!
-    public MongoDB(List<String> hosts, List<Integer> ports, String username, String authenticationDB, String password ){
-        char[] passwordCharArray = password.toCharArray();
-        if(hosts.size() == ports.size()){
-            System.err.println("MongoDB connection error: replicas addresses and replicas corresponding ports must match in size");
-            System.exit(1);
-        }
-        List<ServerAddress> replicas = new ArrayList<>();
-        for(int i=0; i< hosts.size(); i++){
-            replicas.add(new ServerAddress(hosts.get(i), ports.get(i)));
-        }
-        MongoCredential credential = MongoCredential.createCredential(username, authenticationDB, passwordCharArray);
-        mongoClient = MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyToClusterSettings(builder ->
-                                builder.hosts(replicas))
-                        .credential(credential)
-                        .build());
-    }
-
-     */
