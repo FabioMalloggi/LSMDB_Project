@@ -1,5 +1,5 @@
 
-VM's CONFIGURATION:
+MongoDB REPLICA SET CLUSTER CONFIGURATION:
 
 wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
 echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list 
@@ -26,13 +26,12 @@ mongod --replSet lsmdb --dbpath ~/data --port  27020 --bind_ip localhost,172.16.
 
 
 #Terminal 4 
-ssh root@172.16.4.99 
+ssh root@172.16.4.86
 mongo --port 27020 
 rsconf = { 
 _id: "lsmdb",
 members: [
-{_id: 0, host: "172.16.4.84:27020", priority:1}, {_id: 1, host: "172.16.4.85:27020", priority:1}, {_id: 2, host: "172.16.4.86:27020", priority:1}] }; 
+{_id: 0, host: "172.16.4.84:27020", priority:1}, {_id: 1, host: "172.16.4.85:27020", priority:2}, {_id: 2, host: "172.16.4.86:27020", priority:5}] }; 
 rs.initiate(rsconf);
 
-
-
+rs.reconfig(rsconf);
