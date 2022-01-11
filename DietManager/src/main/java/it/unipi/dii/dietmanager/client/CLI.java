@@ -11,7 +11,6 @@ public class CLI {
         this.scan = new Scanner(System.in);
     }
 
-    //public LogicManager controller; //<-- se lo definisco qui sarà u oggetto diverso rispetto a quello che definirò nel controller
     public String startWelcomeMenu(){
         String input;
         System.out.println("=======> Welcome to DietManager Application\n" +
@@ -20,11 +19,6 @@ public class CLI {
                 "==> Type \"end\" for exit");
         System.out.print("> ");
         input = scan.nextLine();
-        /* alreay done in controller
-        if(!input.equals("R") && !input.equals("S")) //fare qualcosa
-            System.out.print("fare qualcosa con eccezione");
-        else return input;
-        */
         return input;
     }
 
@@ -39,9 +33,7 @@ public class CLI {
         System.out.print("> ");
         input[1] = scan.nextLine();
 
-        /*il check lo faccio qui in CLI o ritorno intanto le due stringhe al Controller e poi
-        //controller.signIn(username, password);*/
-        return input; //il controllo sarà fatto dal controller, nel caso verrà ri eseguito questo
+        return input;
     }
 
     public String startUsernameSubmission(){
@@ -333,6 +325,7 @@ public class CLI {
             System.out.println("You don't have successfully completed the followed diet");
     }
 
+    // for future usage
     public void printDietProgress(HashMap<Nutrient, double[]> hashMap){
         Iterator hmIterator = hashMap.entrySet().iterator();
         while(hmIterator.hasNext()){

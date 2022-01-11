@@ -553,18 +553,12 @@ public class MongoDBManager {
         return Document.parse(food.toJSONObject().toString());
     }
 
-    public List<Food> lookUpFoodsByName(String subname){
+    public List<Food> lookUpFoodsByName(String name){
         if( ! onlyOneConnection) openConnection();
-        String regex = "^.*"+subname+".*$";
-//        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
-//        Bson filter = Filters.regex(Food.NAME, pattern);
-
-        //Pattern pattern = Pattern.compile(".*" + subname + ".*");
-        //Bson filter = Filters.regex(Food.NAME, pattern);
         List<Food> foods = new ArrayList<>();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         try(MongoCursor<Document> cursor = foodCollection.find(
-                eq(Food.NAME, subname)).iterator()){
+                eq(Food.NAME, name)).iterator()){
             while(cursor.hasNext()){
                 foods.add(foodFromDocument(cursor.next()));
             }
