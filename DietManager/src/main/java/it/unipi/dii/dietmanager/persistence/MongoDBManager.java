@@ -583,9 +583,9 @@ public class MongoDBManager {
         return maxEatenTimesFood;
     }
 
-    public HashMap<String, Integer> lookUpMostEatenFoodForEachCategory(){
+    public HashMap<String, Integer> lookUpSumOfEatenTimesCountForEachCategory(){
         if( ! onlyOneConnection) openConnection();
-        HashMap<String, Integer> foodEatenTimesCountMap = new HashMap<>();
+        HashMap<String, Integer> categoryEatenTimesCountMap = new HashMap<>();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
 
         Bson groupDocument = new Document("$group",
@@ -593,26 +593,20 @@ public class MongoDBManager {
                         .append("SumOfEatenFoodsCount",
                                 new Document("$sum", "$"+ Food.EATEN_TIMES_COUNT)));
 
-        Bson projectDocument = new Document("$project",
-                new Document("_id", 0L)
-                        .append(Food.CATEGORY, "$_id."+Food.CATEGORY)
-                        .append("SumOfEatenFoodsCount", "$SumOfEatenFoodsCount") );
-
         try(MongoCursor<Document> cursor = foodCollection.aggregate(Arrays.asList(
-                groupDocument,
-                projectDocument )).iterator()){
+                groupDocument )).iterator()){
 
             Document currentDocument;
             while(cursor.hasNext()){
                 currentDocument = cursor.next();
-                foodEatenTimesCountMap.put(
-                        currentDocument.getString(Food.CATEGORY),
+                categoryEatenTimesCountMap.put(
+                        currentDocument.getString(Food.NAME),
                         currentDocument.getInteger("SumOfEatenFoodsCount")
                 );
             }
         }
         if( ! onlyOneConnection) closeConnection();
-        return foodEatenTimesCountMap;
+        return categoryEatenTimesCountMap;
     }
 
     public boolean addFood(Food food){

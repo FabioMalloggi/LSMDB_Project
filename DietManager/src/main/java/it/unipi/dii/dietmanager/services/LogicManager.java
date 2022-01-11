@@ -127,8 +127,8 @@ public class LogicManager {
         return  foodTarget;
     }
 
-    public HashMap<String, Integer> lookUpMostEatenFoodForEachCategory(){
-        return mongoDBManager.lookUpMostEatenFoodForEachCategory();
+    public HashMap<String, Integer> lookUpSumOfEatenTimesCountForEachCategory(){
+        return mongoDBManager.lookUpSumOfEatenTimesCountForEachCategory();
     }
 
     public User lookUpUserByUsername(String username){
