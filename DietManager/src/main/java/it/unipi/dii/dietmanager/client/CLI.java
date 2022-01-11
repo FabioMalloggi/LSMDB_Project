@@ -111,10 +111,10 @@ public class CLI {
             System.out.println("====> help food\n" +
                     "find -ef -personal\t\t-> lookup your eaten foods list\n" +
                     "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
-                    "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
+                    "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list");
         }
         System.out.println("find -f \"foodName\"\t\t-> search food by name\n" +
-                "find -ef \\\"category\\\"\\t\\t-> lookup most eaten food by category");
+                "find -ef \"category\"\t\t-> lookup most eaten food by category");
         if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands only for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
