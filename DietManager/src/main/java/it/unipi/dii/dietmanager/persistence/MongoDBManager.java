@@ -443,7 +443,7 @@ public class MongoDBManager {
                     new Document(Diet.NUTRIENTS+"."+Nutrient.NAME,
                             new Document("$ne", "Energy")));
 
-            Bson group1Document = new Document("$group",
+            Bson groupDocument = new Document("$group",
                     new Document("_id",
                             new Document(Diet.NUTRITIONIST, "$"+Diet.NUTRITIONIST)
                                     .append("nutrient", "$"+Diet.NUTRIENTS+"."+Nutrient.NAME)
@@ -451,7 +451,7 @@ public class MongoDBManager {
                             .append("totalQuantity",
                                     new Document("$sum", "$"+Diet.NUTRIENTS+"."+Nutrient.QUANTITY)));
 
-            Bson project1Document = new Document("$project",
+            Bson projectDocument = new Document("$project",
                     new Document("_id", 0L)
                             .append(Diet.NUTRITIONIST, "$_id."+Diet.NUTRITIONIST)
                             .append("nutrient", "$_id.nutrient")
@@ -472,8 +472,8 @@ public class MongoDBManager {
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
                     matchDocument,
-                    group1Document,
-                    project1Document )).iterator()){
+                    groupDocument,
+                    projectDocument )).iterator()){
 
                 Document currentDocument;
                 while(cursor.hasNext()){
@@ -553,18 +553,12 @@ public class MongoDBManager {
         return Document.parse(food.toJSONObject().toString());
     }
 
-    public List<Food> lookUpFoodsByName(String subname){
+    public List<Food> lookUpFoodsByName(String name){
         if( ! onlyOneConnection) openConnection();
-        String regex = "^.*"+subname+".*$";
-//        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
-//        Bson filter = Filters.regex(Food.NAME, pattern);
-
-        //Pattern pattern = Pattern.compile(".*" + subname + ".*");
-        //Bson filter = Filters.regex(Food.NAME, pattern);
         List<Food> foods = new ArrayList<>();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         try(MongoCursor<Document> cursor = foodCollection.find(
-                eq(Food.NAME, subname)).iterator()){
+                eq(Food.NAME, name)).iterator()){
             while(cursor.hasNext()){
                 foods.add(foodFromDocument(cursor.next()));
             }
@@ -587,6 +581,38 @@ public class MongoDBManager {
         Food maxEatenTimesFood = foodFromDocument(maxEatenTimesFoodDocument);
         if( ! onlyOneConnection) closeConnection();
         return maxEatenTimesFood;
+    }
+
+    public HashMap<String, Integer> lookUpMostEatenFoodForEachCategory(){
+        if( ! onlyOneConnection) openConnection();
+        HashMap<String, Integer> foodEatenTimesCountMap = new HashMap<>();
+        MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
+
+        Bson groupDocument = new Document("$group",
+                new Document("_id", "$"+Food.CATEGORY)
+                        .append("SumOfEatenFoodsCount",
+                                new Document("$sum", "$"+ Food.EATEN_TIMES_COUNT)));
+
+        Bson projectDocument = new Document("$project",
+                new Document("_id", 0L)
+                        .append(Food.CATEGORY, "$_id."+Food.CATEGORY)
+                        .append("SumOfEatenFoodsCount", "$SumOfEatenFoodsCount") );
+
+        try(MongoCursor<Document> cursor = foodCollection.aggregate(Arrays.asList(
+                groupDocument,
+                projectDocument )).iterator()){
+
+            Document currentDocument;
+            while(cursor.hasNext()){
+                currentDocument = cursor.next();
+                foodEatenTimesCountMap.put(
+                        currentDocument.getString(Food.CATEGORY),
+                        currentDocument.getInteger("SumOfEatenFoodsCount")
+                );
+            }
+        }
+        if( ! onlyOneConnection) closeConnection();
+        return foodEatenTimesCountMap;
     }
 
     public boolean addFood(Food food){
@@ -654,11 +680,6 @@ public class MongoDBManager {
             if(user.getEatenFoods() != null) {
                 int index;
                 while ((index = user.getEatenFoods().indexOf(new EatenFood())) >= 0) {
-                    user.getEatenFoods().remove(index);
-                }
-                // DA ELIMINARE
-                while ((index = user.getEatenFoods().indexOf(new EatenFood(EatenFood.generateEatenFoodFormatID(0),
-                        String.format(Food.foodNameFieldFormat, ""), -1, new Timestamp(0)))) >= 0) {
                     user.getEatenFoods().remove(index);
                 }
             }

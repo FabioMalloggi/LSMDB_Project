@@ -19,6 +19,7 @@ public class DietManager {
                     /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
                     /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
                     /*16*/"MG"};
+
     public static Food generateFood(String name, String category,String[] nutrientsValues){
         double [] doubleValues = new double[17];
         List<Nutrient> newList = new ArrayList<>();
@@ -78,10 +79,10 @@ public class DietManager {
 
         while(notFinish) {
 
-            //first setp: Sign in or Register
+            //first step: Sign in or Register
             while (step1 != true) {
                 tmp = cli.startWelcomeMenu();
-                if (!tmp.equals("R") && !tmp.equals("S") &&!tmp.equals("end")) //fare qualcosa
+                if (!tmp.equals("R") && !tmp.equals("S") &&!tmp.equals("end"))
                     cli.generalPrint("Choice not allowed");
 
                 else if(tmp.equals("end")) { //only during this window the user can end/close the application
@@ -102,12 +103,10 @@ public class DietManager {
                     cli.generalPrint("Username or password not valid");
                     step1 = false;
                 }
-                //to test
-                System.out.println("username: "+signIn[0]+", password: "+signIn[1]);
             }
 
 
-            //second step B: register, the currentUser is still null. With this check(currentUser == null) we do not need to use further variable in th previous while condition
+            //second step B: registration
             if( tmp.equals("R")){
                 String[] newRegister = new String[7];
                 chekUserNotExist = false;
@@ -162,28 +161,21 @@ public class DietManager {
                 else if (!newRegister[6].equals("SU") && !newRegister[6].equals("N")) {
                     cli.generalPrint("The user type is not valid");
                 }
-
-                //to test
-                System.out.println("username: "+newRegister[0]+", password: "+newRegister[1]+", fullName: "+newRegister[2]+", Age: "+newRegister[3]+", Sex: "+newRegister[4]+", Country: "+newRegister[5]+", UserType: "+newRegister[6]);
-                //step1 = true; old
             }
-
 
             if(isLogged == true)
                 cli.generalPrint("*****Welcome "+logicManager.currentUser.getUsername()+"*****");
+
             //after the registration or sign-in
             while (isLogged == true){
-                String helpType;
-                String choose;
                 String input, input2;
                 String[] tokens;
-                //help menu
 
+                //help menu
                 cli.generalPrint("Write help or write a command");
                 cli.generalPrintInLine("> ");
                 input = scanner.nextLine();
                 tokens = input.split(" ");
-
 
                 // general help
                 if(input.equals("help")){
@@ -210,12 +202,11 @@ public class DietManager {
                     }
                     foodsTarget = logicManager.lookUpFoodByName(foodName);
 
-                    cli.generalPrint("List of Food with the subString: "+tokens[2]);
                     if(foodsTarget != null) {
                         cli.printFoods(foodsTarget);
                     }
                     else{
-                        System.err.println("Any food with that name");
+                        System.err.println("there is no food with that name");
                         System.out.flush();
                         System.err.flush();
                     }
@@ -340,7 +331,7 @@ public class DietManager {
                 //check diet progress
                 else if(tokens[0].equals("check") && (logicManager.currentUser instanceof StandardUser)){
                     boolean check;
-                    cli.generalPrint("checking..."); // System.out.println("checking...");
+                    cli.generalPrint("checking...");
                     check = logicManager.checkDietProgress();
                     cli.printCheckDietProgress(check);
                 }
@@ -396,7 +387,7 @@ public class DietManager {
                             cli.printDiet(dietTarget);
                         }
                         else{
-                            System.err.println("Any diet with that ID");
+                            System.err.println("there is no diet with that ID");
                         }
                     }
                     else if(tokens[2].equals("-name") && tokens.length >= 4){
@@ -407,12 +398,12 @@ public class DietManager {
                             dietName += " "+tokens[i];
                         }
 
-                        dietsTarget = logicManager.lookUpDietByName(tokens[3]);
+                        dietsTarget = logicManager.lookUpDietByName(dietName);
                         if(dietsTarget != null){
                             cli.printDiets(dietsTarget);
                         }
                         else{
-                            System.err.println("Any diets with that name(subName)");
+                            System.err.println("there are no diets with that name(subName)");
                         }
                     }
                     else if(tokens[2].equals("-nut") && tokens.length == 4){
@@ -423,7 +414,7 @@ public class DietManager {
                             cli.printDiets(dietsTarget);
                         }
                         else{
-                            System.err.println("Any diets with that nutritionist");
+                            System.err.println("there are no diets with that nutritionist");
                         }
                     }
                     else if(tokens[2].equals("-mf") && tokens.length == 3){
@@ -485,7 +476,6 @@ public class DietManager {
                     else if(tokens[2].equals("-c") && logicManager.currentUser instanceof StandardUser){
                         cli.generalPrint("-> lookup your current diet");
 
-                        //if utente è uno standardUser
                         dietTarget = logicManager.lookUpStandardUserCurrentDiet();
                         if(dietTarget != null) {
                             cli.printDiet(dietTarget);
@@ -525,7 +515,6 @@ public class DietManager {
                     }
 
                     //create a List of Nutrients with the chooseNutrients[] value and create a diet object;
-                    //call addDiet(Diet diet)
                     newDiet = generateDiet(dietName, chooseNutrients, ((Nutritionist) logicManager.currentUser));
 
                     checkOperation = logicManager.addDiet(newDiet);
@@ -538,7 +527,7 @@ public class DietManager {
                 }
 
                 else if(tokens[0].equals("rm") && tokens[1].equals("-d") && tokens.length == 3 && (logicManager.currentUser instanceof Nutritionist)){
-                    cli.generalPrint("-> remove diet"); //System.out.println("-> remove diet");
+                    cli.generalPrint("-> remove diet");
 
                     checkOperation = logicManager.removeDiet(tokens[2]);
                     if(checkOperation){
@@ -548,7 +537,6 @@ public class DietManager {
                         System.err.println("Diet with ID: "+tokens[2]+" not removed");
                     }
                 }
-
 
                 //helpUser
                 else if(tokens[0].equals("find") && tokens[1].equals("-u")){
@@ -560,13 +548,13 @@ public class DietManager {
                         else
                             System.err.println("Error, no one with this username");
                     }
-                    else if(tokens[2].equals("-c") && tokens.length == 4){ /*** in LM a seconda del tipo di utente che la chiama, sarà chiamata una delle 2 dunzionipresenti in MongoDB*/
+                    else if(tokens[2].equals("-c") && tokens.length == 4){
                         cli.generalPrint("-> search user by country");
                         usersTarget = logicManager.lookUpUserByCountry(tokens[3]);
                         if(usersTarget != null)
                             cli.printUsers(usersTarget);
                         else
-                            System.err.println("Error, no one with this country");
+                            System.err.println("Error, there is no user with this country");
                     }
                     else if(tokens[2].equals("-mpn")){
                         cli.generalPrint("-> lookup most popular nutritionist");
@@ -589,7 +577,6 @@ public class DietManager {
                     }
                     else {
                         System.err.println("User with username: "+tokens[2]+" not removed");
-                        //cli.generalPrintInLine("> ");
                     }
                 }
 
@@ -600,11 +587,7 @@ public class DietManager {
                     isLogged = false;
                     step1 = false;
                 }
-
-                else if(input.equals("\n")){
-                    continue;
-                }
-                //error
+                //error case
                 else{
                     cli.generalPrint("Wrong or incomplete command");
                 }

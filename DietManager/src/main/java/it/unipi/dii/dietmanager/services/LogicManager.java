@@ -127,6 +127,10 @@ public class LogicManager {
         return  foodTarget;
     }
 
+    public HashMap<String, Integer> lookUpMostEatenFoodForEachCategory(){
+        return mongoDBManager.lookUpMostEatenFoodForEachCategory();
+    }
+
     public User lookUpUserByUsername(String username){
         User userTarget = null;
 
