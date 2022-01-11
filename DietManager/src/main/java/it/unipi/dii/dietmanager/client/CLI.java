@@ -117,14 +117,14 @@ public class CLI {
     public void helpFood (User user){
         if(user instanceof StandardUser) {
             System.out.println("====> help food\n" +
-                    "find -f \"foodName\"\t\t-> search food by name\n" +
+                    "find -ef \"category\"\t\t-> lookup most eaten food by category" +
                     "find -ef -personal\t\t-> lookup your eaten foods list\n" +
                     "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
                     "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
         }
-        System.out.print("find -ef \"category\"\t\t-> lookup most eaten food by category");
+        System.out.println("find -f \"foodName\"\t\t-> search food by name\n");
         if(user instanceof Administrator){ //instanceof su user
-            System.out.println("===> commands for administrators \n" +
+            System.out.println("===> commands only for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
                     "rm -f \"foodName\"\t\t-> remove food from catalog");
         }
@@ -148,12 +148,12 @@ public class CLI {
                     "find -d -c\t\t\t\t\t-> lookup your current diet\n");
         }
         if(user instanceof Nutritionist){
-            System.out.println("==> commands for nutritionist\n" +
+            System.out.println("==> commands only for nutritionist\n" +
                     "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
                     "rm -d \"dietID\"\t\t\t-> remove your diet");
         }
         if(user instanceof Administrator){ //instanceof su user
-            System.out.println("===> commands for administrators \n" +
+            System.out.println("===> commands only for administrators \n" +
                     "find -npn\t\t\t\t\t-> lookup most suggested nutrient for each nutritionist\n");
         }
     }
@@ -165,7 +165,7 @@ public class CLI {
                 "find -u -mpn\t\t\t\t\t-> lookup most popular nutritionist");
 
         if(user instanceof Administrator){
-            System.out.println("===> commands for administrators \n" +
+            System.out.println("===> commands only for administrators \n" +
                     "rm -u \"username\"\t\t\t\t\t-> remove user by username");
         }
     }
