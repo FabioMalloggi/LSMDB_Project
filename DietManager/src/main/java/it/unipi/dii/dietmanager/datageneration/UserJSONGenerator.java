@@ -1,4 +1,4 @@
-package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
+package it.unipi.dii.dietmanager.datageneration;
 /*
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;*/

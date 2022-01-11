@@ -137,7 +137,7 @@ public class CLI {
                 "find -d -nut\"username\" \t\t-> search diets by Nutritionist username\n" +
                 "find -d -mf\t\t\t\t\t-> search most currently followed diet\n" +
                 "find -d -mp\t\t\t\t\t-> search most popular diet\n" +
-                "find -d -mc\t\t\t\t\t-> search most completed diet\n" +
+                "find -d -ms\t\t\t\t\t-> search most succeeded diet\n" +
                 "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n");
         if(user instanceof  StandardUser){
             System.out.println("follow \"dietID\"\t\t\t\t-> follow a diet\n" +
@@ -260,10 +260,6 @@ public class CLI {
 
     public void printDiets(List<Diet> dietsTarget){
         for(Diet d: dietsTarget){
-            /*System.out.println("Diet, ID: "+d.getId()+", Name: "+d.getName()+", Nutritionist: "+d.getNutritionist().getUsername());
-            for (Nutrient n : d.getNutrients()){
-                System.out.println("Nutrient: "+n.getName()+", quantity: "+n.getQuantity());
-            }*/
             printDiet(d);
         }
     }

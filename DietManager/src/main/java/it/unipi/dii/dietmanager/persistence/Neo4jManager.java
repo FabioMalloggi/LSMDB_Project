@@ -172,7 +172,7 @@ public class Neo4jManager implements AutoCloseable
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (user:User), (diet:Diet) WHERE user.username = $username " +
-                        "AND diet.id = $id CREATE (user)-[:FOLLOWS {result: null, status: \"current\"}]->(diet) " +
+                        "AND diet.id = $id CREATE (user)-[:FOLLOWS {status: \"current\"}]->(diet) " +
                         "SET diet.followersCount = diet.followersCount + 1",
                         parameters( "username", user.getUsername(), "id", dietID));
                 return null;

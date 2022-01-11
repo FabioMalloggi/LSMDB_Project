@@ -1,4 +1,4 @@
-package it.unipi.dii.dietmanager.datageneration.rawdatamanagement;
+package it.unipi.dii.dietmanager.datageneration;
 
 import java.io.*;
 import java.util.ArrayList;

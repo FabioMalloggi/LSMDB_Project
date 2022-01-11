@@ -1,8 +1,7 @@
-package it.unipi.dii.dietmanager.datageneration.population;
+package it.unipi.dii.dietmanager.datageneration;
 
+import it.unipi.dii.dietmanager.client.CLI;
 import it.unipi.dii.dietmanager.entities.*;
-import it.unipi.dii.dietmanager.persistence.MongoDBManager;
-import it.unipi.dii.dietmanager.persistence.Neo4jManager;
 import it.unipi.dii.dietmanager.services.LogicManager;
 import org.json.JSONObject;
 
@@ -24,7 +23,7 @@ public class Populator {
 
     private final String[] followRelationships = {"current", "stopped"};
 
-    LogicManager logicManager = new LogicManager( false );
+    LogicManager logicManager = new LogicManager( false , new CLI());
 
     private int numStandardUser=0, numNutritionist=0, numAdministrator=0;
     private int currentPercentage=0, oldPercentage=0;
@@ -279,6 +278,12 @@ public class Populator {
         System.out.println(">>> databases reset finished");
     }
 
+    public void createMongoIndex(){
+        System.out.println(">>> creation of indexes starting");
+        logicManager.createMongoDBindex();
+        System.out.println(">>> creation of indexes finished");
+    }
+
     public static void main(String... args){
         Populator populator = new Populator();
 
@@ -289,7 +294,7 @@ public class Populator {
 
         populator.logicManager.openOnlyOneConnection();
         //startingPopulator2.resetDBs();
-        populator.logicManager.createMongoDBindex();
+        //populator.createMongoIndex();
         //populator.populateDBs(false, true, false);
         //startingPopulator2.processStandardUsers();
         populator.logicManager.closeOnlyOneConnection();

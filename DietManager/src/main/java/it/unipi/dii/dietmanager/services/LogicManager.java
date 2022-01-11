@@ -1,5 +1,6 @@
 package it.unipi.dii.dietmanager.services;
 
+import it.unipi.dii.dietmanager.client.CLI;
 import it.unipi.dii.dietmanager.entities.*;
 import it.unipi.dii.dietmanager.persistence.MongoDBManager;
 import it.unipi.dii.dietmanager.persistence.Neo4jManager;
@@ -33,10 +34,12 @@ public class LogicManager {
 
     private Neo4jManager neo4JManager;
     private MongoDBManager mongoDBManager;
+    private CLI cli;
 
-    public LogicManager( boolean isRemote) {
+    public LogicManager( boolean remoteConnection, CLI cli) {
         this.currentUser = null;
-        if(isRemote)
+        this.cli = cli;
+        if(remoteConnection)
             instantiateDriversToRemoteConnections();
         else
             instantiateDriversToLocalConnections();
@@ -220,7 +223,7 @@ public class LogicManager {
         if(usertarget instanceof Nutritionist)
             return usertarget;
         else {
-            System.out.println("Error, not a nutritionist - Inconsistency among the DBs");
+            cli.generalPrint("Error, not a nutritionist - Inconsistency among the DBs");
             return  null;
         }
     }
@@ -233,7 +236,7 @@ public class LogicManager {
         if(isMongoDBSuccessful){
             isNeo4jSuccessful = neo4JManager.addUser(user);
             if(!isNeo4jSuccessful){
-                System.out.println("Error cross-consistency");
+                cli.generalPrint("Error cross-consistency");
 
                 //Remove from Mongo
                 mongoDBManager.removeUser(user);
@@ -242,7 +245,7 @@ public class LogicManager {
             else return true;
         }
         else{
-            System.out.println("Error in MongoDB");
+            cli.generalPrint("Error in MongoDB");
             return false;
         }
 
@@ -257,7 +260,7 @@ public class LogicManager {
             if(isMongoDBSuccessful){
                 isNeo4jSuccessful = neo4JManager.followDiet((StandardUser) currentUser, id);
                 if(!isNeo4jSuccessful){
-                    System.out.println("Errore cross-consistency");
+                    cli.generalPrint("Errore cross-consistency");
                     //Remove from Mongo
                     mongoDBManager.unfollowDiet((StandardUser)currentUser);
                     return false;
@@ -268,7 +271,7 @@ public class LogicManager {
                 }
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
@@ -288,7 +291,7 @@ public class LogicManager {
 
                     isMongoDBSuccessful = mongoDBManager.unfollowDiet((StandardUser)currentUser);
                     if(!isMongoDBSuccessful){
-                        System.out.println("Error cross-consistency");
+                        cli.generalPrint("Error cross-consistency");
                         //Re-insert in Neo4J
                         neo4JManager.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
                         return false;
@@ -299,7 +302,7 @@ public class LogicManager {
                     }
                 }
                 else{
-                    System.out.println("Error in MongoDB");
+                    cli.generalPrint("Error in MongoDB");
                     return false;
                 }
             }
@@ -322,7 +325,7 @@ public class LogicManager {
 
                     isMongoDBSuccessful = mongoDBManager.unfollowDiet((StandardUser)currentUser);
                     if(!isMongoDBSuccessful){
-                        System.out.println("Error cross-consistency");
+                        cli.generalPrint("Error cross-consistency");
 
                         //Re-insert in Neo4J
                         neo4JManager.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
@@ -334,7 +337,7 @@ public class LogicManager {
                     }
                 }
                 else{
-                    System.out.println("Error in MongoDB");
+                    cli.generalPrint("Error in MongoDB");
                     return false;
                 }
             }
@@ -382,7 +385,7 @@ public class LogicManager {
         if(isMongoDBSuccessful){
             isNeo4jSuccessful = neo4JManager.addDiet(diet);
             if(!isNeo4jSuccessful){
-                System.out.println("Error cross-consistency");
+                cli.generalPrint("Error cross-consistency");
 
                 //Remove from Mongo
                 mongoDBManager.removeDiet(diet.getId());
@@ -393,7 +396,7 @@ public class LogicManager {
             }
         }
         else{
-            System.out.println("Error in MongoDB");
+            cli.generalPrint("Error in MongoDB");
             return false;
         }
     }
@@ -402,14 +405,14 @@ public class LogicManager {
         boolean isMongoDBSuccessful, isNeo4jSuccessful;
         Diet dietToRemove;
         dietToRemove = lookUpDietByID(id);
-        if(currentUser.getUsername().equals(dietToRemove.getNutritionist())){
+        if(dietToRemove != null && currentUser.getUsername().equals(dietToRemove.getNutritionist())){
 
             isMongoDBSuccessful = mongoDBManager.removeDiet(id);
             if(isMongoDBSuccessful){
 
                 isNeo4jSuccessful = neo4JManager.removeDiet(id);
                 if(!isNeo4jSuccessful){
-                    System.out.println("Errore cross-consistency");
+                    cli.generalPrint("Errore cross-consistency");
 
                     //Re-insert in Mongo
                     mongoDBManager.addDiet(dietToRemove);
@@ -420,7 +423,7 @@ public class LogicManager {
                 }
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
@@ -438,7 +441,7 @@ public class LogicManager {
 
                 isNeo4jSuccessful = neo4JManager.removeUser(username);
                 if(!isNeo4jSuccessful){
-                    System.out.println("Errore cross-consistency");
+                    cli.generalPrint("Errore cross-consistency");
 
                     //Re-insert in Mongo
                     mongoDBManager.addUser(userToRemove);
@@ -447,7 +450,7 @@ public class LogicManager {
                 else return true;
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
