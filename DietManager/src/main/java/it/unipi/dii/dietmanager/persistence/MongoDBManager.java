@@ -108,12 +108,6 @@ public class MongoDBManager {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         //Creating an index
         collection.createIndex(new Document(attributeName, sortingOrder));
-/*        System.out.println("Index created successfully");
-        //Printing the list of indices in the collection
-        for (Document index : collection.listIndexes()) {
-            System.out.println(index.toJson());
-        }
- */
         if( ! onlyOneConnection) closeConnection();
     }
 
@@ -126,12 +120,6 @@ public class MongoDBManager {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         //Creating an index
         collection.createIndex(new Document(firstAttributeName, firstAttributeSortingOrder).append(secondAttributeName, secondAttributeSortingOrder));
-/*        System.out.println("Index created successfully");
-        //Printing the list of indices in the collection
-        for (Document index : collection.listIndexes()) {
-            System.out.println(index.toJson());
-        }
-*/
         if( ! onlyOneConnection) closeConnection();
     }
 
@@ -227,7 +215,7 @@ public class MongoDBManager {
 
     public boolean removeUser(User user){
         if( ! onlyOneConnection) openConnection();
-        boolean isSuccessful = true, wasAcknowledged = false;
+        boolean isSuccessful = true;
         if(user != null) {
             // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
             if(user instanceof Nutritionist){
@@ -277,7 +265,6 @@ public class MongoDBManager {
     // return all diets whose name include substring searched.
     public List<Diet> lookUpDietByName(String subname){
         if( ! onlyOneConnection) openConnection();
-        //String regex = "\\.\\*"+subname+"\\.\\*";
         Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
         Bson filter = Filters.regex(Diet.NAME, pattern);
 
