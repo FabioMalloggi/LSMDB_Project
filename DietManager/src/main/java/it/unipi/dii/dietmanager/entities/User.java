@@ -22,13 +22,13 @@ public abstract class  User {
     private int age;
     private String country;
 
-    public User(String UserName, String FullName, String Password,String Sex, int Age, String Country ){
-        this.username = UserName;
-        this.fullName = FullName;
-        this.password = Password;
-        this.sex = Sex;
-        this.age = Age;
-        this.country = Country;
+    public User(String username, String fullName, String password,String sex, int age, String country ){
+        this.username = username;
+        this.fullName = fullName;
+        this.password = password;
+        this.sex = sex;
+        this.age = age;
+        this.country = country;
     }
 
     public User(String username){
