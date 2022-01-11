@@ -248,6 +248,7 @@ public class CLI {
         for (Nutrient n : dietTarget.getNutrients()) {
             System.out.println("Nutrient: " + n.getName() + ", Quantity: " + n.getQuantity()+ ", Unit:" + n.getUnit());
         }
+        System.out.println();
     }
 
     public void printDiets(List<Diet> dietsTarget){

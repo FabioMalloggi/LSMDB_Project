@@ -23,7 +23,7 @@ public class Populator {
 
     private final String[] followRelationships = {"current", "stopped"};
 
-    LogicManager logicManager = new LogicManager( false , new CLI());
+    LogicManager logicManager = new LogicManager( true , new CLI());
 
     private int numStandardUser=0, numNutritionist=0, numAdministrator=0;
     private int currentPercentage=0, oldPercentage=0;
@@ -293,8 +293,8 @@ public class Populator {
         populator.readPopulationFromJSONFiles();
 
         populator.logicManager.openOnlyOneConnection();
-        //startingPopulator2.resetDBs();
-        //populator.createMongoIndex();
+        //!!!startingPopulator2.resetDBs();
+        populator.createMongoIndex();
         //populator.populateDBs(false, true, false);
         //startingPopulator2.processStandardUsers();
         populator.logicManager.closeOnlyOneConnection();
