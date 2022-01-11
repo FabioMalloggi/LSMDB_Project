@@ -75,6 +75,7 @@ public class DietManager {
         User userTarget ; Food foodTarget; Diet dietTarget; //instances used to print the result
         boolean checkOperation;
         HashMap<String, Nutrient> nutrientPerNutritionist;
+        HashMap<String, Integer> sumEatenFoodPerCategory;
         Scanner scanner = new Scanner(System.in);
 
         while(notFinish) {
@@ -183,7 +184,7 @@ public class DietManager {
                 }
 
                 //possible commands for help food / help diet / help nutritionist
-                else if(input.equals("help food")) {
+                else if(input.equals("help food") && !(logicManager.currentUser instanceof Nutritionist)) {
                     cli.helpFood(logicManager.currentUser);
                 }
                 else if(input.equals("help diet")) {
@@ -324,6 +325,13 @@ public class DietManager {
                     else {
                         System.err.println(tokens[2]+" not removed from catalog");
                     }
+                }
+
+                else if(tokens[0].equals("find") && tokens[1].equals("-etcfec") && tokens.length == 2 && (logicManager.currentUser instanceof Administrator)){
+                    cli.generalPrint("-> sum of eaten times count for each category");
+
+                    sumEatenFoodPerCategory = logicManager.lookUpSumOfEatenTimesCountForEachCategory();
+                    cli.printSumEatenTimesCountPerCategory(sumEatenFoodPerCategory);
                 }
 
 
