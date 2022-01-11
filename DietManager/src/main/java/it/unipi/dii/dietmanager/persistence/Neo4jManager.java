@@ -10,18 +10,15 @@ import java.util.logging.Level;
 
 import static org.neo4j.driver.Values.parameters;
 
-public class Neo4j implements AutoCloseable
+public class Neo4jManager implements AutoCloseable
 {
     private Driver driver;
-    private String uri, user, password;
 
-    public Neo4j()
+    public Neo4jManager(String connectionMode, String ipAddress, int port, String user, String password)
     {
-        uri = "neo4j://172.16.4.84:7474";
-        user = "neo4j";
-        password = "root";
+        String uri = connectionMode+"://"+ipAddress+":"+port;
         driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ),
-                Config.builder().withLogging(new JULogging(Level.WARNING)).build());
+                Config.builder().withLogging(new JULogging(Level.OFF)).build());
     }
 
     @Override
@@ -29,6 +26,7 @@ public class Neo4j implements AutoCloseable
         driver.close();
     }
 
+    // for future usage
     public boolean userAlreadyExists(String username){
         try ( Session session = driver.session() )
         {
@@ -50,6 +48,7 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
+    // for future usage
     public boolean dietAlreadyExists(String dietID){
         try ( Session session = driver.session() )
         {
@@ -71,6 +70,7 @@ public class Neo4j implements AutoCloseable
         return false;
     }
 
+    // for future usage
     private boolean userAlreadyFollowedAnyDiet(StandardUser user){
         try ( Session session = driver.session() )
         {
@@ -142,6 +142,7 @@ public class Neo4j implements AutoCloseable
         return isSuccessful;
     }
 
+    // for future usage
     private boolean userAlreadyFollowedDiet(StandardUser user, Diet diet){
         try ( Session session = driver.session() )
         {
@@ -171,7 +172,7 @@ public class Neo4j implements AutoCloseable
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {
                 tx.run( "MATCH (user:User), (diet:Diet) WHERE user.username = $username " +
-                        "AND diet.id = $id CREATE (user)-[:FOLLOWS {result: null, status: \"current\"}]->(diet) " +
+                        "AND diet.id = $id CREATE (user)-[:FOLLOWS {status: \"current\"}]->(diet) " +
                         "SET diet.followersCount = diet.followersCount + 1",
                         parameters( "username", user.getUsername(), "id", dietID));
                 return null;
@@ -396,7 +397,7 @@ public class Neo4j implements AutoCloseable
         return mostRecommendedDietID;
     }
 
-    public void dropAll(){
+    public void dropDatabase(){
         try ( Session session = driver.session() )
         {
             session.writeTransaction((TransactionWork<Void>) tx -> {

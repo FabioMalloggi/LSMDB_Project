@@ -1,7 +1,6 @@
 package it.unipi.dii.dietmanager.testing;
 
 import it.unipi.dii.dietmanager.entities.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
@@ -26,20 +25,10 @@ public class EntitiesTester {
     private List<EatenFood> eatenFoods = new ArrayList<>();
     private List<Diet> diets = new ArrayList<>();
     private List<User> users = new ArrayList<>();
-    private List<StandardUser> standardUsersComplete = new ArrayList<>();
-    private List<StandardUser> standardUsersPartial = new ArrayList<>();
-    private List<Administrator> administrators = new ArrayList<>();
-    private List<Nutritionist> nutritionists = new ArrayList<>();
-
-    private JSONArray jsonNutrients = new JSONArray();
-    private JSONArray jsonFoods = new JSONArray();
-    private JSONArray jsonEatenFoods = new JSONArray();
-    private JSONArray jsonDiets = new JSONArray();
-    private JSONArray jsonUsers = new JSONArray();
-    private JSONArray jsonStandardUsersComplete = new JSONArray();
-    private JSONArray jsonStandardUsersPartial = new JSONArray();
-    private JSONArray jsonNutritionist = new JSONArray();
-    private JSONArray jsonAdministrator = new JSONArray();
+    private final List<StandardUser> standardUsersComplete = new ArrayList<>();
+    private final List<StandardUser> standardUsersPartial = new ArrayList<>();
+    private final List<Administrator> administrators = new ArrayList<>();
+    private final List<Nutritionist> nutritionists = new ArrayList<>();
 
     public void setINDEX_ANALIZED(int index) {
         this.INDEX_ANALIZED = index;
@@ -173,14 +162,14 @@ public class EntitiesTester {
     public static void main(String[] args){
         te.setINDEX_ANALIZED(5);
         te.populate();
-        //te.nutrientTester();
-        //te.foodTester();
-        //te.eatenFoodTester();
+        te.nutrientTester();
+        te.foodTester();
+        te.eatenFoodTester();
         te.dietTester();
-        //te.standardUserCompleteTester();
-        //te.standardUserPartialTester();
-        //te.nutritionistTester();
-        //te.administratorTester();
+        te.standardUserCompleteTester();
+        te.standardUserPartialTester();
+        te.nutritionistTester();
+        te.administratorTester();
         te.allUsersTester();
     }
 }

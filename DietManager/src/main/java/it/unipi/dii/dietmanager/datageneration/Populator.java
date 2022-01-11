@@ -1,8 +1,7 @@
-package it.unipi.dii.dietmanager.startingpopulator;
+package it.unipi.dii.dietmanager.datageneration;
 
+import it.unipi.dii.dietmanager.client.CLI;
 import it.unipi.dii.dietmanager.entities.*;
-import it.unipi.dii.dietmanager.persistence.MongoDB;
-import it.unipi.dii.dietmanager.persistence.Neo4j;
 import it.unipi.dii.dietmanager.services.LogicManager;
 import org.json.JSONObject;
 
@@ -11,22 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class StartingPopulator2 {
+public class Populator {
 
     File fileJSONDiets = new File("./data/json/diet.json");
     File fileJSONUsers = new File("./data/json/users.json");
     File fileJSONFoods = new File("./data/json/foods.json");
-    private final int MONGODB_PORT = 27020;
 
     private final int MAX_NUMBER_OF_EATEN_FOODS = 10;
     private final int MAX_QUANTITY = 3000;
-    //private final int USER_SAMPLING_PERCENTAGE = 10;
     private int MAX_STANDARD_USERS= 1000000;
     private int MAX_STANDARD_USERS_RELATIONSHIPS = 1000000;
 
     private final String[] followRelationships = {"current", "stopped"};
 
-    LogicManager logicManager = new LogicManager();
+    LogicManager logicManager = new LogicManager( false , new CLI());
 
     private int numStandardUser=0, numNutritionist=0, numAdministrator=0;
     private int currentPercentage=0, oldPercentage=0;
@@ -261,14 +258,12 @@ public class StartingPopulator2 {
                         System.exit(1);
 
                     standardUsersWithRelationship++;
-
-                }else{
-                    standardUsersWithoutRelationship++;
                 }
                 standardUsersCount++;
                 printPercentageProgress(standardUsersWithRelationship, standardUserToProcessForRelationships, "stdUser-R");
             }
         }
+        standardUsersWithoutRelationship = standardUserToProcessForRelationships - standardUsersWithRelationship;
         System.out.println("users processed: "+standardUsersCount);
         System.out.println("users with relationship: "+standardUsersWithRelationship);
         System.out.println("users without relationship: "+standardUsersWithoutRelationship);
@@ -279,22 +274,31 @@ public class StartingPopulator2 {
 
     public void resetDBs(){
         System.out.println(">>> databases reset is starting");
-        new Neo4j().dropAll();
-        new MongoDB("localhost",MONGODB_PORT).dropDatabase();
+        logicManager.dropAllDBs();
         System.out.println(">>> databases reset finished");
     }
 
+    public void createMongoIndex(){
+        System.out.println(">>> creation of indexes starting");
+        logicManager.createMongoDBindex();
+        System.out.println(">>> creation of indexes finished");
+    }
+
     public static void main(String... args){
-        StartingPopulator2 startingPopulator2 = new StartingPopulator2();
+        Populator populator = new Populator();
 
-        startingPopulator2.setMAX_STANDARD_USERS( 50000 );
-        startingPopulator2.setMAX_STANDARD_USERS_RELATIONSHIPS( 10000 );
+        populator.setMAX_STANDARD_USERS( 50000 );
+        populator.setMAX_STANDARD_USERS_RELATIONSHIPS( 10000 );
 
-        startingPopulator2.readPopulationFromJSONFiles();
+        populator.readPopulationFromJSONFiles();
+
+        populator.logicManager.openOnlyOneConnection();
         //startingPopulator2.resetDBs();
-        //startingPopulator2.populateDBs(false, true, false);
-        startingPopulator2.processStandardUsers();
-        //System.out.println(startingPopulator2.logicManager.lookUpDietByName("").size());
+        //populator.createMongoIndex();
+        //populator.populateDBs(false, true, false);
+        //startingPopulator2.processStandardUsers();
+        populator.logicManager.closeOnlyOneConnection();
+
         System.out.println(">>> Code finished: stop the execution");
     }
 

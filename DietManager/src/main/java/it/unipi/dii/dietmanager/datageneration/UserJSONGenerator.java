@@ -1,10 +1,9 @@
-package it.unipi.dii.utilities;
+package it.unipi.dii.dietmanager.datageneration;
 /*
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;*/
 
 import it.unipi.dii.dietmanager.entities.*;
-import it.unipi.dii.dietmanager.persistence.Neo4j;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +12,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HandlerUser {
+public class UserJSONGenerator {
     private static int K = 100;
     private static final int NUMBER_OF_ADMIN = 3;
     private static final int EATEN_FOOD_SLOT_SIZE = 70;
@@ -53,7 +52,7 @@ public class HandlerUser {
         File fileUser = new File("./data/derived/users.csv");
         File fileNutritionist = new File("./data/derived/nutritionist.csv");
         //JSONObject collection = new JSONObject();
-        OperationsCSV opCSV = new OperationsCSV();
+        CSVFilesManager opCSV = new CSVFilesManager();
         BufferedWriter bufWriterJson, bufWriterNut, bufWriterUser;
         String[] tokens;
         List<User> admin;
@@ -121,7 +120,7 @@ public class HandlerUser {
     }
     
     public static void checkIfUsernameIsUnique(File fileInput, File fileOutput){
-        OperationsCSV opCSV = new OperationsCSV();
+        CSVFilesManager opCSV = new CSVFilesManager();
         opCSV.initializeRW(fileInput, fileOutput);
         String line;
         String[] tokens;
@@ -165,7 +164,7 @@ public class HandlerUser {
         File fileOriginalAthlete = new File("./data/original/athlete.csv"); //with duplicate numerical ID
         File fileOTargetAthlete = new File("./data/derived/athleteR.csv"); //with distinct numerical ID
 
-        OperationsCSV opCSV = new OperationsCSV();
+        CSVFilesManager opCSV = new CSVFilesManager();
 
         opCSV.initializeRW(fileOriginalAthlete,fileOTargetAthlete);
         opCSV.copyfileByOrderedLineWithDistinctValue(1);

@@ -1,9 +1,9 @@
 package it.unipi.dii.dietmanager.services;
 
+import it.unipi.dii.dietmanager.client.CLI;
 import it.unipi.dii.dietmanager.entities.*;
-import it.unipi.dii.dietmanager.persistence.MongoDB;
-import it.unipi.dii.dietmanager.persistence.MongoDB2;
-import it.unipi.dii.dietmanager.persistence.Neo4j;
+import it.unipi.dii.dietmanager.persistence.MongoDBManager;
+import it.unipi.dii.dietmanager.persistence.Neo4jManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,22 +17,60 @@ public class LogicManager {
                     /*11*/"Thiamin",/*12*/"Calcium",/*13*/"Magnesium",/*14*/"Manganese",/*15*/"Phosphorus",
                     /*16*/"Zinc"};
 
-    private final String[] nutrients_units =
-            {/*0*/"KCAL",/*1*/"G",/*2*/"G",/*3*/"G",/*4*/"G",
-                    /*5*/"G",/*6*/"UG",/*7*/"MG",/*8*/"UG",/*9*/"MG",/*10*/"MG",
-                    /*11*/"MG",/*12*/"MG",/*13*/"MG",/*14*/"MG",/*15*/"MG",
-                    /*16*/"MG"};
     private final int MAX_FAIL_NUTRIENT = 2;
-    private final int MONGO_DB_PORT = 27020;
-    private final String MONGO_DB_ADDRESS = "172.16.4.84";
-    private Neo4j Neo4J;
-    private MongoDB2 MongoDB;
 
-    public LogicManager() {
+    private final int MONGO_DB_PORT_LOCAL = 27017;
+    private final int MONGO_DB_PORT_REMOTE = 27020;
+    private final String MONGO_DB_ADDRESS_LOCAL = "localhost";
+    private final String MONGO_DB_ADDRESS_REMOTE = "172.16.4.86";
+    private final int NEO4J_PORT_LOCAL = 7687;
+    private final int NEO4J_PORT_REMOTE = 7687;
+    private final String NEO4J_ADDRESS_LOCAL = "localhost";
+    private final String NEO4J_ADDRESS_REMOTE = "172.16.4.84";
+    private final String NEO4J_CONNECTION_MODE_LOCAL = "neo4j";
+    private final String NEO4J_CONNECTION_MODE_REMOTE = "bolt";
+    private final String NEO4J_USER = "neo4j";
+    private final String NEO4J_PASSWORD = "root";
+
+    private Neo4jManager neo4JManager;
+    private MongoDBManager mongoDBManager;
+    private CLI cli;
+
+    public LogicManager( boolean remoteConnection, CLI cli) {
         this.currentUser = null;
-        Neo4J = new Neo4j() ;
-        MongoDB = new MongoDB2(MONGO_DB_ADDRESS,MONGO_DB_PORT);
-        MongoDB.openConnection();
+        this.cli = cli;
+        if(remoteConnection)
+            instantiateDriversToRemoteConnections();
+        else
+            instantiateDriversToLocalConnections();
+    }
+
+    private void instantiateDriversToLocalConnections(){
+        neo4JManager = new Neo4jManager(NEO4J_CONNECTION_MODE_LOCAL,
+                NEO4J_ADDRESS_LOCAL, NEO4J_PORT_LOCAL, NEO4J_USER, NEO4J_PASSWORD) ;
+        mongoDBManager = new MongoDBManager(MONGO_DB_ADDRESS_LOCAL,MONGO_DB_PORT_LOCAL);
+    }
+    private void instantiateDriversToRemoteConnections(){
+        neo4JManager = new Neo4jManager(NEO4J_CONNECTION_MODE_REMOTE,
+                NEO4J_ADDRESS_REMOTE, NEO4J_PORT_REMOTE, NEO4J_USER, NEO4J_PASSWORD) ;
+        mongoDBManager = new MongoDBManager(MONGO_DB_ADDRESS_REMOTE,MONGO_DB_PORT_REMOTE);
+    }
+
+
+    public void openOnlyOneConnection(){
+        mongoDBManager.openOnlyOneConnection();
+    }
+    public void closeOnlyOneConnection(){
+        mongoDBManager.closeOnlyOneConnection();
+    }
+
+    public void dropAllDBs(){
+        neo4JManager.dropDatabase();
+        mongoDBManager.dropDatabase();
+    }
+
+    public void createMongoDBindex(){
+        mongoDBManager.createDietManagerIndexes();
     }
 
     /** Read operations in MongoDB */
@@ -51,7 +89,7 @@ public class LogicManager {
     public Diet lookUpDietByID(String id){
         Diet dietTarget = null;
 
-        dietTarget = MongoDB.lookUpDietByID(id);
+        dietTarget = mongoDBManager.lookUpDietByID(id);
 
         return dietTarget;
     }
@@ -59,7 +97,7 @@ public class LogicManager {
     public List<Diet> lookUpDietByName(String subName){
         List<Diet> dietsTarget = null;
 
-        dietsTarget = MongoDB.lookUpDietByName(subName);
+        dietsTarget = mongoDBManager.lookUpDietByName(subName);
 
         return  dietsTarget;
     }
@@ -67,7 +105,7 @@ public class LogicManager {
     public List<Diet> lookUpDietByNutritionist (String username){
         List<Diet> dietsTarget = null;
 
-        dietsTarget = MongoDB.lookUpDietByNutritionist(username);
+        dietsTarget = mongoDBManager.lookUpDietByNutritionist(username);
 
         return  dietsTarget;
     }
@@ -75,7 +113,7 @@ public class LogicManager {
     public List<Food> lookUpFoodByName (String subName){
         List<Food> foodsTarget = null;
 
-        foodsTarget = MongoDB.lookUpFoodsByName(subName);
+        foodsTarget = mongoDBManager.lookUpFoodsByName(subName);
 
         return  foodsTarget;
     }
@@ -84,7 +122,7 @@ public class LogicManager {
     public Food lookUpMostEatenFoodByCategory (String category){
         Food foodTarget = null;
 
-        foodTarget = MongoDB.lookUpMostEatenFoodByCategory(category);
+        foodTarget = mongoDBManager.lookUpMostEatenFoodByCategory(category);
 
         return  foodTarget;
     }
@@ -92,13 +130,13 @@ public class LogicManager {
     public User lookUpUserByUsername(String username){
         User userTarget = null;
 
-        userTarget = MongoDB.lookUpUserByUsername(username);
+        userTarget = mongoDBManager.lookUpUserByUsername(username);
 
         return userTarget;
     }
 
     public List<User> lookUpUserByCountry(String country){
-        return MongoDB.lookUpAllUsersByCountry(country);
+        return mongoDBManager.lookUpAllUsersByCountry(country);
     }
 
     public Diet lookUpStandardUserCurrentDiet (){
@@ -110,7 +148,7 @@ public class LogicManager {
             else{
                 //used the first time the user look his current diet
 
-                dietTarget = MongoDB.lookUpDietByID( ((StandardUser) currentUser).getCurrentDiet().getId() );
+                dietTarget = mongoDBManager.lookUpDietByID( ((StandardUser) currentUser).getCurrentDiet().getId() );
                 ((StandardUser) currentUser).setCurrentDiet(dietTarget);
             }
         }
@@ -120,7 +158,7 @@ public class LogicManager {
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
         HashMap<String, Nutrient> npn = null;
 
-        npn = MongoDB.lookUpMostSuggestedNutrientForEachNutritionist();
+        npn = mongoDBManager.lookUpMostSuggestedNutrientForEachNutritionist();
 
         return npn;
     }
@@ -129,7 +167,7 @@ public class LogicManager {
     public Diet lookUpMostFollowedDiet() {
         Diet dietTarget = null; String id;
 
-        id = Neo4J.lookUpMostFollowedDiet();
+        id = neo4JManager.lookUpMostFollowedDiet();
         dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
@@ -138,7 +176,7 @@ public class LogicManager {
     public Diet lookUpMostPopularDiet() {
         Diet dietTarget = null; String id;
 
-        id = Neo4J.lookUpMostPopularDiet();
+        id = neo4JManager.lookUpMostPopularDiet();
         dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
@@ -147,7 +185,7 @@ public class LogicManager {
     public Diet lookUpMostSucceededDiet() {
         Diet dietTarget = null; String id;
 
-        id = Neo4J.lookUpMostSucceededDiet();
+        id = neo4JManager.lookUpMostSucceededDiet();
         dietTarget = lookUpDietByID(id);
 
         return  dietTarget;
@@ -157,7 +195,7 @@ public class LogicManager {
         Diet dietTarget = null; String id;
 
         if(((StandardUser)currentUser).getCurrentDiet() != null) {
-            id = Neo4J.lookUpRecommendedDiet((StandardUser) currentUser);
+            id = neo4JManager.lookUpRecommendedDiet((StandardUser) currentUser);
             dietTarget = lookUpDietByID(id);
         }
 
@@ -168,7 +206,7 @@ public class LogicManager {
         Diet dietTarget = null; String id;
 
         if(lookUpUserByUsername(username) != null){
-            id = Neo4J.lookUpMostFollowedDietByNutritionist(username);
+            id = neo4JManager.lookUpMostFollowedDietByNutritionist(username);
             dietTarget = lookUpDietByID(id);
         }
 
@@ -179,52 +217,52 @@ public class LogicManager {
         String username;
 
 
-        username = Neo4J.lookUpMostPopularNutritionist();
+        username = neo4JManager.lookUpMostPopularNutritionist();
         User usertarget = null;
         usertarget = lookUpUserByUsername(username);
         if(usertarget instanceof Nutritionist)
             return usertarget;
         else {
-            System.out.println("Error, not a nutritionist - Inconsistency among the DBs");
+            cli.generalPrint("Error, not a nutritionist - Inconsistency among the DBs");
             return  null;
         }
     }
 
     /** Write-Operations*/
     public boolean addUser(User user){
-        boolean mongoDB, neo4J;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful;
 
-        mongoDB = MongoDB.addUser(user);
-        if(mongoDB){
-            neo4J = Neo4J.addUser(user);
-            if(!neo4J){
-                System.out.println("Error cross-consistency");
+        isMongoDBSuccessful = mongoDBManager.addUser(user);
+        if(isMongoDBSuccessful){
+            isNeo4jSuccessful = neo4JManager.addUser(user);
+            if(!isNeo4jSuccessful){
+                cli.generalPrint("Error cross-consistency");
 
                 //Remove from Mongo
-                MongoDB.removeUser(user);
+                mongoDBManager.removeUser(user);
                 return false;
             }
             else return true;
         }
         else{
-            System.out.println("Error in MongoDB");
+            cli.generalPrint("Error in MongoDB");
             return false;
         }
 
     }
 
     public boolean followDiet(String id){
-        boolean mongoDB, neo4J;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful;
         Diet diet;
         diet = lookUpDietByID(id);
         if(diet != null && ((StandardUser)currentUser).getCurrentDiet() == null ){ //check
-            mongoDB = MongoDB.followDiet((StandardUser)currentUser, id);
-            if(mongoDB){
-                neo4J = Neo4J.followDiet((StandardUser) currentUser, id);
-                if(!neo4J){
-                    System.out.println("Errore cross-consistency");
+            isMongoDBSuccessful = mongoDBManager.followDiet((StandardUser)currentUser, id);
+            if(isMongoDBSuccessful){
+                isNeo4jSuccessful = neo4JManager.followDiet((StandardUser) currentUser, id);
+                if(!isNeo4jSuccessful){
+                    cli.generalPrint("Errore cross-consistency");
                     //Remove from Mongo
-                    MongoDB.unfollowDiet((StandardUser)currentUser);
+                    mongoDBManager.unfollowDiet((StandardUser)currentUser);
                     return false;
                 }
                 else {
@@ -233,7 +271,7 @@ public class LogicManager {
                 }
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
@@ -241,21 +279,21 @@ public class LogicManager {
     }
 
     public boolean unfollowDiet(){
-        boolean mongoDB, neo4J;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful;
 
         if(((StandardUser)currentUser).getCurrentDiet() != null){
             Diet diet;
             diet = lookUpDietByID(((StandardUser)currentUser).getCurrentDiet().getId());
             if(diet != null) { //check if diet is not null
 
-                neo4J = Neo4J.unfollowDiet((StandardUser)currentUser);
-                if(neo4J){
+                isNeo4jSuccessful = neo4JManager.unfollowDiet((StandardUser)currentUser);
+                if(isNeo4jSuccessful){
 
-                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser);
-                    if(!mongoDB){
-                        System.out.println("Errore cross-consistency");
+                    isMongoDBSuccessful = mongoDBManager.unfollowDiet((StandardUser)currentUser);
+                    if(!isMongoDBSuccessful){
+                        cli.generalPrint("Error cross-consistency");
                         //Re-insert in Neo4J
-                        Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
+                        neo4JManager.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
                         return false;
                     }
                     else {
@@ -264,7 +302,7 @@ public class LogicManager {
                     }
                 }
                 else{
-                    System.out.println("Error in MongoDB");
+                    cli.generalPrint("Error in MongoDB");
                     return false;
                 }
             }
@@ -274,7 +312,7 @@ public class LogicManager {
     }
 
     public boolean stopDiet(){
-        boolean mongoDB, neo4J, check;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful, check;
 
         if(((StandardUser)currentUser).getCurrentDiet() != null){
             Diet diet = null;
@@ -282,15 +320,15 @@ public class LogicManager {
             if(diet != null) { //check if diet is not null
 
                 check = checkDietProgress(); //check diet progress
-                neo4J = Neo4J.stopDiet((StandardUser) currentUser, check);
-                if(neo4J){
+                isNeo4jSuccessful = neo4JManager.stopDiet((StandardUser) currentUser, check);
+                if(isNeo4jSuccessful){
 
-                    mongoDB = MongoDB.unfollowDiet((StandardUser)currentUser);
-                    if(!mongoDB){
-                        System.out.println("Error cross-consistency");
+                    isMongoDBSuccessful = mongoDBManager.unfollowDiet((StandardUser)currentUser);
+                    if(!isMongoDBSuccessful){
+                        cli.generalPrint("Error cross-consistency");
 
                         //Re-insert in Neo4J
-                        Neo4J.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
+                        neo4JManager.followDiet((StandardUser) currentUser, ((StandardUser)currentUser).getCurrentDiet().getId());
                         return false;
                     }
                     else {
@@ -299,7 +337,7 @@ public class LogicManager {
                     }
                 }
                 else{
-                    System.out.println("Error in MongoDB");
+                    cli.generalPrint("Error in MongoDB");
                     return false;
                 }
             }
@@ -317,12 +355,12 @@ public class LogicManager {
             ((StandardUser)currentUser).addEatenFood(foodName, quantity);
             task = true;
         }
-        MongoDB.incrementEatenTimesCount(foodName);
+        mongoDBManager.incrementEatenTimesCount(foodName);
         return  task;
     }
 
     public boolean addEatenFoodToMongo(){ //it must be called only when a SU is logging-out
-        return MongoDB.updateEatenFood((StandardUser) currentUser); //this Mongo method will be called during the exit, so that the removeEatenFood does not need to call the mongoDB removeEatenFood
+        return mongoDBManager.updateEatenFood((StandardUser) currentUser); //this Mongo method will be called during the exit, so that the removeEatenFood does not need to call the mongoDBManager removeEatenFood
     }
 
 
@@ -340,17 +378,17 @@ public class LogicManager {
     }
 
     public boolean addDiet(Diet diet){
-        boolean mongoDB;
-        boolean neo4J;
+        boolean isMongoDBSuccessful;
+        boolean isNeo4jSuccessful;
 
-        mongoDB = MongoDB.addDiet(diet); //it will return the ID of the new Diet added
-        if(mongoDB){
-            neo4J = Neo4J.addDiet(diet);
-            if(!neo4J){
-                System.out.println("Errore cross-consistency");
+        isMongoDBSuccessful = mongoDBManager.addDiet(diet); //it will return the ID of the new Diet added
+        if(isMongoDBSuccessful){
+            isNeo4jSuccessful = neo4JManager.addDiet(diet);
+            if(!isNeo4jSuccessful){
+                cli.generalPrint("Error cross-consistency");
 
                 //Remove from Mongo
-                MongoDB.removeDiet(diet.getId());
+                mongoDBManager.removeDiet(diet.getId());
                 return false;
             }
             else{
@@ -358,26 +396,26 @@ public class LogicManager {
             }
         }
         else{
-            System.out.println("Error in MongoDB");
+            cli.generalPrint("Error in MongoDB");
             return false;
         }
     }
 
     public boolean removeDiet(String id){
-        boolean mongoDB, neo4J;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful;
         Diet dietToRemove;
         dietToRemove = lookUpDietByID(id);
-        if(currentUser.getUsername().equals(dietToRemove.getNutritionist())){
+        if(dietToRemove != null && currentUser.getUsername().equals(dietToRemove.getNutritionist())){
 
-            mongoDB = MongoDB.removeDiet(id);
-            if(mongoDB){
+            isMongoDBSuccessful = mongoDBManager.removeDiet(id);
+            if(isMongoDBSuccessful){
 
-                neo4J = Neo4J.removeDiet(id);
-                if(!neo4J){
-                    System.out.println("Errore cross-consistency");
+                isNeo4jSuccessful = neo4JManager.removeDiet(id);
+                if(!isNeo4jSuccessful){
+                    cli.generalPrint("Errore cross-consistency");
 
                     //Re-insert in Mongo
-                    MongoDB.addDiet(dietToRemove);
+                    mongoDBManager.addDiet(dietToRemove);
                     return false;
                 }
                 else {
@@ -385,7 +423,7 @@ public class LogicManager {
                 }
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
@@ -393,26 +431,26 @@ public class LogicManager {
     }
 
     public boolean removeUser(String username){
-        boolean mongoDB, neo4J;
+        boolean isMongoDBSuccessful, isNeo4jSuccessful;
         User userToRemove;
         userToRemove = lookUpUserByUsername(username);
         if(userToRemove != null){
 
-            mongoDB = MongoDB.removeUser(userToRemove);
-            if(mongoDB){
+            isMongoDBSuccessful = mongoDBManager.removeUser(userToRemove);
+            if(isMongoDBSuccessful){
 
-                neo4J = Neo4J.removeUser(username);
-                if(!neo4J){
-                    System.out.println("Errore cross-consistency");
+                isNeo4jSuccessful = neo4JManager.removeUser(username);
+                if(!isNeo4jSuccessful){
+                    cli.generalPrint("Errore cross-consistency");
 
                     //Re-insert in Mongo
-                    MongoDB.addUser(userToRemove);
+                    mongoDBManager.addUser(userToRemove);
                     return false;
                 }
                 else return true;
             }
             else{
-                System.out.println("Error in MongoDB");
+                cli.generalPrint("Error in MongoDB");
                 return false;
             }
         }
@@ -420,11 +458,11 @@ public class LogicManager {
     }
 
     public boolean addFood(Food food){
-        return MongoDB.addFood(food);
+        return mongoDBManager.addFood(food);
     }
 
     public boolean removeFood(String foodID){
-        return MongoDB.removeFood(foodID);
+        return mongoDBManager.removeFood(foodID);
     }
 
     private int nutrientIndex(List<Nutrient> list, String nutrientName){
@@ -488,6 +526,8 @@ public class LogicManager {
         return true;
     }
 
+    // for future usage: it returns the differences between the averages quantities of each nutrients in the eaten foods
+    // of the current standard user and the values of the correspondent nutrient of his current followed diet
     public HashMap<Nutrient, double[]> dietProgress (){
         Food foodTarget; Diet dietTarget; HashMap<Nutrient, double[]> hashMap = new HashMap<>();
         int i, index, totalQuantityEatenFoods = 0;

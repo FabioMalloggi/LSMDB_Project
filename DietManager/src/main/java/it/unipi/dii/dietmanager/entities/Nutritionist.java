@@ -3,8 +3,6 @@ package it.unipi.dii.dietmanager.entities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 public class Nutritionist extends User {
 
     public Nutritionist(String Id, String FullName, String Sex, String Password, int Age, String Country) {

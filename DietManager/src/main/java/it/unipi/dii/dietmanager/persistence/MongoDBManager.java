@@ -32,8 +32,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.inc;
 
-public class MongoDB2{
-
+public class MongoDBManager {
     private ConnectionString connectionUri;
     private MongoClient mongoClient;
     private MongoDatabase database;
@@ -42,10 +41,12 @@ public class MongoDB2{
     private final String COLLECTION_USERS = "users";
     private final String COLLECTION_DIETS = "diets";
     private final String COLLECTION_FOODS = "foods";
-
+    
+    private boolean onlyOneConnection = false;
+    
     private final int EATEN_FOOD_SLOTS_SIZE = 70;
 
-    public MongoDB2(String ipAddress, int port){
+    public MongoDBManager(String ipAddress, int port){
         String uri = "mongodb://" + ipAddress + ":" + port;
         connectionUri = new ConnectionString(uri);
         MongoClientSettings mcs = MongoClientSettings.builder()
@@ -57,20 +58,23 @@ public class MongoDB2{
         mongoClient = MongoClients.create(mcs);
         disableLogger();
     }
-
-    private void disableLogger(){
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
-        rootLogger.setLevel(Level.OFF);
+    
+    public void openOnlyOneConnection(){
+        this.onlyOneConnection = true; 
+        openConnection();
     }
 
-    public void openConnection()
+    public void closeOnlyOneConnection(){
+        closeConnection();
+    }
+
+    private void openConnection()
     {
         mongoClient = MongoClients.create(connectionUri);
         database = mongoClient.getDatabase(DIET_MANAGER_DATABASE);
     }
 
-    public void closeConnection() {
+    private void closeConnection() {
         try{
             mongoClient.close();
         }catch(Exception e){
@@ -78,21 +82,27 @@ public class MongoDB2{
         }
     }
 
-    public void dropDatabase(){
-        database.drop();
+    private void disableLogger(){
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger rootLogger = loggerContext.getLogger("org.mongodb.driver");
+        rootLogger.setLevel(Level.OFF);
     }
 
-    public static void createDietManagerIndexes(MongoDB2 mongoDB2){
-        mongoDB2.createSimpleIndex(mongoDB2.COLLECTION_DIETS, Diet.NUTRITIONIST, true); // 1st index
-        mongoDB2.createSimpleIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, true); // 2nd index
-        mongoDB2.createCompoundPartialIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, User.USERTYPE_NUTRITIONIST,
-                User.COUNTRY, true);// 3rd index (OPZIONE A)
-        mongoDB2.createCompoundIndex(mongoDB2.COLLECTION_USERS, User.USERTYPE, true, User.COUNTRY, true); //3rd index (OPZIONE B)
-        mongoDB2.createCompoundIndex(mongoDB2.COLLECTION_FOODS, Food.CATEGORY, true,
-                Food.EATEN_TIMES_COUNT, false); // 5th index
+    public void dropDatabase(){
+        if( ! onlyOneConnection) openConnection();
+        database.drop();
+        if( ! onlyOneConnection) closeConnection();
+    }
+
+    public void createDietManagerIndexes(){
+        createSimpleIndex(COLLECTION_DIETS, Diet.NUTRITIONIST, true);
+        createSimpleIndex(COLLECTION_USERS, User.COUNTRY, true);
+        createCompoundIndex(COLLECTION_FOODS, Food.CATEGORY, true,
+                Food.EATEN_TIMES_COUNT, false);
     }
 
     private void createSimpleIndex(String collectionName, String attributeName, boolean isAttributeAscending){
+        if( ! onlyOneConnection) openConnection();
         int sortingOrder = isAttributeAscending ? 1:-1;
         //Retrieving the collection on which you want to create the index
         MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -104,10 +114,12 @@ public class MongoDB2{
             System.out.println(index.toJson());
         }
  */
+        if( ! onlyOneConnection) closeConnection();
     }
 
     private void createCompoundIndex(String collectionName, String firstAttributeName, boolean isFirstAttributeAscending,
-                                     String secondAttributeName, boolean isSecondAttributeAscending){
+                                    String secondAttributeName, boolean isSecondAttributeAscending){
+        if( ! onlyOneConnection) openConnection();
         int firstAttributeSortingOrder = isFirstAttributeAscending ? 1:-1;
         int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
         //Retrieving the collection on which you want to create the index
@@ -120,15 +132,19 @@ public class MongoDB2{
             System.out.println(index.toJson());
         }
 */
+        if( ! onlyOneConnection) closeConnection();
     }
 
+    // for future usage: create compound partial index
     private void createCompoundPartialIndex(String collectionName, String firstAttributeName, String firstAttributeValue,
-                                            String secondAttributeName, boolean isSecondAttributeAscending){
+                                           String secondAttributeName, boolean isSecondAttributeAscending){
+        if( ! onlyOneConnection) openConnection();
         int secondAttributeSortingOrder = isSecondAttributeAscending ? 1:-1;
         MongoCollection<Document> collection = database.getCollection(collectionName);
         IndexOptions partialFilterIndexOptions = new IndexOptions()
                 .partialFilterExpression(Filters.eq(firstAttributeName, firstAttributeValue));
         collection.createIndex(new Document(secondAttributeName, secondAttributeSortingOrder), partialFilterIndexOptions);
+        if( ! onlyOneConnection) closeConnection();
     }
 
     /*************************** Users related methods **********************************/
@@ -166,12 +182,16 @@ public class MongoDB2{
 
     // for both signIn and lookUpUserbyUsername
     public User lookUpUserByUsername(String username){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         Document userDocument = usersCollection.find(eq(User.USERNAME, username)).first();
+        if( ! onlyOneConnection) closeConnection();
         return userFromDocument(userDocument);
     }
 
+    // for future usage
     public List<Nutritionist> lookUpNutritionistsByCountry(String country){
+        if( ! onlyOneConnection) openConnection();
         List<Nutritionist> nutritionists = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
@@ -179,10 +199,12 @@ public class MongoDB2{
             while(cursor.hasNext())
                 nutritionists.add((Nutritionist) userFromDocument(cursor.next()));
         }
+        if( ! onlyOneConnection) closeConnection();
         return nutritionists;
     }
 
     public List<User> lookUpAllUsersByCountry(String country){
+        if( ! onlyOneConnection) openConnection();
         List<User> users = new ArrayList<>();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         try(MongoCursor<Document> cursor = usersCollection.find(
@@ -191,23 +213,26 @@ public class MongoDB2{
                 users.add(userFromDocument(cursor.next()));
             }
         }
+        if( ! onlyOneConnection) closeConnection();
         return users;
     }
 
     public boolean addUser(User user){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
         InsertOneResult insertOneResult = usersCollection.insertOne(userToDocument(user));
+        if( ! onlyOneConnection) closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
     public boolean removeUser(User user){
-        boolean isSuccessful = true;
+        if( ! onlyOneConnection) openConnection();
+        boolean isSuccessful = true, wasAcknowledged = false;
         if(user != null) {
             // if the user to be removed is a Nutritionist, all his diets must be deleted altogether.
             if(user instanceof Nutritionist){
                 isSuccessful = removeDietsByNutritionist(user.getUsername());
             }
-
             // deleting user given his username
             if(isSuccessful) {
                 MongoCollection<Document> usersCollection = database.getCollection(COLLECTION_USERS);
@@ -217,6 +242,7 @@ public class MongoDB2{
         } else {
             isSuccessful = false;
         }
+        if( ! onlyOneConnection) closeConnection();
         return isSuccessful;
     }
 
@@ -238,16 +264,19 @@ public class MongoDB2{
 
     // for both lookUpDietByID and lookUpStandardUserCurrentDiet
     public Diet lookUpDietByID(String id){
+        if( ! onlyOneConnection) openConnection();
         Document dietDocument = null;
         try {
             MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
             dietDocument = dietCollection.find(eq(Diet.ID, new ObjectId(id))).first(); // there can be at least only 1 match.
         }catch(Exception e){}
+        if( ! onlyOneConnection) closeConnection();
         return dietFromDocument(dietDocument);
     }
 
     // return all diets whose name include substring searched.
     public List<Diet> lookUpDietByName(String subname){
+        if( ! onlyOneConnection) openConnection();
         //String regex = "\\.\\*"+subname+"\\.\\*";
         Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
         Bson filter = Filters.regex(Diet.NAME, pattern);
@@ -260,10 +289,12 @@ public class MongoDB2{
                 diets.add(dietFromDocument(cursor.next()));
             }
         }
+        if( ! onlyOneConnection) closeConnection();
         return diets;
     }
 
     public List<Diet> lookUpDietByNutritionist(String username){
+        if( ! onlyOneConnection) openConnection();
         List<Diet> diets = new ArrayList<>();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         try(MongoCursor<Document> cursor = dietCollection.find(
@@ -272,19 +303,23 @@ public class MongoDB2{
                 diets.add(dietFromDocument(cursor.next()));
             }
         }
+        if( ! onlyOneConnection) closeConnection();
         return diets;
     }
 
     public boolean followDiet(StandardUser standardUser, String dietID){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
         Bson insertCurrentDietField = Updates.set(StandardUser.CURRENT_DIET, dietID);
         UpdateResult updateResult = userCollection.updateOne(userFilter, insertCurrentDietField);
+        if( ! onlyOneConnection) closeConnection();
         return updateResult.wasAcknowledged();
     }
 
     // used for both 'unfollowDiet' and 'stopDiet'
     public boolean unfollowDiet(StandardUser standardUser){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
@@ -299,17 +334,20 @@ public class MongoDB2{
         List<WriteModel<Document>> bulkOperations = new ArrayList<>();
         bulkOperations.addAll(Arrays.asList(updateRemoveCurrentDietDocument,updateRemoveEatenFoodsDocument));
         BulkWriteResult bulkWriteResult = userCollection.bulkWrite(bulkOperations);
+        if( ! onlyOneConnection) closeConnection();
         return bulkWriteResult.wasAcknowledged();
     }
 
     public boolean addDiet(Diet diet){
         if(diet.getId() != null)
             return false;
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         Document dietDocument = dietToDocument(diet);
         InsertOneResult insertOneResult = dietCollection.insertOne(dietDocument);
         // adding '_id' to diet object passed as argument
         diet.setId(dietDocument.getObjectId("_id").toString());
+        if( ! onlyOneConnection) closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
@@ -318,6 +356,7 @@ public class MongoDB2{
     }
 
     public boolean removeDiet(List<String> dietIDs){
+        if( ! onlyOneConnection) openConnection();
         // deleting 'diet' document from 'diets' collection
         boolean isSuccessful;
 
@@ -325,7 +364,6 @@ public class MongoDB2{
         for (String dietId: dietIDs){
             dietObjectIds.add(new ObjectId(dietId));
         }
-
         // deleting 'currentDiet' field and consequently 'EatenFoods' field from each 'user' document whose current diet value
         // correspond to one of the diets to be removed
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
@@ -350,6 +388,7 @@ public class MongoDB2{
             DeleteResult deleteDietsResult = dietCollection.deleteMany(in(Diet.ID, dietObjectIds));
             isSuccessful = deleteDietsResult.wasAcknowledged();
         }
+        if( ! onlyOneConnection) closeConnection();
         return isSuccessful;
     }
 
@@ -362,24 +401,27 @@ public class MongoDB2{
     }
 
     private HashMap<String, Integer> lookUpDietsCountForEachNutritionist(){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
 
         Document currentDocument;
         try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                 new Document("$group",
-                        new Document("_id", "$"+Diet.NUTRITIONIST)
-                                .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
+                    new Document("_id", "$"+Diet.NUTRITIONIST)
+                            .append("numDiets", new Document("$sum", 1L)))) ).iterator()){
 
             while(cursor.hasNext()){
                 currentDocument = cursor.next();
                 nutritionistDietsCountMap.put(currentDocument.getString(Nutritionist.USERNAME), (int)(long)currentDocument.getLong("numDiets"));
             }
         }
+        if( ! onlyOneConnection) closeConnection();
         return nutritionistDietsCountMap;
     }
 
     public HashMap<String, Nutrient> lookUpMostSuggestedNutrientForEachNutritionist(){
+        if( ! onlyOneConnection) openConnection();
 
         MongoCollection<Document> dietCollection = database.getCollection(COLLECTION_DIETS);
         HashMap<String, Integer> nutritionistDietsCountMap = new HashMap<>();
@@ -415,17 +457,17 @@ public class MongoDB2{
                             .append("nutrient", "$_id.nutrient")
                             .append("totalQuantity",
                                     new Document("$cond",
-                                            new Document("if",
-                                                    new Document("$eq", Arrays.asList("$_id."+Nutrient.UNIT, "UG")))
-                                                    .append("then",
-                                                            new Document("$divide", Arrays.asList("$totalQuantity", 1000000L)))
-                                                    .append("else",
-                                                            new Document("$cond",
-                                                                    new Document("if",
-                                                                            new Document("$eq", Arrays.asList("$_id"+Nutrient.UNIT, "MG")))
-                                                                            .append("then",
-                                                                                    new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
-                                                                            .append("else", "$totalQuantity"))))));
+                                        new Document("if",
+                                                new Document("$eq", Arrays.asList("$_id."+Nutrient.UNIT, "UG")))
+                                                .append("then",
+                                                        new Document("$divide", Arrays.asList("$totalQuantity", 1000000L)))
+                                                .append("else",
+                                                        new Document("$cond",
+                                                                new Document("if",
+                                                                        new Document("$eq", Arrays.asList("$_id"+Nutrient.UNIT, "MG")))
+                                                                        .append("then",
+                                                                                new Document("$divide", Arrays.asList("$totalQuantity", 1000L)))
+                                                                        .append("else", "$totalQuantity"))))));
 
             try(MongoCursor<Document> cursor = dietCollection.aggregate(Arrays.asList(
                     unwindDocument,
@@ -447,6 +489,7 @@ public class MongoDB2{
                 }
             }
             // end of connection: next steps are performed in local
+            if( ! onlyOneConnection) closeConnection();
 
             String lastAnalyzedNutritionist = "", currentNutritionist;
             Nutrient lastMostNutrient = null, currentNutrient;
@@ -458,7 +501,7 @@ public class MongoDB2{
                 // computing currentNutrient.avgQuantity from currentNutrient.totalQuantity
                 // by dividing it for the number of diets the currentNutritionist has published.
                 currentNutrient.setQuantity( currentNutrient.getQuantity() /
-                        nutritionistDietsCountMap.get(currentNutritionist) );
+                                            nutritionistDietsCountMap.get(currentNutritionist) );
 
                 if(i==0){
                     lastAnalyzedNutritionist = currentNutritionist;
@@ -491,8 +534,6 @@ public class MongoDB2{
             }
         }
         return nutritionistNutrientMap;
-
-
     }
 
     /************************************************************************************/
@@ -513,6 +554,7 @@ public class MongoDB2{
     }
 
     public List<Food> lookUpFoodsByName(String subname){
+        if( ! onlyOneConnection) openConnection();
         String regex = "^.*"+subname+".*$";
 //        Pattern pattern = Pattern.compile(subname, Pattern.CASE_INSENSITIVE);
 //        Bson filter = Filters.regex(Food.NAME, pattern);
@@ -527,10 +569,12 @@ public class MongoDB2{
                 foods.add(foodFromDocument(cursor.next()));
             }
         }
+        if( ! onlyOneConnection) closeConnection();
         return foods;
     }
 
     public Food lookUpMostEatenFoodByCategory(String category){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
 
         Bson matchFoodsByCategory = match(Filters.eq(Food.CATEGORY, category));
@@ -541,16 +585,20 @@ public class MongoDB2{
                 sortFoodsByEatenTimesCount)).first();
 
         Food maxEatenTimesFood = foodFromDocument(maxEatenTimesFoodDocument);
+        if( ! onlyOneConnection) closeConnection();
         return maxEatenTimesFood;
     }
 
     public boolean addFood(Food food){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         InsertOneResult insertOneResult = foodCollection.insertOne(foodToDocument(food));
+        if( ! onlyOneConnection) closeConnection();
         return insertOneResult.wasAcknowledged();
     }
 
     public boolean removeFood(String foodName){
+        if( ! onlyOneConnection) openConnection();
         boolean isSuccessful = false;
 
         EatenFood eatenFood = new EatenFood();
@@ -573,12 +621,15 @@ public class MongoDB2{
                         Arrays.asList(new Document(elementIdentifier+"."+EatenFood.FOOD_NAME, foodName))
                 )
         );
+        if( ! onlyOneConnection) closeConnection();
 
         // Consistency issue: only if the precedent operation completed successfully then we can delete the food
         if(updateResult.wasAcknowledged()){
+            if( ! onlyOneConnection) openConnection();
             MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
             DeleteResult deleteResult = foodCollection.deleteOne(eq(Food.NAME, foodName));
             isSuccessful = deleteResult.wasAcknowledged();
+            if( ! onlyOneConnection) closeConnection();
         }
         return isSuccessful;
     }
@@ -618,68 +669,22 @@ public class MongoDB2{
     }
 
     public boolean incrementEatenTimesCount(String foodName){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> foodCollection = database.getCollection(COLLECTION_FOODS);
         Bson foodFilter = Filters.eq( Food.NAME, foodName );
         UpdateResult updateResult = foodCollection.updateOne(foodFilter, inc(Food.EATEN_TIMES_COUNT, 1));
+        if( ! onlyOneConnection) closeConnection();
         return updateResult.wasAcknowledged();
     }
 
     public boolean updateEatenFood(StandardUser standardUser){
+        if( ! onlyOneConnection) openConnection();
         MongoCollection<Document> userCollection = database.getCollection(COLLECTION_USERS);
 
         Bson userFilter = Filters.eq( User.USERNAME, standardUser.getUsername() );
         UpdateResult updateResult = userCollection.replaceOne(userFilter, userToDocument(standardUser));
+        if( ! onlyOneConnection) closeConnection();
         return updateResult.wasAcknowledged();
     }
-
     /************************************************************************************/
-
-
-    public static void main( String... args ) throws Exception {
-        MongoDB mongoDB = new MongoDB( "localhost",27017);
-    }
 }
-
-
-
-
-
-
-/*
-    public MongoDB(List<String> hosts, List<Integer> ports, String username, String authenticationDB, String password ){
-        String uriComposition = "mongodb://";
-        for(int i=0; i<hosts.size(); i++){
-            uriComposition += username + ":" + password + "@" + hosts.get(i) + ":" + ports.get(i);
-            if(i < hosts.size()-1)
-                uriComposition += ",";
-            else
-                uriComposition += "/?authSource=" + authenticationDB;
-        }
-        ConnectionString connectionString = new ConnectionString(uriComposition);
-        mongoClient = MongoClients.create(connectionString);
-    }
-
-     */
-
-    /*
-    // REMIND: poolsize, writing mode (majority ecc) and other options are available at instantiation phase of MongoClient!
-    public MongoDB(List<String> hosts, List<Integer> ports, String username, String authenticationDB, String password ){
-        char[] passwordCharArray = password.toCharArray();
-        if(hosts.size() == ports.size()){
-            System.err.println("MongoDB connection error: replicas addresses and replicas corresponding ports must match in size");
-            System.exit(1);
-        }
-        List<ServerAddress> replicas = new ArrayList<>();
-        for(int i=0; i< hosts.size(); i++){
-            replicas.add(new ServerAddress(hosts.get(i), ports.get(i)));
-        }
-        MongoCredential credential = MongoCredential.createCredential(username, authenticationDB, passwordCharArray);
-        mongoClient = MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyToClusterSettings(builder ->
-                                builder.hosts(replicas))
-                        .credential(credential)
-                        .build());
-    }
-
-     */
