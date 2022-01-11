@@ -109,12 +109,12 @@ public class CLI {
     public void helpFood (User user){
         if(user instanceof StandardUser) {
             System.out.println("====> help food\n" +
-                    "find -ef \"category\"\t\t-> lookup most eaten food by category" +
                     "find -ef -personal\t\t-> lookup your eaten foods list\n" +
                     "add -ef \"foodname\"\t\t-> add food to your eaten foods list\n" +
                     "rm -ef \t\"eatenFoodID\"\t-> remove eaten food from your eaten foods list\n");
         }
-        System.out.println("find -f \"foodName\"\t\t-> search food by name\n");
+        System.out.println("find -f \"foodName\"\t\t-> search food by name\n" +
+                "find -ef \\\"category\\\"\\t\\t-> lookup most eaten food by category");
         if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands only for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
@@ -130,8 +130,9 @@ public class CLI {
                 "find -d -nut\"username\" \t\t-> search diets by Nutritionist username\n" +
                 "find -d -mf\t\t\t\t\t-> search most currently followed diet\n" +
                 "find -d -mp\t\t\t\t\t-> search most popular diet\n" +
-                "find -d -ms\t\t\t\t\t-> search most succeeded diet\n" +
-                "find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist\n");
+                "find -d -ms\t\t\t\t\t-> search most succeeded diet");
+        if(! (user instanceof Nutritionist))
+            System.out.println("find -d -mfnut \"username\" \t-> search most followed diet of a specific nutritionist");
         if(user instanceof  StandardUser){
             System.out.println("follow \"dietID\"\t\t\t\t-> follow a diet\n" +
                     "unfollow\t\t\t\t\t-> unfollow a diet\n" +
@@ -154,9 +155,9 @@ public class CLI {
     public void helpUser(User user ) {
         System.out.println("==> help user\n" +
                 "find -u -u \"username\"\t\t\t-> search user by username\n" +
-                "find -u -c \"country\"\t\t\t-> search user by country\n" +
-                "find -u -mpn\t\t\t\t\t-> lookup most popular nutritionist");
-
+                "find -u -c \"country\"\t\t\t-> search user by country");
+        if(! (user instanceof Nutritionist))
+            System.out.println("find -u -mpn\t\t\t\t\t-> lookup most popular nutritionist");
         if(user instanceof Administrator){
             System.out.println("===> commands only for administrators \n" +
                     "rm -u \"username\"\t\t\t\t\t-> remove user by username");

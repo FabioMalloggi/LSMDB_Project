@@ -87,7 +87,7 @@ public class LogicManager {
     }
 
     public Diet lookUpDietByID(String id){
-        Diet dietTarget = null;
+        Diet dietTarget;
 
         dietTarget = mongoDBManager.lookUpDietByID(id);
 
@@ -95,7 +95,7 @@ public class LogicManager {
     }
 
     public List<Diet> lookUpDietByName(String subName){
-        List<Diet> dietsTarget = null;
+        List<Diet> dietsTarget;
 
         dietsTarget = mongoDBManager.lookUpDietByName(subName);
 
@@ -103,24 +103,24 @@ public class LogicManager {
     }
 
     public List<Diet> lookUpDietByNutritionist (String username){
-        List<Diet> dietsTarget = null;
+        List<Diet> dietsTarget;
 
         dietsTarget = mongoDBManager.lookUpDietByNutritionist(username);
 
         return  dietsTarget;
     }
 
-    public List<Food> lookUpFoodByName (String subName){
-        List<Food> foodsTarget = null;
+    public List<Food> lookUpFoodByName (String name){
+        List<Food> foodsTarget;
 
-        foodsTarget = mongoDBManager.lookUpFoodsByName(subName);
+        foodsTarget = mongoDBManager.lookUpFoodsByName(name);
 
         return  foodsTarget;
     }
 
 
     public Food lookUpMostEatenFoodByCategory (String category){
-        Food foodTarget = null;
+        Food foodTarget;
 
         foodTarget = mongoDBManager.lookUpMostEatenFoodByCategory(category);
 

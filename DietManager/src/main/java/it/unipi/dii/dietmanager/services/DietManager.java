@@ -212,7 +212,7 @@ public class DietManager {
                         System.err.flush();
                     }
                 }
-                else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length>=3){
+                else if(tokens[0].equals("find") && tokens[1].equals("-ef") && tokens.length>=3 && !(logicManager.currentUser instanceof Nutritionist)){
                     if(tokens.length == 3 && tokens[2].equals("-personal") && (logicManager.currentUser instanceof StandardUser)) {
                         cli.generalPrint("-> lookup your eaten foods list");
 
@@ -469,7 +469,7 @@ public class DietManager {
                             System.err.println("Error in search the recommended diet");
                         }
                     }
-                    else if(tokens[2].equals("-mfnut") && tokens.length ==4){
+                    else if(tokens[2].equals("-mfnut") && tokens.length ==4  && !(logicManager.currentUser instanceof Nutritionist)){
                         cli.generalPrint("-> search most followed diet by Nutritionist username");
 
                         dietTarget = logicManager.lookUpMostFollowedDietByNutritionist(tokens[3]);
@@ -564,7 +564,7 @@ public class DietManager {
                         else
                             System.err.println("Error, there is no user with this country");
                     }
-                    else if(tokens[2].equals("-mpn")){
+                    else if(tokens[2].equals("-mpn") && !(logicManager.currentUser instanceof Nutritionist)){
                         cli.generalPrint("-> lookup most popular nutritionist");
                         userTarget = logicManager.lookUpMostPopularNutritionist();
                         if(userTarget != null)
