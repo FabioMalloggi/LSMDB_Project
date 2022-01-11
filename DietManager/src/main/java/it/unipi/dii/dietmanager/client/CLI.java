@@ -118,7 +118,8 @@ public class CLI {
         if(user instanceof Administrator){ //instanceof su user
             System.out.println("===> commands only for administrators \n" +
                     "add -f \"newFoodName\"\t-> add food to catalog \n" +
-                    "rm -f \"foodName\"\t\t-> remove food from catalog");
+                    "rm -f \"foodName\"\t\t-> remove food from catalog\n" +
+                    "find -etcfec \t\t\t -> sum of eaten times count for each category");
         }
     }
 
@@ -263,6 +264,18 @@ public class CLI {
             Map.Entry mapElement = (Map.Entry)hmIterator.next();
             Nutrient n = ((Nutrient) mapElement.getValue());
             System.out.println( mapElement.getKey()+": "+n.getName() );
+        }
+    }
+
+    public void printSumEatenTimesCountPerCategory(HashMap<String, Integer> sumEatenFoodPerCategory){
+        Iterator hmIterator = sumEatenFoodPerCategory.entrySet().iterator();
+        while(hmIterator.hasNext()){
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            Integer sumEatenFoodPerCategoryValue = ((Integer) mapElement.getValue());
+            if(mapElement.getKey() == null)
+                System.out.println("Without category"+": "+sumEatenFoodPerCategoryValue );
+            else
+                System.out.println( mapElement.getKey()+": "+sumEatenFoodPerCategoryValue );
         }
     }
 
