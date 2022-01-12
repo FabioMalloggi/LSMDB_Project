@@ -144,7 +144,7 @@ public class CLI {
         }
         if(user instanceof Nutritionist){
             System.out.println("==> commands only for nutritionist\n" +
-                    "add -d \"dietID\" \"dietName\"\t\t-> add diet\n"+
+                    "add -d \"dietName\"\t\t-> add diet\n"+
                     "rm -d \"dietID\"\t\t\t-> remove your diet");
         }
         if(user instanceof Administrator){ //instanceof su user
