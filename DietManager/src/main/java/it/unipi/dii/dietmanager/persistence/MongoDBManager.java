@@ -20,14 +20,14 @@ import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.inc;
@@ -471,7 +471,7 @@ public class MongoDBManager {
                     nutrients.add(new Nutrient(
                             currentDocument.getString("nutrient"),
                             "G",
-                            currentDocument.getDouble("totalQuantity")
+                            Double.parseDouble(currentDocument.get("totalQuantity").toString())
                     ));
                 }
             }
