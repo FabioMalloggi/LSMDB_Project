@@ -127,7 +127,7 @@ public class CLI {
     public void helpDiet(User user) {
         System.out.println("====> help diet\n" +
                 "find -d -id \"dietID\"\t\t-> search diet by ID\n" +
-                "find -d -subName \"dietName\"\t-> search diets by names\n" +
+                "find -d -name \"dietName\"\t-> search diets by names\n" +
                 "find -d -nut\"username\" \t\t-> search diets by Nutritionist username\n" +
                 "find -d -mf\t\t\t\t\t-> search most currently followed diet\n" +
                 "find -d -mp\t\t\t\t\t-> search most popular diet\n" +
